@@ -2,7 +2,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { UserRole } from '@/types/ticket';
-import { Ticket, Shield, Wrench, Eye } from 'lucide-react';
+import { Ticket, Shield, Wrench, Eye, Headphones } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 
@@ -10,9 +10,17 @@ const roleCards = [
   {
     role: 'admin' as UserRole,
     title: 'Admin',
-    description: 'Kelola tiket, assign TA, monitor SLA',
+    description: 'Kelola tiket & monitor SLA',
     icon: Shield,
     color: 'from-blue-600 to-blue-700',
+    redirect: '/dashboard',
+  },
+  {
+    role: 'hd' as UserRole,
+    title: 'Help Desk (HD)',
+    description: 'Input tiket, monitoring & dispatch',
+    icon: Headphones,
+    color: 'from-purple-500 to-purple-600', 
     redirect: '/dashboard',
   },
   {
@@ -24,8 +32,8 @@ const roleCards = [
     redirect: '/my-tickets',
   },
   {
-    role: 'viewer' as UserRole,
-    title: 'Supervisor',
+    role: 'guest' as UserRole,
+    title: 'Guest',
     description: 'Monitoring dashboard (read-only)',
     icon: Eye,
     color: 'from-emerald-500 to-emerald-600',
@@ -61,19 +69,19 @@ const Login = () => {
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">SiTiket</h1>
           <p className="text-slate-400 text-sm md:text-base">
-            Sistem Manajemen Tiket Gangguan Telkomsel
+            Demo/Prototipe Sistem Manajemen Tiket Gangguan Telkom Infra
           </p>
         </div>
 
         {/* Role Selection */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+        <div className="flex flex-wrap justify-center gap-4 md:gap-6">
           {roleCards.map((card, index) => {
             const Icon = card.icon;
             return (
               <Card 
                 key={card.role} 
                 hover
-                className="bg-white/5 backdrop-blur-sm border-white/10 hover:bg-white/10 transition-all duration-300 cursor-pointer group"
+                className="w-full md:w-[30%] min-w-[280px] bg-white/5 backdrop-blur-sm border-white/10 hover:bg-white/10 transition-all duration-300 cursor-pointer group"
                 style={{ animationDelay: `${index * 100}ms` }}
                 onClick={() => handleLogin(card.role, card.redirect)}
               >
@@ -89,7 +97,7 @@ const Login = () => {
                   </CardDescription>
                   <Button 
                     variant="outline" 
-                    className="mt-4 w-full border-white/20 text-white hover:bg-white/10 hover:text-white"
+                    className="mt-4 w-full bg-transparent border-white/20 text-white hover:bg-white/20 hover:text-white"
                   >
                     Masuk sebagai {card.title}
                   </Button>
@@ -98,11 +106,6 @@ const Login = () => {
             );
           })}
         </div>
-
-        {/* Footer note */}
-        <p className="text-center text-slate-500 text-xs mt-8">
-          Demo Mode — Pilih role untuk melanjutkan
-        </p>
       </div>
     </div>
   );

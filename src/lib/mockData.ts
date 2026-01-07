@@ -1,11 +1,12 @@
 import { Ticket, User, ProgressUpdate, Notification, DashboardStats } from '@/types/ticket';
 
 export const mockUsers: User[] = [
-  { id: 'admin-1', name: 'Ahmad Rizki', role: 'admin', phone: '081234567890', area: 'Riau', isActive: true },
-  { id: 'ta-1', name: 'Budi Santoso', role: 'ta', phone: '081234567891', area: 'Pekanbaru', isActive: true },
+  { id: 'admin-1', name: 'Ahmad Admin', role: 'admin', phone: '081234567890', area: 'Riau', isActive: true },
+  { id: 'hd-1', name: 'Rina HelpDesk', role: 'hd', phone: '081234567899', area: 'Pekanbaru', isActive: true },
+  { id: 'ta-1', name: 'Budi Teknisi', role: 'ta', phone: '081234567891', area: 'Pekanbaru', isActive: true },
   { id: 'ta-2', name: 'Cahyo Pratama', role: 'ta', phone: '081234567892', area: 'Dumai', isActive: true },
   { id: 'ta-3', name: 'Dewi Anggraini', role: 'ta', phone: '081234567893', area: 'Bengkalis', isActive: true },
-  { id: 'viewer-1', name: 'Eko Supervisor', role: 'viewer', area: 'Sumatra', isActive: true },
+  { id: 'guest-1', name: 'Eko Guest', role: 'guest', area: 'Sumatra', isActive: true }
 ];
 
 const now = new Date();

@@ -8,6 +8,17 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Settings as SettingsIcon, Clock, MessageSquare, Save, RotateCcw, AlertTriangle, Timer, Copy } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 // Default values
 const defaultSettings = {
@@ -16,6 +27,13 @@ const defaultSettings = {
     criticalHours: 1,
     noUpdateAlertMinutes: 60,
     dueSoonHours: 2,
+  },
+  categoryTtr: {
+    premium: 2,
+    critical: 4,
+    major: 8,
+    minor: 16,
+    low: 24,
   },
   whatsappTemplates: {
     shareTemplate: `🎫 *TIKET HARI INI*
@@ -59,6 +77,13 @@ export interface AppSettings {
     noUpdateAlertMinutes: number;
     dueSoonHours: number;
   };
+  categoryTtr: {
+    premium: number;
+    critical: number;
+    major: number;
+    minor: number;
+    low: number;
+  };
   whatsappTemplates: {
     shareTemplate: string;
     updateTemplate: string;
@@ -98,6 +123,17 @@ const Settings = () => {
       ...prev,
       ttrThresholds: {
         ...prev.ttrThresholds,
+        [key]: value,
+      },
+    }));
+    setHasChanges(true);
+  };
+
+  const handleCategoryTtrChange = (key: keyof AppSettings['categoryTtr'], value: number) => {
+    setSettings(prev => ({
+      ...prev,
+      categoryTtr: {
+        ...prev.categoryTtr,
         [key]: value,
       },
     }));
@@ -146,7 +182,7 @@ const Settings = () => {
     { var: '{{kategori}}', desc: 'Kategori tiket (CNQ, MINOR, dll)' },
     { var: '{{siteCode}}', desc: 'Kode site (PPN555, SSI278)' },
     { var: '{{siteName}}', desc: 'Nama site' },
-    { var: '{{incNumbers}}', desc: 'Nomor INC (bisa lebih dari 1)' },
+    { var: '{{incNumbers}}', desc: 'Nomor INC' },
     { var: '{{lokasiText}}', desc: 'Lokasi teks' },
     { var: '{{koordinat}}', desc: 'Koordinat lat, lon' },
     { var: '{{mapsLink}}', desc: 'Link Google Maps' },
@@ -173,10 +209,27 @@ const Settings = () => {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={handleReset}>
-              <RotateCcw className="w-4 h-4 mr-2" />
-              Reset Default
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline">
+                  <RotateCcw className="w-4 h-4 mr-2" />
+                  Reset Default
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Reset Pengaturan?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Tindakan ini akan mengembalikan semua konfigurasi ke nilai awal (default). 
+                    Perubahan yang disimpan akan hilang.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Batal</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleReset}>Ya, Reset</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
             <Button onClick={handleSave} disabled={!hasChanges}>
               <Save className="w-4 h-4 mr-2" />
               Simpan
@@ -198,6 +251,35 @@ const Settings = () => {
 
           {/* TTR Thresholds Tab */}
           <TabsContent value="ttr" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="w-5 h-5" />
+                  Standar SLA per Kategori
+                </CardTitle>
+                <CardDescription>
+                  Tentukan durasi target untuk setiap kategori tiket
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {Object.entries(settings.categoryTtr || defaultSettings.categoryTtr).map(([key, val]) => (
+                    <div key={key} className="grid gap-2">
+                      <Label htmlFor={`cat-${key}`} className="capitalize">
+                        {key} (jam)
+                      </Label>
+                      <Input
+                        id={`cat-${key}`}
+                        type="number"
+                        min={1}
+                        value={val}
+                        onChange={(e) => handleCategoryTtrChange(key as keyof AppSettings['categoryTtr'], parseFloat(e.target.value) || 0)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">

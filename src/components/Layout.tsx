@@ -33,14 +33,28 @@ interface LayoutProps {
 const adminNavItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/tickets', label: 'Semua Tiket', icon: Ticket },
-  { path: '/import', label: 'Import Tiket', icon: FileUp },
   { path: '/reports', label: 'Laporan', icon: BarChart3 },
   { path: '/users', label: 'Pengguna', icon: Users },
   { path: '/settings', label: 'Pengaturan', icon: Settings },
 ];
 
+const hdNavItems = [
+  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { path: '/tickets', label: 'Semua Tiket', icon: Ticket },
+  { path: '/import', label: 'Import Tiket', icon: FileUp },
+  { path: '/reports', label: 'Laporan', icon: BarChart3 },
+  { path: '/users', label: 'Pengguna', icon: Users },
+];
+
 const taNavItems = [
   { path: '/my-tickets', label: 'Tiket Saya', icon: Ticket },
+];
+
+const guestNavItems = [
+  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { path: '/tickets', label: 'Semua Tiket', icon: Ticket },
+  { path: '/reports', label: 'Laporan', icon: BarChart3 },
+  { path: '/users', label: 'Pengguna', icon: Users },
 ];
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
@@ -49,13 +63,14 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navItems = user?.role === 'admin' ? adminNavItems : 
+                   user?.role === 'hd' ? hdNavItems :
                    user?.role === 'ta' ? taNavItems : 
-                   adminNavItems; // Viewer sees admin nav but read-only
+                   user?.role === 'guest' ? guestNavItems : [];
 
   const unreadNotifications = mockNotifications.filter(n => !n.isRead && n.userId === user?.id).length;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-slate-200">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-card border-b border-border shadow-sm">
         <div className="container mx-auto px-4">
@@ -71,9 +86,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </Button>
               <Link to="/dashboard" className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 rounded-lg flex items-center justify-center">
-                  <Ticket className="w-5 h-5 text-primary-foreground" />
-                </div>
+                <img 
+                  src="/logo.png" 
+                  alt="Logo" 
+                  className="w-8 h-8 object-contain" 
+                />
                 <span className="font-bold text-lg hidden sm:block">SiTiket</span>
               </Link>
             </div>
@@ -144,11 +161,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                       <span className="text-xs font-normal text-muted-foreground capitalize">{user?.role}</span>
                     </div>
                   </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <Settings className="w-4 h-4 mr-2" />
-                    Pengaturan
-                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={logout} className="text-destructive">
                     <LogOut className="w-4 h-4 mr-2" />

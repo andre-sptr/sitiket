@@ -58,7 +58,9 @@ const ImportTicket = () => {
     
     // Split by numbered patterns or TSEL delimiter
     const ticketBlocks = text.split(/(?=\d+\.\s*TSEL\s*\|)|(?=TSEL\s*\|)/g)
-      .filter(block => block.trim().length > 0);
+      .filter(block => 
+        block.trim().length > 0 && /TSEL\s*\|/i.test(block)
+      );
 
     ticketBlocks.forEach((block, index) => {
       const warnings: string[] = [];
@@ -251,7 +253,7 @@ Timely Report :
         <div>
           <h1 className="text-2xl md:text-3xl font-bold">Import Tiket</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Paste teks tiket dari sumber eksternal untuk di-import ke sistem
+            Paste teks tiket untuk di-import ke sistem
           </p>
         </div>
 
