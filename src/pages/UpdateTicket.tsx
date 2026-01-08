@@ -153,6 +153,25 @@ const UpdateTicket = () => {
     }
   }, [ticket]);
 
+  useEffect(() => {
+    if (ticket?.jamOpen && formData.closedDate) {
+      const openTime = new Date(ticket.jamOpen);
+      const closeTime = new Date(formData.closedDate);
+
+      if (!isNaN(openTime.getTime()) && !isNaN(closeTime.getTime())) {
+        const diffMs = closeTime.getTime() - openTime.getTime();
+        const diffHours = (diffMs / (1000 * 60 * 60)).toFixed(2);
+
+        setFormData(prev => ({ 
+          ...prev, 
+          totalTtr: parseFloat(diffHours) > 0 ? diffHours : "0" 
+        }));
+      }
+    } else {
+      setFormData(prev => ({ ...prev, totalTtr: "" }));
+    }
+  }, [formData.closedDate, ticket?.jamOpen]);
+
   if (!ticket) {
     return (
       <Layout>
@@ -225,7 +244,8 @@ const UpdateTicket = () => {
     placeholder = "",
     type = "text",
     required = false,
-    disabled = false
+    disabled = false,
+    className = "" 
   }: { 
     label: string; 
     field: keyof UpdateFormData; 
@@ -233,21 +253,41 @@ const UpdateTicket = () => {
     type?: string;
     required?: boolean;
     disabled?: boolean;
-  }) => (
-    <div className="space-y-1.5">
-      <Label className="text-xs font-medium text-muted-foreground">
-        {label} {required && <span className="text-destructive">*</span>}
-      </Label>
-      <Input
-        type={type}
-        value={formData[field]}
-        onChange={(e) => updateField(field, e.target.value)}
-        placeholder={placeholder}
-        className="h-9"
-        disabled={disabled}
-      />
-    </div>
-  );
+    className?: string; 
+  }) => {
+    const isDateOrTime = type === 'datetime-local' || type === 'time';
+    
+    const forceIconLeft = type === 'datetime-local';
+
+    return (
+      <div className="space-y-1.5">
+        <Label className="text-xs font-medium text-muted-foreground">
+          {label} {required && <span className="text-destructive">*</span>}
+        </Label>
+        
+        <div className="relative">
+          <Input
+            type={type}
+            value={formData[field]}
+            onChange={(e) => updateField(field, e.target.value)}
+            placeholder={placeholder}
+            disabled={disabled}
+            className={`h-9 w-full ${className} ${
+              forceIconLeft
+                ? '[&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:left-0 [&::-webkit-calendar-picker-indicator]:pl-2' 
+                : ''
+            }`}
+          />
+          
+          {isDateOrTime && !formData[field] && (
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none md:hidden">
+              {placeholder || (type === 'time' ? "--:--" : "dd/mm/yyyy --:--")}
+            </span>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <Layout>
@@ -322,7 +362,8 @@ const UpdateTicket = () => {
                 <InputField 
                   label="Closed Date" 
                   field="closedDate" 
-                  placeholder="DD/MM/YYYY HH:MM" 
+                  type="datetime-local"
+                  className="text-right"
                 />
                 <InputField 
                   label="TTR Sisa (Jam)" 
@@ -439,14 +480,20 @@ const UpdateTicket = () => {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
-                <InputField label="Dispatch MBB" field="dispatchMbb" placeholder="HH:MM" />
-                <InputField label="Prepare Tim" field="prepareTim" placeholder="HH:MM" />
-                <InputField label="OTW Lokasi" field="otwKeLokasi" placeholder="HH:MM" />
-                <InputField label="Identifikasi" field="identifikasi" placeholder="HH:MM" />
-                <InputField label="Break" field="breakTime" placeholder="HH:MM" />
-                <InputField label="Splicing" field="splicing" placeholder="HH:MM" />
-                <InputField label="Closing" field="closing" placeholder="HH:MM" />
-                <InputField label="Total TTR" field="totalTtr" placeholder="HH:MM" />
+                <InputField label="Dispatch MBB" field="dispatchMbb" type="time" />
+                <InputField label="Prepare Tim" field="prepareTim" type="time" />
+                <InputField label="OTW Lokasi" field="otwKeLokasi" type="time" />
+                <InputField label="Identifikasi" field="identifikasi" type="time" />
+                <InputField label="Break" field="breakTime" type="time" />
+                <InputField label="Splicing" field="splicing" type="time" />
+                <InputField label="Closing" field="closing" type="time" />
+                <InputField 
+                  label="Total TTR (Jam)" 
+                  field="totalTtr" 
+                  placeholder="Auto" 
+                  className="text-center bg-muted"
+                  disabled={true}
+                />
               </div>
             </CardContent>
           </Card>

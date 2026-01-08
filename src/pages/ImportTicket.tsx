@@ -51,7 +51,6 @@ interface TicketFormData {
   siteImpact: string;
   classSite: string;
   koordinat: string;
-  histori6Bulan: string;
   // TTR Target & Report Date
   reportDate: string;
   ttrTarget: string;
@@ -79,7 +78,6 @@ const emptyForm: TicketFormData = {
   siteImpact: '',
   classSite: '',
   koordinat: '',
-  histori6Bulan: '',
   reportDate: '',
   ttrTarget: '',
   teknisi1: '',
@@ -175,13 +173,22 @@ const ImportTicket = () => {
       <Label className="text-xs font-medium text-muted-foreground">
         {label} {required && <span className="text-destructive">*</span>}
       </Label>
-      <Input
-        type={type}
-        value={formData[field]}
-        onChange={(e) => updateField(field, e.target.value)}
-        placeholder={placeholder}
-        className="h-9"
-      />
+
+      <div className="relative">
+        <Input
+          type={type}
+          value={formData[field]}
+          onChange={(e) => updateField(field, e.target.value)}
+          placeholder={placeholder}
+          className="h-9 w-full"
+        />
+        
+        {type === 'datetime-local' && !formData[field] && (
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none md:hidden">
+            {placeholder || "dd/mm/yyyy --:--"}
+          </span>
+        )}
+      </div>
     </div>
   );
 
@@ -192,7 +199,7 @@ const ImportTicket = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold">Input Tiket Baru</h1>
-            <p className="text-muted-foreground text-sm mt-1">
+            <p className="text-muted-foreground text-sm mt-1 hidden md:block">
               Masukkan data awal tiket gangguan. Progress & status akan diupdate kemudian.
             </p>
           </div>
@@ -222,7 +229,7 @@ const ImportTicket = () => {
                 <SelectField label="ODC" field="odc" options={DROPDOWN_OPTIONS.odc} />
                 <SelectField label="Stake Holder" field="stakeHolder" options={DROPDOWN_OPTIONS.stakeHolder} />
                 <SelectField label="Jenis Pelanggan" field="jenisPelanggan" options={DROPDOWN_OPTIONS.jenisPelanggan} />
-                <SelectField label="Kategori Tiket" field="kategori" options={DROPDOWN_OPTIONS.kategori} required />
+                <SelectField label="Saverity" field="kategori" options={DROPDOWN_OPTIONS.kategori} required />
               </div>
             </CardContent>
           </Card>
@@ -240,7 +247,12 @@ const ImportTicket = () => {
                 <InputField label="KJD" field="kjd" placeholder="KJD25199" />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                <InputField label="Report Date" field="reportDate" placeholder="DD/MM/YYYY HH:MM" />
+                <InputField 
+                  label="Report Date" 
+                  field="reportDate" 
+                  type="datetime-local" 
+                />
+                
                 <InputField label="TTR Target (Jam)" field="ttrTarget" placeholder="24" />
               </div>
               <div className="mt-4">
@@ -269,7 +281,6 @@ const ImportTicket = () => {
                 <InputField label="Site Impact" field="siteImpact" placeholder="PPN555" />
                 <SelectField label="Class Site" field="classSite" options={DROPDOWN_OPTIONS.classSite} />
                 <InputField label="Koordinat" field="koordinat" placeholder="-0.123456, 101.123456" />
-                <InputField label="Histori 6 Bulan" field="histori6Bulan" placeholder="10x" />
               </div>
             </CardContent>
           </Card>
@@ -277,11 +288,11 @@ const ImportTicket = () => {
           {/* Section 4: Teknisi & Tim */}
           <Card>
             <CardHeader className="pb-4">
-              <CardTitle className="text-base">Teknisi & Tim (Assign Awal)</CardTitle>
+              <CardTitle className="text-base">Teknisi & Tim</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InputField label="Teknisi 1" field="teknisi1" placeholder="22010054-DIMAS RIO" />
+                <InputField label="Teknisi" field="teknisi1" placeholder="22010054-DIMAS RIO" />
                 <SelectField label="Tim" field="tim" options={DROPDOWN_OPTIONS.tim} />
               </div>
             </CardContent>
