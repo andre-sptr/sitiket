@@ -63,7 +63,6 @@ const UserManagement = () => {
   const usersByRole = {
     admin: filteredUsers.filter(u => u.role === 'admin'),
     hd: filteredUsers.filter(u => u.role === 'hd'),
-    ta: filteredUsers.filter(u => u.role === 'ta'),
     guest: filteredUsers.filter(u => u.role === 'guest'),
   };
 
@@ -115,13 +114,11 @@ const UserManagement = () => {
                 <div className="flex items-center gap-3">
                   <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
                     role === 'admin' ? 'bg-blue-100' :
-                    role === 'hd' ? 'bg-purple-100' :
-                    role === 'ta' ? 'bg-amber-100' : 'bg-gray-100'
+                    role === 'hd' ? 'bg-purple-100' : 'text-gray-600'
                   }`}>
                     <Icon className={`w-5 h-5 ${
                       role === 'admin' ? 'text-blue-600' : 
-                      role === 'hd' ? 'text-purple-600' :
-                      role === 'ta' ? 'text-amber-600' : 'text-gray-600'
+                      role === 'hd' ? 'text-purple-600' : 'text-gray-600'
                     }`} />
                   </div>
                   <div>

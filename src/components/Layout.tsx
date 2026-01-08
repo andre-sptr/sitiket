@@ -46,10 +46,6 @@ const hdNavItems = [
   { path: '/users', label: 'Pengguna', icon: Users },
 ];
 
-const taNavItems = [
-  { path: '/my-tickets', label: 'Tiket Saya', icon: Ticket },
-];
-
 const guestNavItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/tickets', label: 'Semua Tiket', icon: Ticket },
@@ -64,7 +60,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const navItems = user?.role === 'admin' ? adminNavItems : 
                    user?.role === 'hd' ? hdNavItems :
-                   user?.role === 'ta' ? taNavItems : 
                    user?.role === 'guest' ? guestNavItems : [];
 
   const unreadNotifications = mockNotifications.filter(n => !n.isRead && n.userId === user?.id).length;

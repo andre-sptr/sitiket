@@ -24,14 +24,6 @@ const roleCards = [
     redirect: '/dashboard',
   },
   {
-    role: 'ta' as UserRole,
-    title: 'Teknisi (TA)',
-    description: 'Lihat & update tiket yang di-assign',
-    icon: Wrench,
-    color: 'from-amber-500 to-amber-600',
-    redirect: '/my-tickets',
-  },
-  {
     role: 'guest' as UserRole,
     title: 'Guest',
     description: 'Monitoring dashboard (read-only)',
