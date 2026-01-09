@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Layout } from '@/components/Layout';
+import { FormSkeleton } from '@/components/skeletons';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -12,22 +13,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Save, RotateCcw } from 'lucide-react';
+import { Save, RotateCcw, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-
-// Dropdown options - Admin can modify these later
-const DROPDOWN_OPTIONS = {
-  hsa: ['MIS', 'SLJ', 'TBH', 'DUM', 'PKU', 'BKN'],
-  sto: ['MIS', 'SLJ', 'TBH', 'DUM', 'PKU', 'BKN'],
-  odc: ['MIS', 'SLJ', 'TBH', 'DUM', 'PKU', 'BKN'],
-  stakeHolder: ['TLKM', 'OTHER'],
-  jenisPelanggan: ['TSEL', 'ISAT', 'XL', 'OTHER'],
-  kategori: ['CNQ', 'MINOR [8]', 'MINOR [12]', 'MINOR [24]', 'MAJOR', 'CRITICAL', 'LOW [24]'],
-  losNonLos: ['LOS', 'NON LOS', 'UNSPEC'],
-  classSite: ['Platinum', 'Gold', 'Silver', 'Bronze'],
-  tim: ['Tim A', 'Tim B', 'Selat Panjang'],
-};
+import { useDropdownOptions } from '@/hooks/useDropdownOptions';
 
 interface TicketFormData {
   // Lokasi
@@ -51,6 +40,7 @@ interface TicketFormData {
   siteImpact: string;
   classSite: string;
   koordinat: string;
+  histori6Bulan: string;
   // TTR Target & Report Date
   reportDate: string;
   ttrTarget: string;
@@ -58,6 +48,8 @@ interface TicketFormData {
   teknisi1: string;
   tim: string;
 }
+
+type FormErrors = Partial<Record<keyof TicketFormData, string>>;
 
 const emptyForm: TicketFormData = {
   hsa: '',
@@ -78,40 +70,94 @@ const emptyForm: TicketFormData = {
   siteImpact: '',
   classSite: '',
   koordinat: '',
+  histori6Bulan: '',
   reportDate: '',
   ttrTarget: '',
   teknisi1: '',
   tim: '',
 };
 
+// Define required fields with their labels
+const REQUIRED_FIELDS: { field: keyof TicketFormData; label: string }[] = [
+  { field: 'tiket', label: 'No. Tiket (INC)' },
+  { field: 'kategori', label: 'Kategori Tiket' },
+  { field: 'hsa', label: 'HSA' },
+  { field: 'sto', label: 'STO' },
+  { field: 'reportDate', label: 'Report Date' },
+];
+
 const ImportTicket = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { options: DROPDOWN_OPTIONS } = useDropdownOptions();
+  const [isLoading, setIsLoading] = useState(true);
   const [formData, setFormData] = useState<TicketFormData>(emptyForm);
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [touched, setTouched] = useState<Partial<Record<keyof TicketFormData, boolean>>>({});
+
+  // Simulate initial loading
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <FormSkeleton sections={4} fieldsPerSection={6} />
+      </Layout>
+    );
+  }
 
   const updateField = (field: keyof TicketFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: undefined }));
+    }
+  };
+
+  const markTouched = (field: keyof TicketFormData) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
+    
+    REQUIRED_FIELDS.forEach(({ field, label }) => {
+      if (!formData[field] || formData[field].trim() === '') {
+        newErrors[field] = `${label} wajib diisi`;
+      }
+    });
+
+    // Additional validation for tiket format (INC number)
+    if (formData.tiket && !formData.tiket.toUpperCase().startsWith('INC')) {
+      newErrors.tiket = 'Format tiket harus dimulai dengan INC (contoh: INC44646411)';
+    }
+
+    setErrors(newErrors);
+    
+    // Mark all required fields as touched
+    const touchedFields: Partial<Record<keyof TicketFormData, boolean>> = {};
+    REQUIRED_FIELDS.forEach(({ field }) => {
+      touchedFields[field] = true;
+    });
+    setTouched(prev => ({ ...prev, ...touchedFields }));
+
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleReset = () => {
     setFormData(emptyForm);
+    setErrors({});
+    setTouched({});
   };
 
   const handleSubmit = () => {
-    // Validate required fields
-    if (!formData.tiket) {
+    if (!validateForm()) {
       toast({
-        title: "Error",
-        description: "Nomor Tiket (INC) wajib diisi",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!formData.kategori) {
-      toast({
-        title: "Error",
-        description: "Kategori Tiket wajib dipilih",
+        title: "Validasi Gagal",
+        description: `Terdapat ${Object.keys(errors).length > 0 ? Object.keys(errors).length : 'beberapa'} field yang perlu diperbaiki`,
         variant: "destructive",
       });
       return;
@@ -126,71 +172,97 @@ const ImportTicket = () => {
     navigate('/tickets');
   };
 
+  const isFieldRequired = (field: keyof TicketFormData): boolean => {
+    return REQUIRED_FIELDS.some(f => f.field === field);
+  };
+
+  const getFieldError = (field: keyof TicketFormData): string | undefined => {
+    return touched[field] ? errors[field] : undefined;
+  };
+
   const SelectField = ({ 
     label, 
     field, 
     options,
     placeholder = "Pilih...",
-    required = false
   }: { 
     label: string; 
     field: keyof TicketFormData; 
     options: string[];
     placeholder?: string;
-    required?: boolean;
-  }) => (
-    <div className="space-y-1.5">
-      <Label className="text-xs font-medium text-muted-foreground">
-        {label} {required && <span className="text-destructive">*</span>}
-      </Label>
-      <Select value={formData[field]} onValueChange={(v) => updateField(field, v)}>
-        <SelectTrigger className="h-9">
-          <SelectValue placeholder={placeholder} />
-        </SelectTrigger>
-        <SelectContent className="bg-background border shadow-lg z-50">
-          {options.map(opt => (
-            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
-  );
+  }) => {
+    const error = getFieldError(field);
+    const required = isFieldRequired(field);
+    
+    return (
+      <div className="space-y-1.5">
+        <Label className="text-xs font-medium text-muted-foreground">
+          {label} {required && <span className="text-destructive">*</span>}
+        </Label>
+        <Select 
+          value={formData[field]} 
+          onValueChange={(v) => {
+            updateField(field, v);
+            markTouched(field);
+          }}
+        >
+          <SelectTrigger className={`h-9 ${error ? 'border-destructive ring-1 ring-destructive' : ''}`}>
+            <SelectValue placeholder={placeholder} />
+          </SelectTrigger>
+          <SelectContent className="bg-background border shadow-lg z-50">
+            {options.map(opt => (
+              <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {error && (
+          <p className="text-xs text-destructive flex items-center gap-1 mt-1">
+            <AlertCircle className="w-3 h-3" />
+            {error}
+          </p>
+        )}
+      </div>
+    );
+  };
 
   const InputField = ({ 
     label, 
     field, 
     placeholder = "",
     type = "text",
-    required = false
   }: { 
     label: string; 
     field: keyof TicketFormData; 
     placeholder?: string;
     type?: string;
-    required?: boolean;
-  }) => (
-    <div className="space-y-1.5">
-      <Label className="text-xs font-medium text-muted-foreground">
-        {label} {required && <span className="text-destructive">*</span>}
-      </Label>
-
-      <div className="relative">
+  }) => {
+    const error = getFieldError(field);
+    const required = isFieldRequired(field);
+    
+    return (
+      <div className="space-y-1.5">
+        <Label className="text-xs font-medium text-muted-foreground">
+          {label} {required && <span className="text-destructive">*</span>}
+        </Label>
         <Input
           type={type}
           value={formData[field]}
           onChange={(e) => updateField(field, e.target.value)}
+          onBlur={() => markTouched(field)}
           placeholder={placeholder}
-          className="h-9 w-full"
+          className={`h-9 ${error ? 'border-destructive ring-1 ring-destructive' : ''}`}
         />
-        
-        {type === 'datetime-local' && !formData[field] && (
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none md:hidden">
-            {placeholder || "dd/mm/yyyy --:--"}
-          </span>
+        {error && (
+          <p className="text-xs text-destructive flex items-center gap-1 mt-1">
+            <AlertCircle className="w-3 h-3" />
+            {error}
+          </p>
         )}
       </div>
-    </div>
-  );
+    );
+  };
+
+  const hasErrors = Object.keys(errors).length > 0;
 
   return (
     <Layout>
@@ -199,7 +271,7 @@ const ImportTicket = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold">Input Tiket Baru</h1>
-            <p className="text-muted-foreground text-sm mt-1 hidden md:block">
+            <p className="text-muted-foreground text-sm mt-1">
               Masukkan data awal tiket gangguan. Progress & status akan diupdate kemudian.
             </p>
           </div>
@@ -215,6 +287,25 @@ const ImportTicket = () => {
           </div>
         </div>
 
+        {/* Error Summary */}
+        {hasErrors && Object.keys(touched).length > 0 && (
+          <Card className="border-destructive bg-destructive/5">
+            <CardContent className="py-3">
+              <div className="flex items-start gap-2 text-destructive">
+                <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="font-medium text-sm">Mohon lengkapi field berikut:</p>
+                  <ul className="text-xs mt-1 list-disc list-inside">
+                    {Object.entries(errors).map(([field, message]) => (
+                      <li key={field}>{message}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Form Sections */}
         <div className="grid gap-6">
           {/* Section 1: Lokasi & Kategori */}
@@ -229,7 +320,7 @@ const ImportTicket = () => {
                 <SelectField label="ODC" field="odc" options={DROPDOWN_OPTIONS.odc} />
                 <SelectField label="Stake Holder" field="stakeHolder" options={DROPDOWN_OPTIONS.stakeHolder} />
                 <SelectField label="Jenis Pelanggan" field="jenisPelanggan" options={DROPDOWN_OPTIONS.jenisPelanggan} />
-                <SelectField label="Saverity" field="kategori" options={DROPDOWN_OPTIONS.kategori} required />
+                <SelectField label="Kategori Tiket" field="kategori" options={DROPDOWN_OPTIONS.kategori} />
               </div>
             </CardContent>
           </Card>
@@ -241,18 +332,13 @@ const ImportTicket = () => {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <InputField label="No. Tiket (INC)" field="tiket" placeholder="INC44646411" required />
+                <InputField label="No. Tiket (INC)" field="tiket" placeholder="INC44646411" />
                 <InputField label="Tiket TACC" field="tiketTacc" placeholder="Optional" />
                 <InputField label="Induk GAMAS" field="indukGamas" placeholder="INC..." />
                 <InputField label="KJD" field="kjd" placeholder="KJD25199" />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                <InputField 
-                  label="Report Date" 
-                  field="reportDate" 
-                  type="datetime-local" 
-                />
-                
+                <InputField label="Report Date" field="reportDate" placeholder="DD/MM/YYYY HH:MM" />
                 <InputField label="TTR Target (Jam)" field="ttrTarget" placeholder="24" />
               </div>
               <div className="mt-4">
@@ -281,6 +367,7 @@ const ImportTicket = () => {
                 <InputField label="Site Impact" field="siteImpact" placeholder="PPN555" />
                 <SelectField label="Class Site" field="classSite" options={DROPDOWN_OPTIONS.classSite} />
                 <InputField label="Koordinat" field="koordinat" placeholder="-0.123456, 101.123456" />
+                <InputField label="Histori 6 Bulan" field="histori6Bulan" placeholder="10x" />
               </div>
             </CardContent>
           </Card>
@@ -288,11 +375,11 @@ const ImportTicket = () => {
           {/* Section 4: Teknisi & Tim */}
           <Card>
             <CardHeader className="pb-4">
-              <CardTitle className="text-base">Teknisi & Tim</CardTitle>
+              <CardTitle className="text-base">Teknisi & Tim (Assign Awal)</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InputField label="Teknisi" field="teknisi1" placeholder="22010054-DIMAS RIO" />
+                <InputField label="Teknisi 1" field="teknisi1" placeholder="22010054-DIMAS RIO" />
                 <SelectField label="Tim" field="tim" options={DROPDOWN_OPTIONS.tim} />
               </div>
             </CardContent>

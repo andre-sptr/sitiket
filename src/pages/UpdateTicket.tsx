@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
+import { UpdateFormSkeleton } from '@/components/skeletons';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -13,45 +14,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowLeft, Save, Clock, AlertTriangle, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Save, Clock, AlertTriangle, CheckCircle, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getTicketById } from '@/lib/mockData';
 import { StatusBadge, TTRBadge, ComplianceBadge } from '@/components/StatusBadge';
 import { formatDateWIB } from '@/lib/formatters';
-
-// Dropdown options - Admin can modify these later
-const DROPDOWN_OPTIONS = {
-  statusTiket: ['OPEN', 'PENDING', 'ONPROGRESS', 'CLOSED'],
-  compliance: ['COMPLY', 'NOT COMPLY'],
-  permanenTemporer: ['PERMANEN', 'TEMPORER'],
-  statusAlatBerat: ['TIDAK PERLU', 'DIMINTA', 'DALAM PROSES', 'SELESAI'],
-  penyebabGangguan: [
-    'Kabel Putus',
-    'ODP Rusak',
-    'Connector Rusak',
-    'Power Off',
-    'Gangguan Cuaca',
-    'Gangguan Pihak Ketiga',
-    'Lainnya'
-  ],
-  perbaikanGangguan: [
-    'Splicing',
-    'Ganti Connector',
-    'Ganti ODP',
-    'Recovery Kabel',
-    'Reset Perangkat',
-    'Lainnya'
-  ],
-  kendala: [
-    'Tidak Ada Kendala',
-    'Akses Lokasi Sulit',
-    'Menunggu Material',
-    'Menunggu Koordinasi',
-    'Cuaca Buruk',
-    'Alat Berat Belum Tersedia',
-    'Lainnya'
-  ],
-};
+import { useDropdownOptions } from '@/hooks/useDropdownOptions';
 
 interface UpdateFormData {
   // Status & TTR
@@ -96,6 +64,8 @@ interface UpdateFormData {
   tiketEksternal: string;
 }
 
+type FormErrors = Partial<Record<keyof UpdateFormData, string>>;
+
 const emptyForm: UpdateFormData = {
   statusTiket: '',
   closedDate: '',
@@ -126,13 +96,46 @@ const emptyForm: UpdateFormData = {
   tiketEksternal: '',
 };
 
+// Define required fields with their labels
+const REQUIRED_FIELDS: { field: keyof UpdateFormData; label: string }[] = [
+  { field: 'statusTiket', label: 'Status Tiket' },
+];
+
+// Conditional required fields
+const getConditionalRequiredFields = (formData: UpdateFormData): { field: keyof UpdateFormData; label: string }[] => {
+  const conditionalFields: { field: keyof UpdateFormData; label: string }[] = [];
+  
+  // If status is CLOSED, closedDate is required
+  if (formData.statusTiket === 'CLOSED') {
+    conditionalFields.push({ field: 'closedDate', label: 'Closed Date' });
+    conditionalFields.push({ field: 'compliance', label: 'Compliance' });
+  }
+  
+  // If compliance is NOT COMPLY, reason is required
+  if (formData.compliance === 'NOT COMPLY') {
+    conditionalFields.push({ field: 'penyebabNotComply', label: 'Penyebab Not Comply' });
+  }
+  
+  return conditionalFields;
+};
+
 const UpdateTicket = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { options: DROPDOWN_OPTIONS } = useDropdownOptions();
+  const [isLoading, setIsLoading] = useState(true);
   const [formData, setFormData] = useState<UpdateFormData>(emptyForm);
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [touched, setTouched] = useState<Partial<Record<keyof UpdateFormData, boolean>>>({});
 
   const ticket = getTicketById(id || '');
+
+  // Simulate loading
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 600);
+    return () => clearTimeout(timer);
+  }, [id]);
 
   useEffect(() => {
     if (ticket) {
@@ -153,24 +156,13 @@ const UpdateTicket = () => {
     }
   }, [ticket]);
 
-  useEffect(() => {
-    if (ticket?.jamOpen && formData.closedDate) {
-      const openTime = new Date(ticket.jamOpen);
-      const closeTime = new Date(formData.closedDate);
-
-      if (!isNaN(openTime.getTime()) && !isNaN(closeTime.getTime())) {
-        const diffMs = closeTime.getTime() - openTime.getTime();
-        const diffHours = (diffMs / (1000 * 60 * 60)).toFixed(2);
-
-        setFormData(prev => ({ 
-          ...prev, 
-          totalTtr: parseFloat(diffHours) > 0 ? diffHours : "0" 
-        }));
-      }
-    } else {
-      setFormData(prev => ({ ...prev, totalTtr: "" }));
-    }
-  }, [formData.closedDate, ticket?.jamOpen]);
+  if (isLoading) {
+    return (
+      <Layout>
+        <UpdateFormSkeleton />
+      </Layout>
+    );
+  }
 
   if (!ticket) {
     return (
@@ -187,13 +179,48 @@ const UpdateTicket = () => {
 
   const updateField = (field: keyof UpdateFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: undefined }));
+    }
+  };
+
+  const markTouched = (field: keyof UpdateFormData) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
+    const allRequiredFields = [...REQUIRED_FIELDS, ...getConditionalRequiredFields(formData)];
+    
+    allRequiredFields.forEach(({ field, label }) => {
+      if (!formData[field] || formData[field].trim() === '') {
+        newErrors[field] = `${label} wajib diisi`;
+      }
+    });
+
+    // Validate closedDate format if provided
+    if (formData.closedDate && !/^\d{2}\/\d{2}\/\d{4}\s\d{2}:\d{2}$/.test(formData.closedDate)) {
+      newErrors.closedDate = 'Format harus DD/MM/YYYY HH:MM';
+    }
+
+    setErrors(newErrors);
+    
+    // Mark all required fields as touched
+    const touchedFields: Partial<Record<keyof UpdateFormData, boolean>> = {};
+    allRequiredFields.forEach(({ field }) => {
+      touchedFields[field] = true;
+    });
+    setTouched(prev => ({ ...prev, ...touchedFields }));
+
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = () => {
-    if (!formData.statusTiket) {
+    if (!validateForm()) {
       toast({
-        title: "Error",
-        description: "Status Tiket wajib dipilih",
+        title: "Validasi Gagal",
+        description: "Mohon lengkapi semua field yang wajib diisi",
         variant: "destructive",
       });
       return;
@@ -208,86 +235,101 @@ const UpdateTicket = () => {
     navigate(`/ticket/${id}`);
   };
 
+  const isFieldRequired = (field: keyof UpdateFormData): boolean => {
+    const allRequiredFields = [...REQUIRED_FIELDS, ...getConditionalRequiredFields(formData)];
+    return allRequiredFields.some(f => f.field === field);
+  };
+
+  const getFieldError = (field: keyof UpdateFormData): string | undefined => {
+    return touched[field] ? errors[field] : undefined;
+  };
+
   const SelectField = ({ 
     label, 
     field, 
     options,
     placeholder = "Pilih...",
-    required = false
   }: { 
     label: string; 
     field: keyof UpdateFormData; 
     options: string[];
     placeholder?: string;
-    required?: boolean;
-  }) => (
-    <div className="space-y-1.5">
-      <Label className="text-xs font-medium text-muted-foreground">
-        {label} {required && <span className="text-destructive">*</span>}
-      </Label>
-      <Select value={formData[field]} onValueChange={(v) => updateField(field, v)}>
-        <SelectTrigger className="h-9">
-          <SelectValue placeholder={placeholder} />
-        </SelectTrigger>
-        <SelectContent className="bg-background border shadow-lg z-50">
-          {options.map(opt => (
-            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
-  );
+  }) => {
+    const error = getFieldError(field);
+    const required = isFieldRequired(field);
+    
+    return (
+      <div className="space-y-1.5">
+        <Label className="text-xs font-medium text-muted-foreground">
+          {label} {required && <span className="text-destructive">*</span>}
+        </Label>
+        <Select 
+          value={formData[field]} 
+          onValueChange={(v) => {
+            updateField(field, v);
+            markTouched(field);
+          }}
+        >
+          <SelectTrigger className={`h-9 ${error ? 'border-destructive ring-1 ring-destructive' : ''}`}>
+            <SelectValue placeholder={placeholder} />
+          </SelectTrigger>
+          <SelectContent className="bg-background border shadow-lg z-50">
+            {options.map(opt => (
+              <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {error && (
+          <p className="text-xs text-destructive flex items-center gap-1 mt-1">
+            <AlertCircle className="w-3 h-3" />
+            {error}
+          </p>
+        )}
+      </div>
+    );
+  };
 
   const InputField = ({ 
     label, 
     field, 
     placeholder = "",
     type = "text",
-    required = false,
-    disabled = false,
-    className = "" 
+    disabled = false
   }: { 
     label: string; 
     field: keyof UpdateFormData; 
     placeholder?: string;
     type?: string;
-    required?: boolean;
     disabled?: boolean;
-    className?: string; 
   }) => {
-    const isDateOrTime = type === 'datetime-local' || type === 'time';
+    const error = getFieldError(field);
+    const required = isFieldRequired(field);
     
-    const forceIconLeft = type === 'datetime-local';
-
     return (
       <div className="space-y-1.5">
         <Label className="text-xs font-medium text-muted-foreground">
           {label} {required && <span className="text-destructive">*</span>}
         </Label>
-        
-        <div className="relative">
-          <Input
-            type={type}
-            value={formData[field]}
-            onChange={(e) => updateField(field, e.target.value)}
-            placeholder={placeholder}
-            disabled={disabled}
-            className={`h-9 w-full ${className} ${
-              forceIconLeft
-                ? '[&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:left-0 [&::-webkit-calendar-picker-indicator]:pl-2' 
-                : ''
-            }`}
-          />
-          
-          {isDateOrTime && !formData[field] && (
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none md:hidden">
-              {placeholder || (type === 'time' ? "--:--" : "dd/mm/yyyy --:--")}
-            </span>
-          )}
-        </div>
+        <Input
+          type={type}
+          value={formData[field]}
+          onChange={(e) => updateField(field, e.target.value)}
+          onBlur={() => markTouched(field)}
+          placeholder={placeholder}
+          className={`h-9 ${error ? 'border-destructive ring-1 ring-destructive' : ''}`}
+          disabled={disabled}
+        />
+        {error && (
+          <p className="text-xs text-destructive flex items-center gap-1 mt-1">
+            <AlertCircle className="w-3 h-3" />
+            {error}
+          </p>
+        )}
       </div>
     );
   };
+
+  const hasErrors = Object.keys(errors).length > 0;
 
   return (
     <Layout>
@@ -341,6 +383,25 @@ const UpdateTicket = () => {
           </CardContent>
         </Card>
 
+        {/* Error Summary */}
+        {hasErrors && Object.keys(touched).length > 0 && (
+          <Card className="border-destructive bg-destructive/5">
+            <CardContent className="py-3">
+              <div className="flex items-start gap-2 text-destructive">
+                <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="font-medium text-sm">Mohon lengkapi field berikut:</p>
+                  <ul className="text-xs mt-1 list-disc list-inside">
+                    {Object.entries(errors).map(([field, message]) => (
+                      <li key={field}>{message}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Form Sections */}
         <div className="grid gap-6">
           {/* Section 1: Status & TTR */}
@@ -357,13 +418,11 @@ const UpdateTicket = () => {
                   label="Status Tiket" 
                   field="statusTiket" 
                   options={DROPDOWN_OPTIONS.statusTiket} 
-                  required 
                 />
                 <InputField 
                   label="Closed Date" 
                   field="closedDate" 
-                  type="datetime-local"
-                  className="text-right"
+                  placeholder="DD/MM/YYYY HH:MM" 
                 />
                 <InputField 
                   label="TTR Sisa (Jam)" 
@@ -480,20 +539,14 @@ const UpdateTicket = () => {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
-                <InputField label="Dispatch MBB" field="dispatchMbb" type="time" />
-                <InputField label="Prepare Tim" field="prepareTim" type="time" />
-                <InputField label="OTW Lokasi" field="otwKeLokasi" type="time" />
-                <InputField label="Identifikasi" field="identifikasi" type="time" />
-                <InputField label="Break" field="breakTime" type="time" />
-                <InputField label="Splicing" field="splicing" type="time" />
-                <InputField label="Closing" field="closing" type="time" />
-                <InputField 
-                  label="Total TTR (Jam)" 
-                  field="totalTtr" 
-                  placeholder="Auto" 
-                  className="text-center bg-muted"
-                  disabled={true}
-                />
+                <InputField label="Dispatch MBB" field="dispatchMbb" placeholder="HH:MM" />
+                <InputField label="Prepare Tim" field="prepareTim" placeholder="HH:MM" />
+                <InputField label="OTW Lokasi" field="otwKeLokasi" placeholder="HH:MM" />
+                <InputField label="Identifikasi" field="identifikasi" placeholder="HH:MM" />
+                <InputField label="Break" field="breakTime" placeholder="HH:MM" />
+                <InputField label="Splicing" field="splicing" placeholder="HH:MM" />
+                <InputField label="Closing" field="closing" placeholder="HH:MM" />
+                <InputField label="Total TTR" field="totalTtr" placeholder="HH:MM" />
               </div>
             </CardContent>
           </Card>
