@@ -40,7 +40,6 @@ export const TicketCard: React.FC<TicketCardProps> = ({ ticket, onCopyWhatsApp, 
       } ${isDueSoon ? 'ring-1 ring-amber-400/30 bg-amber-500/[0.02]' : ''}`}
       onClick={handleClick}
     >
-      {/* Priority indicator strip */}
       <div className={`absolute left-0 top-0 bottom-0 w-1 ${
         isOverdue ? 'bg-destructive' : 
         isDueSoon ? 'bg-amber-500' : 
@@ -49,7 +48,6 @@ export const TicketCard: React.FC<TicketCardProps> = ({ ticket, onCopyWhatsApp, 
       }`} />
 
       <CardContent className="p-4 pl-5">
-        {/* Header */}
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap mb-1.5">
@@ -78,7 +76,6 @@ export const TicketCard: React.FC<TicketCardProps> = ({ ticket, onCopyWhatsApp, 
           <StatusBadge status={ticket.status} size="sm" />
         </div>
 
-        {/* Info Grid */}
         <div className="grid grid-cols-2 gap-y-1.5 gap-x-4 text-xs mb-3">
           <div className="flex items-center gap-1.5 text-muted-foreground">
             <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
@@ -96,7 +93,6 @@ export const TicketCard: React.FC<TicketCardProps> = ({ ticket, onCopyWhatsApp, 
           )}
         </div>
 
-        {/* TTR & Compliance */}
         <div className="flex items-center justify-between gap-2 pt-3 border-t border-border/60">
           <div className="flex items-center gap-2">
             <TTRBadge hours={ticket.sisaTtrHours} size="sm" />

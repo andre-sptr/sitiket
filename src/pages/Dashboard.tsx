@@ -43,7 +43,6 @@ const Dashboard = () => {
     }, 1000);
   };
 
-  // Sort: overdue first, then by remaining TTR
   const sortedTickets = [...todayTickets].sort((a, b) => {
     if (a.status === 'CLOSED' && b.status !== 'CLOSED') return 1;
     if (a.status !== 'CLOSED' && b.status === 'CLOSED') return -1;
@@ -68,7 +67,6 @@ const Dashboard = () => {
   return (
     <Layout>
       <div className="space-y-6 lg:space-y-8">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-foreground">Dashboard</h1>
@@ -98,7 +96,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Stats Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           {isRefreshing ? (
             <>
@@ -116,7 +113,7 @@ const Dashboard = () => {
                 variant="primary"
               />
               <StatsCard
-                title="Open/Unassigned"
+                title="Open"
                 value={stats.openTickets}
                 subtitle={unassignedTickets.length > 0 ? `${unassignedTickets.length} belum assign` : undefined}
                 icon={Clock}
@@ -129,7 +126,7 @@ const Dashboard = () => {
                 variant="danger"
               />
               <StatsCard
-                title="Closed Hari Ini"
+                title="Closed"
                 value={stats.closedToday}
                 icon={CheckCircle2}
                 variant="success"
@@ -138,7 +135,6 @@ const Dashboard = () => {
           )}
         </div>
 
-        {/* Secondary Stats */}
         <div className="grid grid-cols-2 gap-3 md:gap-4">
           {isRefreshing ? (
             <>
@@ -164,7 +160,6 @@ const Dashboard = () => {
           )}
         </div>
 
-        {/* Alerts */}
         {(overdueTickets.length > 0 || dueSoonTickets.length > 0 || unassignedTickets.length > 0) && (
           <div className="flex flex-wrap gap-2">
             {overdueTickets.length > 0 && (
@@ -188,7 +183,6 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Ticket List */}
         <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-foreground">Tiket Hari Ini</h2>

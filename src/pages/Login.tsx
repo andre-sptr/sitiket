@@ -49,24 +49,23 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Gradient orbs */}
+    <div className="dark min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl opacity-50" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-violet-500/20 rounded-full blur-3xl opacity-50" />
       
       <div className="relative w-full max-w-4xl animate-fade-in">
-        {/* Logo & Title */}
         <div className="text-center mb-10 md:mb-14">
-          <div className="inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-primary to-primary/70 rounded-2xl mb-5 shadow-lg">
-            <Ticket className="w-8 h-8 md:w-10 md:h-10 text-white" />
-          </div>
+          <img 
+            src="/logo.png" 
+            alt="SiTiket Logo" 
+            className="w-16 h-16 md:w-20 md:h-20 mb-5 object-contain mx-auto" 
+          />
           <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">SiTiket</h1>
           <p className="text-muted-foreground text-sm md:text-base max-w-md mx-auto">
             Demo/Prototipe Sistem Manajemen Tiket Gangguan
           </p>
         </div>
 
-        {/* Role Selection */}
         <div className="flex flex-wrap justify-center gap-4 md:gap-5">
           {roleCards.map((card, index) => {
             const Icon = card.icon;

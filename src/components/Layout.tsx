@@ -69,11 +69,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-xl border-b border-border/50">
         <div className="container mx-auto px-4 lg:px-6">
           <div className="flex items-center justify-between h-16">
-            {/* Logo & Mobile Menu Toggle */}
             <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
@@ -88,14 +86,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                   <img 
                     src="/logo.png" 
                     alt="Logo" 
-                    className="w-6 h-6 object-contain brightness-0 invert" 
+                    className="w-6 h-6 object-contain" 
                   />
                 </div>
                 <span className="font-bold text-lg hidden sm:block text-foreground">SiTiket</span>
               </Link>
             </div>
 
-            {/* Desktop Nav */}
             <nav className="hidden md:flex items-center gap-1">
               {navItems.map((item) => {
                 const Icon = item.icon;
@@ -119,12 +116,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               })}
             </nav>
 
-            {/* Right Actions */}
             <div className="flex items-center gap-1.5">
-              {/* Theme Toggle */}
               <ThemeToggle />
               
-              {/* Notifications */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="relative h-9 w-9">
@@ -153,7 +147,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {/* User Menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="gap-2 h-9 pl-2 pr-3 ml-1">
@@ -183,7 +176,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
       </header>
 
-      {/* Mobile Nav Drawer */}
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-40 md:hidden">
           <div 
@@ -220,7 +212,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
       )}
 
-      {/* Main Content */}
       <main className="container mx-auto px-4 lg:px-6 py-6 lg:py-8">
         {children}
       </main>
