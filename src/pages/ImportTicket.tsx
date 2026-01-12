@@ -13,12 +13,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Save, RotateCcw, AlertCircle, ShieldX, Phone } from 'lucide-react';
+import { Save, RotateCcw, AlertCircle, ShieldX, Phone, Calendar, Check, ChevronsUpDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { useDropdownOptions } from '@/hooks/useDropdownOptions';
+import { useDropdownOptions, hsaToStoMap } from '@/hooks/useDropdownOptions';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTeknisi } from '@/hooks/useTeknisi';
+import { cn } from "@/lib/utils";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface TicketFormData {
   hsa: string;
@@ -52,8 +66,8 @@ const emptyForm: TicketFormData = {
   hsa: '',
   sto: '',
   odc: '',
-  stakeHolder: '',
-  jenisPelanggan: '',
+  stakeHolder: 'TLKM',
+  jenisPelanggan: 'TSEL',
   kategori: '',
   tiket: '',
   tiketTacc: '',
@@ -76,10 +90,15 @@ const emptyForm: TicketFormData = {
 
 const REQUIRED_FIELDS: { field: keyof TicketFormData; label: string }[] = [
   { field: 'tiket', label: 'No. Tiket (INC)' },
-  { field: 'kategori', label: 'Kategori Tiket' },
+  { field: 'kategori', label: 'Saverity' },
   { field: 'hsa', label: 'HSA' },
   { field: 'sto', label: 'STO' },
+  { field: 'odc', label: 'ODC' },
   { field: 'reportDate', label: 'Report Date' },
+  { field: 'idPelanggan', label: 'ID Pelanggan / Site' },
+  { field: 'namaPelanggan', label: 'Nama Pelanggan / Site' },
+  { field: 'datek', label: 'DATEK' },
+  { field: 'teknisi1', label: 'Teknisi' },
 ];
 
 const ImportTicket = () => {
@@ -92,6 +111,27 @@ const ImportTicket = () => {
   const [formData, setFormData] = useState<TicketFormData>(emptyForm);
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Partial<Record<keyof TicketFormData, boolean>>>({});
+  const [openTeknisi, setOpenTeknisi] = useState(false);
+  const filteredStoOptions = formData.hsa ? hsaToStoMap[formData.hsa] || [] : [];
+
+  useEffect(() => {
+    const kategori = formData.kategori;
+    if (kategori) {
+      const match = kategori.match(/\[(\d+)\]/);
+      if (match && match[1]) {
+        updateField('ttrTarget', match[1]);
+      } else {
+        updateField('ttrTarget', ''); 
+      }
+    }
+  }, [formData.kategori]);
+
+  useEffect(() => {
+    const currentStoOptions = formData.hsa ? hsaToStoMap[formData.hsa] || [] : [];
+    if (formData.sto && !currentStoOptions.includes(formData.sto)) {
+       updateField('sto', '');
+    }
+  }, [formData.hsa]);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 500);
@@ -219,7 +259,7 @@ const ImportTicket = () => {
           <SelectTrigger className={`h-9 ${error ? 'border-destructive ring-1 ring-destructive' : ''}`}>
             <SelectValue placeholder={placeholder} />
           </SelectTrigger>
-          <SelectContent className="bg-background border shadow-lg z-50">
+          <SelectContent className="bg-background border shadow-lg z-50 max-h-[180px]">
             {options.map(opt => (
               <SelectItem key={opt} value={opt}>{opt}</SelectItem>
             ))}
@@ -322,11 +362,28 @@ const ImportTicket = () => {
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                 <SelectField label="HSA" field="hsa" options={DROPDOWN_OPTIONS.hsa} />
-                <SelectField label="STO" field="sto" options={DROPDOWN_OPTIONS.sto} />
-                <SelectField label="ODC" field="odc" options={DROPDOWN_OPTIONS.odc} />
+                <SelectField label="STO" field="sto" options={filteredStoOptions} />
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium text-muted-foreground">
+                    ODC <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    value={formData.odc}
+                    onChange={(e) => updateField('odc', e.target.value)}
+                    onBlur={() => markTouched('odc')}
+                    placeholder="Masukkan ODC"
+                    className={`h-9 ${errors.odc && touched.odc ? 'border-destructive ring-1 ring-destructive' : ''}`}
+                  />
+                  {errors.odc && touched.odc && (
+                    <p className="text-xs text-destructive flex items-center gap-1 mt-1">
+                      <AlertCircle className="w-3 h-3" />
+                      {errors.odc}
+                    </p>
+                  )}
+                </div>
                 <SelectField label="Stake Holder" field="stakeHolder" options={DROPDOWN_OPTIONS.stakeHolder} />
                 <SelectField label="Jenis Pelanggan" field="jenisPelanggan" options={DROPDOWN_OPTIONS.jenisPelanggan} />
-                <SelectField label="Kategori Tiket" field="kategori" options={DROPDOWN_OPTIONS.kategori} />
+                <SelectField label="Saverity" field="kategori" options={DROPDOWN_OPTIONS.kategori} />
               </div>
             </CardContent>
           </Card>
@@ -337,21 +394,90 @@ const ImportTicket = () => {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <InputField label="No. Tiket (INC)" field="tiket" placeholder="INC44646411" />
-                <InputField label="Tiket TACC" field="tiketTacc" placeholder="Optional" />
-                <InputField label="Induk GAMAS" field="indukGamas" placeholder="INC..." />
-                <InputField label="KJD" field="kjd" placeholder="KJD25199" />
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium text-muted-foreground">
+                    No. Tiket (INC) <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    value={formData.tiket}
+                    onChange={(e) => updateField('tiket', e.target.value)}
+                    onBlur={() => markTouched('tiket')}
+                    placeholder="INC12345678"
+                    className={`h-9 ${errors.tiket && touched.tiket ? 'border-destructive ring-1 ring-destructive' : ''}`}
+                  />
+                  {errors.tiket && touched.tiket && (
+                    <p className="text-xs text-destructive flex items-center gap-1 mt-1">
+                      <AlertCircle className="w-3 h-3" />
+                      {errors.tiket}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium text-muted-foreground">
+                    Tiket TACC
+                  </Label>
+                  <Input
+                    value={formData.tiketTacc}
+                    onChange={(e) => updateField('tiketTacc', e.target.value)}
+                    onBlur={() => markTouched('tiketTacc')}
+                    placeholder="Optional"
+                    className="h-9"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium text-muted-foreground">
+                    Induk GAMAS
+                  </Label>
+                  <Input
+                    value={formData.indukGamas}
+                    onChange={(e) => updateField('indukGamas', e.target.value)}
+                    onBlur={() => markTouched('indukGamas')}
+                    placeholder="Optional"
+                    className="h-9"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium text-muted-foreground">
+                    KJD
+                  </Label>
+                  <Input
+                    value={formData.kjd}
+                    onChange={(e) => updateField('kjd', e.target.value)}
+                    onBlur={() => markTouched('kjd')}
+                    placeholder="KJD12345"
+                    className="h-9"
+                  />
+                </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                <InputField label="Report Date" field="reportDate" placeholder="DD/MM/YYYY HH:MM" />
-                <InputField label="TTR Target (Jam)" field="ttrTarget" placeholder="24" />
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium text-muted-foreground">
+                    Report Date <span className="text-destructive">*</span>
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      type="datetime-local"
+                      value={formData.reportDate}
+                      onChange={(e) => updateField('reportDate', e.target.value)}
+                      className="pl-9 block w-full"
+                    />
+                    <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  </div>
+                  {errors.reportDate && touched.reportDate && (
+                    <p className="text-xs text-destructive flex items-center gap-1 mt-1">
+                      <AlertCircle className="w-3 h-3" />
+                      {errors.reportDate}
+                    </p>
+                  )}
+                </div>
+                <InputField label="TTR Target (Jam)" field="ttrTarget" placeholder="Otomatis..." />
               </div>
               <div className="mt-4">
                 <Label className="text-xs font-medium text-muted-foreground">Summary</Label>
                 <Textarea
                   value={formData.summary}
                   onChange={(e) => updateField('summary', e.target.value)}
-                  placeholder="TSEL_METRO_BLS153_UTAMA_TENAN..."
+                  placeholder="TSEL_METRO_PBR178_PEKANBARU..."
                   className="mt-1.5 min-h-[60px]"
                 />
               </div>
@@ -364,46 +490,165 @@ const ImportTicket = () => {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <InputField label="ID Pelanggan / Site" field="idPelanggan" placeholder="BLS153" />
-                <InputField label="Nama Pelanggan / Site" field="namaPelanggan" placeholder="UTAMA_TENAN" />
-                <InputField label="DATEK" field="datek" placeholder="SLJ/GPON00-D1-SLJ-3" />
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium text-muted-foreground">
+                    ID Pelanggan / Site <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    value={formData.idPelanggan}
+                    onChange={(e) => updateField('idPelanggan', e.target.value)}
+                    onBlur={() => markTouched('idPelanggan')}
+                    placeholder="PBR123"
+                    className={`h-9 ${errors.idPelanggan && touched.idPelanggan ? 'border-destructive ring-1 ring-destructive' : ''}`}
+                    />
+                    {errors.idPelanggan && touched.idPelanggan && (
+                      <p className="text-xs text-destructive flex items-center gap-1 mt-1">
+                        <AlertCircle className="w-3 h-3" />
+                        {errors.idPelanggan}
+                      </p>
+                    )}
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium text-muted-foreground">
+                    Nama Pelanggan / Site <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    value={formData.namaPelanggan}
+                    onChange={(e) => updateField('namaPelanggan', e.target.value)}
+                    onBlur={() => markTouched('namaPelanggan')}
+                    placeholder="PEKANBARU..."
+                    className={`h-9 ${errors.namaPelanggan && touched.namaPelanggan ? 'border-destructive ring-1 ring-destructive' : ''}`}
+                    />
+                    {errors.namaPelanggan && touched.namaPelanggan && (
+                      <p className="text-xs text-destructive flex items-center gap-1 mt-1">
+                        <AlertCircle className="w-3 h-3" />
+                        {errors.namaPelanggan}
+                      </p>
+                    )}
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium text-muted-foreground">
+                    DATEK <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    value={formData.datek}
+                    onChange={(e) => updateField('datek', e.target.value)}
+                    onBlur={() => markTouched('datek')}
+                    placeholder="PBR/GPON01-D1-PBB-1"
+                    className={`h-9 ${errors.datek && touched.datek ? 'border-destructive ring-1 ring-destructive' : ''}`}
+                    />
+                    {errors.datek && touched.datek && (
+                      <p className="text-xs text-destructive flex items-center gap-1 mt-1">
+                        <AlertCircle className="w-3 h-3" />
+                        {errors.datek}
+                      </p>
+                    )}
+                </div>
                 <SelectField label="LOS / Non LOS" field="losNonLos" options={DROPDOWN_OPTIONS.losNonLos} />
-                <InputField label="Site Impact" field="siteImpact" placeholder="PPN555" />
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium text-muted-foreground">
+                    Site Impact
+                  </Label>
+                  <Input
+                    value={formData.siteImpact}
+                    onChange={(e) => updateField('siteImpact', e.target.value)}
+                    onBlur={() => markTouched('siteImpact')}
+                    placeholder="PBR456"
+                    className="h-9"
+                  />
+                </div>
                 <SelectField label="Class Site" field="classSite" options={DROPDOWN_OPTIONS.classSite} />
-                <InputField label="Koordinat" field="koordinat" placeholder="-0.123456, 101.123456" />
-                <InputField label="Histori 6 Bulan" field="histori6Bulan" placeholder="10x" />
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium text-muted-foreground">
+                    Koordinat
+                  </Label>
+                  <Input
+                    value={formData.koordinat}
+                    onChange={(e) => updateField('koordinat', e.target.value)}
+                    onBlur={() => markTouched('koordinat')}
+                    placeholder="-0.123456, 101.123456"
+                    className="h-9"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium text-muted-foreground">
+                    Histori 6 Bulan
+                  </Label>
+                  <Input
+                    value={formData.histori6Bulan}
+                    onChange={(e) => updateField('histori6Bulan', e.target.value)}
+                    onBlur={() => markTouched('histori6Bulan')}
+                    placeholder="10x"
+                    className="h-9"
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-4">
-              <CardTitle className="text-base">Teknisi & Tim (Assign Awal)</CardTitle>
+              <CardTitle className="text-base">Teknisi & Tim</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label className={`text-xs font-medium ${errors.teknisi1 && touched.teknisi1 ? 'text-destructive' : 'text-muted-foreground'}`}>
-                    Teknisi
+                    Teknisi <span className="text-destructive">*</span>
                   </Label>
-                  <Select 
-                    value={formData.teknisi1} 
-                    onValueChange={(v) => updateField('teknisi1', v)}
-                  >
-                    <SelectTrigger className={errors.teknisi1 && touched.teknisi1 ? 'border-destructive' : ''}>
-                      <SelectValue placeholder="Pilih Teknisi" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-background border shadow-lg z-50">
-                      {activeTeknisi.map(teknisi => (
-                        <SelectItem key={teknisi.id} value={teknisi.name}>
-                          <div className="flex items-center gap-2">
-                            <span>{teknisi.name}</span>
-                            <span className="text-xs text-muted-foreground">({teknisi.area})</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={openTeknisi} onOpenChange={setOpenTeknisi}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={openTeknisi}
+                        className={cn(
+                          "w-full justify-between h-9 px-3 font-normal",
+                          !formData.teknisi1 && "text-muted-foreground",
+                          errors.teknisi1 && touched.teknisi1 && "border-destructive ring-1 ring-destructive hover:bg-background"
+                        )}
+                      >
+                        {formData.teknisi1
+                          ? activeTeknisi.find((teknisi) => teknisi.name === formData.teknisi1)?.name
+                          : "Pilih Teknisi..."}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="Cari teknisi..." />
+                        <CommandList>
+                          <CommandEmpty>Teknisi tidak ditemukan.</CommandEmpty>
+                          <CommandGroup>
+                            {activeTeknisi.map((teknisi) => (
+                              <CommandItem
+                                key={teknisi.id}
+                                value={teknisi.name}
+                                onSelect={(currentValue) => {
+                                  updateField('teknisi1', teknisi.name);
+                                  setOpenTeknisi(false);
+                                  if (!touched.teknisi1) {
+                                    markTouched('teknisi1');
+                                  }
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    formData.teknisi1 === teknisi.name ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                <div className="flex flex-col">
+                                  <span>{teknisi.name}</span>
+                                  <span className="text-xs text-muted-foreground">{teknisi.area}</span>
+                                </div>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   {formData.teknisi1 && (
                     <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
                       <Phone className="w-3 h-3" />
@@ -411,7 +656,7 @@ const ImportTicket = () => {
                     </div>
                   )}
                   {errors.teknisi1 && touched.teknisi1 && (
-                    <p className="text-xs text-destructive flex items-center gap-1">
+                    <p className="text-xs text-destructive flex items-center gap-1 mt-1">
                       <AlertCircle className="w-3 h-3" />
                       {errors.teknisi1}
                     </p>

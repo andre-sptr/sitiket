@@ -20,16 +20,25 @@ export interface DropdownOptions {
   kendala: string[];
 }
 
+export const hsaToStoMap: Record<string, string[]> = {
+  'ARENGKA': ['ARK'],
+  'BUKIT RAYA': ['BKR', 'BKN', 'UBT', 'PPN', 'SAK', 'SEA', 'SGP'],
+  'DUMAI': ['DUM', 'BAG', 'BAS', 'SLJ', 'DRI', 'BGU'],
+  'PANGKALAN KERINCI': ['PKR', 'RBI', 'PWG', 'SOK', 'MIS'],
+  'PEKANBARU': ['PBR'],
+  'RENGAT': ['RGT', 'TBH', 'AMK', 'TAK', 'PMB', 'KLE'], 
+};
+
 export const defaultDropdownOptions: DropdownOptions = {
-  hsa: ['Arengka', 'Bukit Raya', 'Dumai', 'Pangkalan Kerinci', 'Pekanbaru', 'Rengat'],
-  sto: ['ARK', 'DUM', 'BAG', 'BAS', 'SLJ', 'DRI', 'BGU'],
+  hsa: ['ARENGKA', 'BUKIT RAYA', 'DUMAI', 'PANGKALAN KERINCI', 'PEKANBARU', 'RENGAT'],
+  sto: ['ARK', 'BKR', 'BKN', 'UBT', 'PPN', 'SAK', 'SEA', 'SGP', 'DUM', 'BAG', 'BAS', 'SLJ', 'DRI', 'BGU', 'PKR', 'RBI', 'PWG', 'SOK', 'MIS', 'PBR', 'RGT', 'TBH', 'AMK', 'TAK', 'PMB', 'KLE'],
   odc: ['MIS', 'SLJ', 'TBH', 'DUM', 'PKU', 'BKN'],
-  stakeHolder: ['TLKM', 'OTHER'],
+  stakeHolder: ['TLKM', 'MTEL', 'LA', 'SPBU', 'UMT', 'ALFAMART', 'INDOMARET', 'KIMIA FARMA'],
   jenisPelanggan: ['TSEL', 'OTHER'],
-  kategori: ['CNQ', 'MINOR [8]', 'MINOR [12]', 'MINOR [24]', 'MAJOR', 'CRITICAL', 'LOW [24]'],
+  kategori: ['LOW[24]', 'MINOR[16]', 'MAJOR[8]', 'CRITICAL[4]', 'PREMIUM[2]', 'OLO[4]', 'OLO GAMAS[7]', 'OLO QUALITY[7]', 'CNQ'],
   losNonLos: ['LOS', 'NON LOS', 'UNSPEC'],
-  classSite: ['Platinum', 'Gold', 'Silver', 'Bronze'],
-  tim: ['Tim A', 'Tim B', 'Selat Panjang'],
+  classSite: ['Platinum'],
+  tim: ['SQUAT-A', 'SQUAT-B'],
   
   statusTiket: ['OPEN', 'ASSIGNED', 'ONPROGRESS', 'TEMPORARY', 'WAITING_MATERIAL', 'WAITING_ACCESS', 'WAITING_COORDINATION', 'CLOSED'],
   compliance: ['COMPLY', 'NOT COMPLY'],
