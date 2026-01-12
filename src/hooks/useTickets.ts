@@ -12,7 +12,6 @@ export interface TicketWithProgress extends TicketRow {
   progress_updates: ProgressUpdateRow[];
 }
 
-// Fetch all tickets with progress updates
 export const useTickets = () => {
   const queryClient = useQueryClient();
 
@@ -32,7 +31,6 @@ export const useTickets = () => {
     },
   });
 
-  // Setup realtime subscription
   useEffect(() => {
     const channel = supabase
       .channel('tickets-realtime')
@@ -60,7 +58,6 @@ export const useTickets = () => {
   return query;
 };
 
-// Fetch single ticket by ID
 export const useTicket = (id: string) => {
   return useQuery({
     queryKey: ['tickets', id],
@@ -81,7 +78,6 @@ export const useTicket = (id: string) => {
   });
 };
 
-// Fetch today's tickets
 export const useTodayTickets = () => {
   const queryClient = useQueryClient();
   const today = new Date();
@@ -104,7 +100,6 @@ export const useTodayTickets = () => {
     },
   });
 
-  // Setup realtime subscription
   useEffect(() => {
     const channel = supabase
       .channel('today-tickets-realtime')
@@ -125,7 +120,6 @@ export const useTodayTickets = () => {
   return query;
 };
 
-// Create ticket mutation
 export const useCreateTicket = () => {
   const queryClient = useQueryClient();
 
@@ -146,7 +140,6 @@ export const useCreateTicket = () => {
   });
 };
 
-// Update ticket mutation
 export const useUpdateTicket = () => {
   const queryClient = useQueryClient();
 
@@ -169,7 +162,6 @@ export const useUpdateTicket = () => {
   });
 };
 
-// Delete ticket mutation
 export const useDeleteTicket = () => {
   const queryClient = useQueryClient();
 
@@ -188,7 +180,6 @@ export const useDeleteTicket = () => {
   });
 };
 
-// Add progress update mutation
 export const useAddProgressUpdate = () => {
   const queryClient = useQueryClient();
 
@@ -210,7 +201,6 @@ export const useAddProgressUpdate = () => {
   });
 };
 
-// Dashboard stats
 export const useDashboardStats = () => {
   const { data: tickets } = useTodayTickets();
 

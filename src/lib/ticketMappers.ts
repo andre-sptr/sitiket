@@ -1,7 +1,6 @@
 import { Ticket, ProgressUpdate } from '@/types/ticket';
 import { TicketWithProgress, ProgressUpdateRow } from '@/hooks/useTickets';
 
-// Convert database ticket to frontend Ticket type
 export const mapDbTicketToTicket = (dbTicket: TicketWithProgress): Ticket => ({
   id: dbTicket.id,
   provider: dbTicket.provider,
@@ -39,7 +38,6 @@ export const mapDbTicketToTicket = (dbTicket: TicketWithProgress): Ticket => ({
   adminNotes: dbTicket.admin_notes || undefined,
 });
 
-// Convert database progress update to frontend ProgressUpdate type
 export const mapDbProgressToProgress = (pu: ProgressUpdateRow): ProgressUpdate => ({
   id: pu.id,
   ticketId: pu.ticket_id,
@@ -54,7 +52,6 @@ export const mapDbProgressToProgress = (pu: ProgressUpdateRow): ProgressUpdate =
   createdBy: pu.created_by || '',
 });
 
-// Convert frontend Ticket to database insert format
 export const mapTicketToDbInsert = (ticket: Partial<Ticket>, userId?: string) => ({
   provider: ticket.provider || 'TSEL',
   inc_numbers: ticket.incNumbers || [],

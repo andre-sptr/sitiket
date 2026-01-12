@@ -85,8 +85,7 @@ const itemVariants = {
 const AllTickets = () => {
   const { toast } = useToast();
   const { data: dbTickets, isLoading } = useTickets();
-  
-  // Convert database tickets to frontend format
+
   const allTickets = useMemo(() => 
     dbTickets?.map(mapDbTicketToTicket) || [], 
     [dbTickets]

@@ -33,14 +33,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const fetchUserData = async (userId: string, email: string) => {
     try {
-      // Get user role
       const { data: roleData } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', userId)
         .maybeSingle();
 
-      // Get user profile
       const { data: profileData } = await supabase
         .from('profiles')
         .select('*')
@@ -59,7 +57,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setUser(authUser);
     } catch (error) {
       console.error('Error fetching user data:', error);
-      // Set default user with guest role
       setUser({
         id: userId,
         email,
@@ -70,13 +67,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   useEffect(() => {
-    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
         
         if (session?.user) {
-          // Use setTimeout to defer Supabase calls
           setTimeout(() => {
             fetchUserData(session.user.id, session.user.email || '');
           }, 0);
@@ -88,7 +83,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     );
 
-    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       
@@ -129,7 +123,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       if (error) return { error };
 
-      // Create profile for new user
       if (data.user) {
         const { error: profileError } = await supabase
           .from('profiles')
@@ -142,7 +135,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           console.error('Error creating profile:', profileError);
         }
 
-        // Assign default guest role
         const { error: roleError } = await supabase
           .from('user_roles')
           .insert({
