@@ -21,11 +21,11 @@ export interface DropdownOptions {
 }
 
 export const defaultDropdownOptions: DropdownOptions = {
-  hsa: ['MIS', 'SLJ', 'TBH', 'DUM', 'PKU', 'BKN'],
-  sto: ['MIS', 'SLJ', 'TBH', 'DUM', 'PKU', 'BKN'],
+  hsa: ['Arengka', 'Bukit Raya', 'Dumai', 'Pangkalan Kerinci', 'Pekanbaru', 'Rengat'],
+  sto: ['ARK', 'DUM', 'BAG', 'BAS', 'SLJ', 'DRI', 'BGU'],
   odc: ['MIS', 'SLJ', 'TBH', 'DUM', 'PKU', 'BKN'],
   stakeHolder: ['TLKM', 'OTHER'],
-  jenisPelanggan: ['TSEL', 'ISAT', 'XL', 'OTHER'],
+  jenisPelanggan: ['TSEL', 'OTHER'],
   kategori: ['CNQ', 'MINOR [8]', 'MINOR [12]', 'MINOR [24]', 'MAJOR', 'CRITICAL', 'LOW [24]'],
   losNonLos: ['LOS', 'NON LOS', 'UNSPEC'],
   classSite: ['Platinum', 'Gold', 'Silver', 'Bronze'],

@@ -75,7 +75,7 @@ export interface DashboardStats {
   openTickets: number;
   overdueTickets: number;
   closedToday: number;
-  avgResponseTime: number;
+  pendingTickets: number;
   complianceRate: number;
 }
 

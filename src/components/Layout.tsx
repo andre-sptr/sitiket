@@ -121,7 +121,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="relative h-9 w-9">
+                  <Button variant="ghost" size="icon" className="relative h-9 w-9 overflow-visible">
                     <Bell className="w-[18px] h-[18px]" />
                     {unreadNotifications > 0 && (
                       <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full flex items-center justify-center">

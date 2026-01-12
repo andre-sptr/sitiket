@@ -309,7 +309,7 @@ const AllTickets = () => {
             <div className="relative flex-1 group">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground transition-colors duration-200 group-focus-within:text-primary" />
               <Input
-                placeholder="Cari INC, site, lokasi, teknisi..."
+                placeholder="Cari INC, site, lokasi, atau teknisi..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-9 transition-all duration-200 focus:ring-2 focus:ring-primary/20 focus:border-primary/50"
@@ -569,7 +569,7 @@ const AllTickets = () => {
                 <SelectValue placeholder="Kategori" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL">Kategori</SelectItem>
+                <SelectItem value="ALL">Saverity</SelectItem>
                 {filterOptions.kategoris.map(kategori => (
                   <SelectItem key={kategori} value={kategori}>
                     {kategori}

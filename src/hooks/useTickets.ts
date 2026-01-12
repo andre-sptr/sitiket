@@ -204,12 +204,19 @@ export const useAddProgressUpdate = () => {
 export const useDashboardStats = () => {
   const { data: tickets } = useTodayTickets();
 
+  const pendingCount = tickets?.filter(t => 
+    t.status === 'WAITING_MATERIAL' || 
+    t.status === 'WAITING_ACCESS' || 
+    t.status === 'WAITING_COORDINATION' ||
+    t.status === 'TEMPORARY'
+  ).length ?? 0;
+
   const stats = {
     totalToday: tickets?.length ?? 0,
     openTickets: tickets?.filter(t => t.status === 'OPEN' || t.status === 'ASSIGNED' || t.status === 'ONPROGRESS').length ?? 0,
     overdueTickets: tickets?.filter(t => t.sisa_ttr_hours < 0 && t.status !== 'CLOSED').length ?? 0,
     closedToday: tickets?.filter(t => t.status === 'CLOSED').length ?? 0,
-    avgResponseTime: 15,
+    pendingTickets: pendingCount,
     complianceRate: tickets?.length 
       ? Math.round((tickets.filter(t => t.ttr_compliance === 'COMPLY').length / tickets.length) * 100) 
       : 0,

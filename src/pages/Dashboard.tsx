@@ -16,11 +16,11 @@ import {
   Clock, 
   AlertTriangle, 
   CheckCircle2,
-  TrendingUp,
   Percent,
   Plus,
   RefreshCw,
-  ArrowRight
+  ArrowRight,
+  Hourglass
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
@@ -86,7 +86,7 @@ const Dashboard = () => {
               <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
               <span className="hidden sm:inline">Refresh</span>
             </Button>
-            {user?.role !== 'guest' && (
+            {user?.role !== 'guest' && user?.role !== 'admin' && (
               <Link to="/import">
                 <Button size="sm" className="gap-2 h-9">
                   <Plus className="w-4 h-4" />
@@ -149,10 +149,11 @@ const Dashboard = () => {
           ) : (
             <>
               <StatsCard
-                title="Rata-rata Respon"
-                value={`${stats.avgResponseTime}m`}
-                subtitle="Waktu respon pertama TA"
-                icon={TrendingUp}
+                title="Tiket Pending"
+                value={stats.pendingTickets}
+                subtitle="Menunggu Material/Akses"
+                icon={Hourglass}
+                variant="default"
                 index={4}
               />
               <StatsCard
