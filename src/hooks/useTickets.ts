@@ -194,6 +194,18 @@ export const useAddProgressUpdate = () => {
         .single();
 
       if (error) throw error;
+
+      if (update.status_after_update) {
+        const { error: ticketError } = await supabase
+          .from('tickets')
+          .update({ 
+            status: update.status_after_update,
+            updated_at: new Date().toISOString() 
+          })
+          .eq('id', update.ticket_id);
+
+        if (ticketError) throw ticketError;
+      }
       return data;
     },
     onSuccess: (data) => {

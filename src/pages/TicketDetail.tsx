@@ -45,6 +45,71 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+const TTRCountdown = ({ targetDate, status }: { targetDate: Date | string, status: string }) => {
+  const [timeState, setTimeState] = useState({ display: '-', isOverdue: false, isClosed: false });
+
+  useEffect(() => {
+    if (status === 'CLOSED') {
+      setTimeState({ display: "TIKET CLOSED", isOverdue: false, isClosed: true });
+      return;
+    }
+
+    const calculateTime = () => {
+      const now = new Date().getTime();
+      const target = new Date(targetDate).getTime();
+      const diff = target - now;
+      const isLate = diff < 0; 
+
+      const duration = Math.abs(diff);
+      const days = Math.floor(duration / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((duration % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((duration % (1000 * 60)) / 1000);
+
+      let timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      
+      if (days > 0) {
+        timeString = `${days}h ${timeString}`;
+      }
+
+      setTimeState({ 
+        display: timeString, 
+        isOverdue: isLate, 
+        isClosed: false 
+      });
+    };
+
+    calculateTime();
+    const interval = setInterval(calculateTime, 1000); 
+
+    return () => clearInterval(interval);
+  }, [targetDate, status]);
+
+  let badgeVariant: "default" | "secondary" | "destructive" | "outline" | "success" | "critical" = "success";
+  
+  if (timeState.isClosed) {
+    badgeVariant = "secondary";
+  } else if (timeState.isOverdue) {
+    badgeVariant = "critical";
+  }
+
+  return (
+    <Badge 
+      variant={badgeVariant}
+      className={`font-mono gap-1.5 font-medium ${timeState.isOverdue && !timeState.isClosed ? 'animate-pulse' : ''}`}
+    >
+      <Clock className="w-3 h-3" />
+      {timeState.isClosed ? (
+        <span>{timeState.display}</span>
+      ) : timeState.isOverdue ? (
+        <span>+{timeState.display} <span className="ml-0.5 font-bold">OVERDUE</span></span>
+      ) : (
+        <span>{timeState.display}</span>
+      )}
+    </Badge>
+  );
+};
+
 const TicketDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -234,7 +299,7 @@ const TicketDetail = () => {
               <CardContent className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Sisa Waktu</span>
-                  <TTRBadge hours={ticket.sisaTtrHours} />
+                  <TTRCountdown targetDate={ticket.maxJamClose} status={ticket.status} />
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Compliance</span>
