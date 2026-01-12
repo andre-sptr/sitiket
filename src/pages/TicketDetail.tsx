@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useTicket } from '@/hooks/useTickets';
+import { useTicket, useDeleteTicket, useAddProgressUpdate } from '@/hooks/useTickets';
 import { mapDbTicketToTicket } from '@/lib/ticketMappers';
 import { formatDateWIB, generateWhatsAppMessage, generateGoogleMapsLink, getStatusLabel } from '@/lib/formatters';
 import { TicketStatus } from '@/types/ticket';
@@ -28,19 +28,33 @@ import {
   ExternalLink,
   FileText,
   Send,
-  Phone
+  Phone,
+  Trash2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const TicketDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
+  const deleteTicket = useDeleteTicket();
   const { data: dbTicket, isLoading } = useTicket(id || '');
   const [updateMessage, setUpdateMessage] = useState('');
   const [updateStatus, setUpdateStatus] = useState<TicketStatus | ''>('');
+  const addProgressUpdate = useAddProgressUpdate();
   const isGuest = user?.role === 'guest';
   const ticket = dbTicket ? mapDbTicketToTicket(dbTicket) : null;
 
@@ -65,6 +79,26 @@ const TicketDetail = () => {
     );
   }
 
+  const handleDelete = async () => {
+    if (!ticket) return;
+
+    try {
+      await deleteTicket.mutateAsync(ticket.id);
+      toast({
+        title: "Tiket Dihapus",
+        description: `Tiket ${ticket.incNumbers?.[0] || 'tersebut'} berhasil dihapus permanen.`,
+      });
+      navigate('/tickets');
+    } catch (error) {
+      console.error('Gagal menghapus:', error);
+      toast({
+        title: "Gagal Menghapus",
+        description: "Terjadi kesalahan saat menghapus tiket.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleCopyShareMessage = () => {
     const message = generateWhatsAppMessage('share', ticket);
     navigator.clipboard.writeText(message);
@@ -83,7 +117,7 @@ const TicketDetail = () => {
     });
   };
 
-  const handleSubmitUpdate = () => {
+  const handleSubmitUpdate = async () => {
     if (!updateMessage.trim()) {
       toast({
         title: "Error",
@@ -93,12 +127,33 @@ const TicketDetail = () => {
       return;
     }
 
-    toast({
-      title: "Update Berhasil",
-      description: "Progress update telah ditambahkan ke timeline",
-    });
-    setUpdateMessage('');
-    setUpdateStatus('');
+    if (!ticket || !user) return;
+
+    try {
+      await addProgressUpdate.mutateAsync({
+        ticket_id: ticket.id,
+        message: updateMessage,
+        status_after_update: updateStatus || null, 
+        source: 'HD',
+        created_by: user.id,
+      });
+
+      toast({
+        title: "Update Berhasil",
+        description: "Progress update telah ditambahkan ke timeline",
+      });
+      
+      setUpdateMessage('');
+      setUpdateStatus('');
+      
+    } catch (error) {
+      console.error('Gagal update:', error);
+      toast({
+        title: "Gagal Update",
+        description: "Terjadi kesalahan saat menyimpan update.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -130,6 +185,33 @@ const TicketDetail = () => {
               <FileText className="w-4 h-4" />
               Update Tiket
             </Button>
+            {user?.role !== 'guest' && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="sm" className="gap-2">
+                    <Trash2 className="w-4 h-4" />
+                    <span className="hidden sm:inline">Hapus Tiket</span>
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Tindakan ini tidak dapat dibatalkan. Tiket <strong>{ticket?.incNumbers?.[0]}</strong> akan dihapus secara permanen dari database.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Batal</AlertDialogCancel>
+                    <AlertDialogAction 
+                      onClick={handleDelete}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      Ya, Hapus
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
             <Button variant="whatsapp" size="sm" className="gap-2" onClick={handleCopyShareMessage}>
               <Copy className="w-4 h-4" />
               Copy Pesan WA
@@ -284,13 +366,14 @@ const TicketDetail = () => {
                     <SelectTrigger>
                       <SelectValue placeholder="Status baru (opsional)" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="max-h-[190px]">
                       <SelectItem value="ONPROGRESS">On Progress</SelectItem>
+                      <SelectItem value="PENDING">Pending</SelectItem>
                       <SelectItem value="TEMPORARY">Temporary</SelectItem>
+                      <SelectItem value="CLOSED">Closed</SelectItem>
                       <SelectItem value="WAITING_MATERIAL">Menunggu Material</SelectItem>
                       <SelectItem value="WAITING_ACCESS">Menunggu Akses</SelectItem>
                       <SelectItem value="WAITING_COORDINATION">Menunggu Koordinasi</SelectItem>
-                      <SelectItem value="CLOSED">Closed</SelectItem>
                     </SelectContent>
                   </Select>
                   <Textarea

@@ -134,8 +134,8 @@ export const useCreateTicket = () => {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tickets'] });
+    onSuccess: async () => {
+      await queryClient.resetQueries({ queryKey: ['tickets'] });
     },
   });
 };
@@ -155,9 +155,8 @@ export const useUpdateTicket = () => {
       if (error) throw error;
       return data;
     },
-    onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: ['tickets'] });
-      queryClient.invalidateQueries({ queryKey: ['tickets', id] });
+    onSuccess: async (_, { id }) => {
+      await queryClient.resetQueries({ queryKey: ['tickets'] });
     },
   });
 };
@@ -167,15 +166,18 @@ export const useDeleteTicket = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error, count } = await supabase
         .from('tickets')
-        .delete()
+        .delete({ count: 'exact' })
         .eq('id', id);
 
       if (error) throw error;
+      if (count === 0) {
+        throw new Error("Gagal menghapus. Data tidak ditemukan atau akses ditolak.");
+      }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tickets'] });
+    onSuccess: async () => {
+      await queryClient.resetQueries({ queryKey: ['tickets'] });
     },
   });
 };

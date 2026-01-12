@@ -22,7 +22,7 @@ import { useTickets } from '@/hooks/useTickets';
 import { mapDbTicketToTicket } from '@/lib/ticketMappers';
 import { generateWhatsAppMessage, getStatusLabel } from '@/lib/formatters';
 import { Ticket, TicketStatus } from '@/types/ticket';
-import { Search, Filter, X, SlidersHorizontal, Calendar as CalendarIcon, RotateCcw } from 'lucide-react';
+import { Search, Filter, X, SlidersHorizontal, Calendar as CalendarIcon, RotateCcw, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   Sheet,
@@ -84,13 +84,14 @@ const itemVariants = {
 
 const AllTickets = () => {
   const { toast } = useToast();
-  const { data: dbTickets, isLoading } = useTickets();
+  const { data: dbTickets, isLoading, refetch } = useTickets();
 
   const allTickets = useMemo(() => 
     dbTickets?.map(mapDbTicketToTicket) || [], 
     [dbTickets]
   );
   
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [complianceFilter, setComplianceFilter] = useState<string>('ALL');
@@ -104,7 +105,15 @@ const AllTickets = () => {
     from: undefined,
     to: undefined,
   });
-  const [sortBy, setSortBy] = useState<string>('ttr');
+
+  const [sortBy, setSortBy] = useState<string>('newest');
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await refetch();
+    setIsRefreshing(false);
+    toast({ title: "Data diperbarui", description: "Daftar tiket telah di-refresh" });
+  };
   
   const filterOptions = useMemo(() => ({
     providers: getUniqueValues(allTickets, 'provider'),
@@ -129,13 +138,9 @@ const AllTickets = () => {
         ticket.kjd?.toLowerCase().includes(searchLower);
 
       const matchesStatus = statusFilter === 'ALL' || ticket.status === statusFilter;
-
       const matchesCompliance = complianceFilter === 'ALL' || ticket.ttrCompliance === complianceFilter;
-
       const matchesProvider = providerFilter === 'ALL' || ticket.provider === providerFilter;
-
       const matchesKategori = kategoriFilter === 'ALL' || ticket.kategori === kategoriFilter;
-
       const matchesJarak = jarakFilter === 'ALL' || ticket.jarakKmRange === jarakFilter;
 
       let matchesDateRange = true;
@@ -154,7 +159,7 @@ const AllTickets = () => {
       return matchesSearch && matchesStatus && matchesCompliance && 
              matchesProvider && matchesKategori && matchesJarak && matchesDateRange;
     });
-  }, [searchQuery, statusFilter, complianceFilter, providerFilter, 
+  }, [allTickets, searchQuery, statusFilter, complianceFilter, providerFilter, 
       kategoriFilter, jarakFilter, dateRange]);
 
   const sortedTickets = useMemo(() => {
@@ -193,7 +198,7 @@ const AllTickets = () => {
     setKategoriFilter('ALL');
     setJarakFilter('ALL');
     setDateRange({ from: undefined, to: undefined });
-    setSortBy('ttr');
+    setSortBy('newest'); 
   };
 
   const handlePresetRange = (days: number) => {
@@ -284,15 +289,26 @@ const AllTickets = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4, delay: 0.1 }}
           >
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="gap-2 h-9 mr-2" 
+              onClick={handleRefresh} 
+              disabled={isRefreshing || isLoading}
+            >
+              <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              <span>Refresh</span>
+            </Button>
+            
             <span className="text-sm text-muted-foreground">Urutkan:</span>
             <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-[160px] transition-all duration-200 hover:border-primary/50">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ttr">Sisa TTR</SelectItem>
                 <SelectItem value="newest">Terbaru</SelectItem>
                 <SelectItem value="oldest">Terlama</SelectItem>
+                <SelectItem value="ttr">Sisa TTR</SelectItem>
                 <SelectItem value="site">Site Code</SelectItem>
               </SelectContent>
             </Select>
@@ -369,7 +385,7 @@ const AllTickets = () => {
                     label="Urutkan"
                     value={sortBy}
                     onValueChange={setSortBy}
-                    options={['ttr', 'newest', 'oldest', 'site']}
+                    options={['newest', 'oldest', 'ttr', 'site']}
                     placeholder="Urutkan"
                     allLabel="Sisa TTR"
                   />

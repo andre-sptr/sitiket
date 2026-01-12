@@ -57,6 +57,7 @@ export const getStatusLabel = (status: TicketStatus): string => {
   const labels: Record<TicketStatus, string> = {
     OPEN: 'Open',
     ASSIGNED: 'Assigned',
+    PENDING: 'Pending',
     ONPROGRESS: 'On Progress',
     TEMPORARY: 'Temporary',
     WAITING_MATERIAL: 'Menunggu Material',
@@ -71,6 +72,7 @@ export const getStatusColor = (status: TicketStatus): string => {
   const colors: Record<TicketStatus, string> = {
     OPEN: 'bg-status-open text-white',
     ASSIGNED: 'bg-status-assigned text-white',
+    PENDING: 'bg-status-pending text-white',
     ONPROGRESS: 'bg-status-onprogress text-white',
     TEMPORARY: 'bg-status-temporary text-white',
     WAITING_MATERIAL: 'bg-status-waiting text-black',

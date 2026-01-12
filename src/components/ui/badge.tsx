@@ -16,6 +16,7 @@ const badgeVariants = cva(
         onprogress: "border-transparent bg-status-onprogress text-white",
         temporary: "border-transparent bg-status-temporary text-white",
         waiting: "border-transparent bg-status-waiting text-black",
+        pending: "border-transparent bg-status-pending text-white",
         closed: "border-transparent bg-status-closed text-white",
         overdue: "border-transparent bg-status-overdue text-white animate-pulse",
         comply: "border-emerald-200 bg-emerald-100 text-emerald-700",

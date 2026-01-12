@@ -278,6 +278,7 @@ export type Database = {
       ticket_status:
         | "OPEN"
         | "ASSIGNED"
+        | "PENDING"
         | "ONPROGRESS"
         | "TEMPORARY"
         | "WAITING_MATERIAL"
@@ -416,6 +417,7 @@ export const Constants = {
       ticket_status: [
         "OPEN",
         "ASSIGNED",
+        "PENDING",
         "ONPROGRESS",
         "TEMPORARY",
         "WAITING_MATERIAL",

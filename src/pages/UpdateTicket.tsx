@@ -16,12 +16,13 @@ import {
 } from '@/components/ui/select';
 import { ArrowLeft, Save, Clock, AlertTriangle, CheckCircle, AlertCircle, ShieldX, Phone } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getTicketById } from '@/lib/mockData';
+import { useTicket, useUpdateTicket } from '@/hooks/useTickets';
 import { StatusBadge, TTRBadge, ComplianceBadge } from '@/components/StatusBadge';
 import { formatDateWIB } from '@/lib/formatters';
 import { useDropdownOptions } from '@/hooks/useDropdownOptions';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTeknisi } from '@/hooks/useTeknisi';
+import { TicketStatus, TTRCompliance } from '@/types/ticket';
 
 interface UpdateFormData {
   statusTiket: string;
@@ -111,32 +112,23 @@ const UpdateTicket = () => {
   const { user } = useAuth();
   const { options: DROPDOWN_OPTIONS } = useDropdownOptions();
   const { activeTeknisi } = useTeknisi();
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: ticket, isLoading: isTicketLoading } = useTicket(id || '');
+  const updateTicketMutation = useUpdateTicket();
   const [formData, setFormData] = useState<UpdateFormData>(emptyForm);
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Partial<Record<keyof UpdateFormData, boolean>>>({});
-
-  const ticket = getTicketById(id || '');
-
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 600);
-    return () => clearTimeout(timer);
-  }, [id]);
 
   useEffect(() => {
     if (ticket) {
       setFormData(prev => ({
         ...prev,
         statusTiket: ticket.status || '',
-        compliance: ticket.ttrCompliance || '',
-        ttrSisa: ticket.sisaTtrHours?.toString() || '',
-        teknisi1: ticket.teknisiList?.[0] || '',
-        teknisi2: ticket.teknisiList?.[1] || '',
-        teknisi3: ticket.teknisiList?.[2] || '',
-        teknisi4: ticket.teknisiList?.[3] || '',
+        compliance: ticket.ttr_compliance || '', 
+        ttrSisa: ticket.sisa_ttr_hours?.toString() || '',
+        
         penyebabGangguan: ticket.penyebab || '',
         segmenTerganggu: ticket.segmen || '',
-        permanenTemporer: ticket.isPermanent ? 'PERMANEN' : 'TEMPORER',
+        permanenTemporer: ticket.is_permanent ? 'PERMANEN' : 'TEMPORER',
       }));
     }
   }, [ticket]);
@@ -158,7 +150,7 @@ const UpdateTicket = () => {
     );
   }
 
-  if (isLoading) {
+  if (isTicketLoading) {
     return (
       <Layout>
         <UpdateFormSkeleton />
@@ -215,7 +207,7 @@ const UpdateTicket = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateForm()) {
       toast({
         title: "Validasi Gagal",
@@ -225,12 +217,41 @@ const UpdateTicket = () => {
       return;
     }
 
-    toast({
-      title: "Update Berhasil",
-      description: `Tiket ${ticket.incNumbers[0]} berhasil diupdate`,
-    });
-    
-    navigate(`/ticket/${id}`);
+    try {
+      const updates = {
+        status: formData.statusTiket as TicketStatus,
+        ttr_compliance: formData.compliance as TTRCompliance,
+        sisa_ttr_hours: parseFloat(formData.ttrSisa) || 0,
+        penyebab: formData.penyebabGangguan,
+        segmen: formData.segmenTerganggu,
+        is_permanent: formData.permanenTemporer === 'PERMANEN',
+
+        teknisi_1: formData.teknisi1,
+        teknisi_2: formData.teknisi2,
+
+        updated_at: new Date().toISOString(),
+      };
+
+      await updateTicketMutation.mutateAsync({ 
+        id: id!, 
+        updates: updates 
+      });
+
+      toast({
+        title: "Update Berhasil",
+        description: `Tiket berhasil diupdate`,
+      });
+      
+      navigate(`/ticket/${id}`);
+
+    } catch (error) {
+      console.error('Error updating ticket:', error);
+      toast({
+        title: "Gagal Update",
+        description: "Terjadi kesalahan saat menyimpan data.",
+        variant: "destructive",
+      });
+    }
   };
 
   const isFieldRequired = (field: keyof UpdateFormData): boolean => {
@@ -353,11 +374,11 @@ const UpdateTicket = () => {
             <div className="flex flex-wrap items-center gap-4">
               <div>
                 <p className="text-xs text-muted-foreground">No. Tiket</p>
-                <p className="font-mono font-semibold">{ticket.incNumbers.join(', ')}</p>
+                <p className="font-mono font-semibold">{Array.isArray(ticket.inc_numbers) ? ticket.inc_numbers.join(', ') : ticket.inc_numbers}</p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Site</p>
-                <p className="font-medium">{ticket.siteCode} - {ticket.siteName}</p>
+                <p className="font-medium">{ticket.site_code} - {ticket.site_name}</p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Kategori</p>
@@ -369,11 +390,11 @@ const UpdateTicket = () => {
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Jam Open</p>
-                <p className="font-mono text-xs">{formatDateWIB(ticket.jamOpen)}</p>
+                <p className="font-mono text-xs">{formatDateWIB(new Date(ticket.jam_open))}</p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">TTR Sisa</p>
-                <TTRBadge hours={ticket.sisaTtrHours} />
+                <TTRBadge hours={ticket.sisa_ttr_hours} />
               </div>
             </div>
           </CardContent>

@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Save, RotateCcw, AlertCircle, ShieldX, Phone, Calendar, Check, ChevronsUpDown } from 'lucide-react';
+import { Save, RotateCcw, AlertCircle, ShieldX, Phone, Calendar, Check, ChevronsUpDown, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { useDropdownOptions, hsaToStoMap } from '@/hooks/useDropdownOptions';
@@ -186,7 +186,7 @@ const ImportTicket = () => {
     });
 
     if (formData.tiket && !formData.tiket.toUpperCase().startsWith('INC')) {
-      newErrors.tiket = 'Format tiket harus dimulai dengan INC (contoh: INC44646411)';
+      newErrors.tiket = 'Format tiket harus dimulai dengan INC (contoh: INC12345678)';
     }
 
     setErrors(newErrors);
@@ -218,6 +218,7 @@ const ImportTicket = () => {
 
     try {
       const jamOpen = new Date(formData.reportDate);
+      const initialStatus = formData.teknisi1 ? 'ASSIGNED' : 'OPEN';
       const ttrHours = parseInt(formData.ttrTarget) || 24;
       const maxJamClose = new Date(jamOpen.getTime() + (ttrHours * 60 * 60 * 1000));
       let lat = null;
@@ -236,7 +237,7 @@ const ImportTicket = () => {
         jam_open: jamOpen.toISOString(),
         ttr_target_hours: ttrHours,
         max_jam_close: maxJamClose.toISOString(),
-        status: 'OPEN',
+        status: initialStatus,
         provider: formData.jenisPelanggan,
         kjd: formData.kjd || null,
         inc_gamas: formData.indukGamas || null,
@@ -248,7 +249,7 @@ const ImportTicket = () => {
       });
       toast({
         title: "Tiket Berhasil Disimpan",
-        description: `Tiket ${formData.tiket} telah ditambahkan dengan status OPEN`,
+        description: `Tiket ${formData.tiket} telah ditambahkan dengan status ${initialStatus}`,
       });
       navigate('/tickets');
     } catch (error) {
@@ -349,6 +350,23 @@ const ImportTicket = () => {
         )}
       </div>
     );
+  };
+
+  const setReportDateToNow = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    
+    const formattedDate = `${year}-${month}-${day}T${hours}:${minutes}`;
+    
+    updateField('reportDate', formattedDate);
+  
+    if (!touched.reportDate) {
+      markTouched('reportDate');
+    }
   };
 
   const hasErrors = Object.keys(errors).length > 0;
@@ -501,6 +519,16 @@ const ImportTicket = () => {
                       className="pl-9 block w-full"
                     />
                     <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-9 w-9 text-muted-foreground hover:text-primary"
+                      onClick={setReportDateToNow}
+                      title="Set waktu saat ini"
+                    >
+                      <Clock className="h-4 w-4" />
+                    </Button>
                   </div>
                   {errors.reportDate && touched.reportDate && (
                     <p className="text-xs text-destructive flex items-center gap-1 mt-1">

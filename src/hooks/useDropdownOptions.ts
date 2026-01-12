@@ -40,7 +40,7 @@ export const defaultDropdownOptions: DropdownOptions = {
   classSite: ['Platinum'],
   tim: ['SQUAT-A', 'SQUAT-B'],
   
-  statusTiket: ['OPEN', 'ASSIGNED', 'ONPROGRESS', 'TEMPORARY', 'WAITING_MATERIAL', 'WAITING_ACCESS', 'WAITING_COORDINATION', 'CLOSED'],
+  statusTiket: ['OPEN', 'CLOSED', 'GAMAS', 'PENDING', 'ASSIGNED', 'ONPROGRESS', 'TEMPORARY', 'WAITING_MATERIAL', 'WAITING_ACCESS', 'WAITING_COORDINATION' ],
   compliance: ['COMPLY', 'NOT COMPLY'],
   permanenTemporer: ['PERMANEN', 'TEMPORER'],
   statusAlatBerat: ['TIDAK PERLU', 'DIMINTA', 'DALAM PROSES', 'SELESAI'],
