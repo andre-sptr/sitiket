@@ -145,28 +145,31 @@ const UserManagement = () => {
     setIsDeleteDialogOpen(true);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!formData.name.trim()) {
       toast.error('Nama pengguna harus diisi');
       return;
     }
-
-    if (editingUser) {
-      updateUser(editingUser.id, formData);
-      toast.success('Pengguna berhasil diperbarui');
-    } else {
-      addUser(formData);
-      toast.success('Pengguna berhasil ditambahkan');
+    try {
+      if (editingUser) {
+        await updateUser(editingUser.id, formData);
+        toast.success('Pengguna berhasil diperbarui');
+        setIsDialogOpen(false);
+        setFormData(initialFormData);
+        setEditingUser(null);
+      } else {
+        await addUser(formData);
+        setIsDialogOpen(false);
+        setFormData(initialFormData);
+      }
+    } catch (error) {
+      console.log("Operation cancelled or failed");
     }
-    setIsDialogOpen(false);
-    setFormData(initialFormData);
-    setEditingUser(null);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (userToDelete) {
-      deleteUser(userToDelete.id);
-      toast.success('Pengguna berhasil dihapus');
+      await deleteUser(userToDelete.id);
       setIsDeleteDialogOpen(false);
       setUserToDelete(null);
     }

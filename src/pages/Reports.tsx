@@ -1,6 +1,7 @@
 import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { mockTickets, mockDashboardStats } from '@/lib/mockData';
 import { 
   BarChart3, 
   TrendingUp, 

@@ -17,6 +17,7 @@ import {
   Wrench
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import { useNotifications } from '@/hooks/useNotifications';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +26,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { formatDistanceToNow } from 'date-fns';
+import { id as idLocale } from 'date-fns/locale';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -59,12 +62,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { user, signOut } = useAuth();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
 
   const navItems = user?.role === 'admin' ? adminNavItems : 
                    user?.role === 'hd' ? hdNavItems :
                    user?.role === 'guest' ? guestNavItems : [];
-
-  const unreadNotifications = mockNotifications.filter(n => !n.isRead).length;
 
   return (
     <div className="min-h-screen bg-background">
@@ -122,26 +124,52 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="relative h-9 w-9 overflow-visible">
                     <Bell className="w-[18px] h-[18px]" />
-                    {unreadNotifications > 0 && (
-                      <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
-                        {unreadNotifications}
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse">
+                        {unreadCount}
                       </span>
                     )}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-80 p-0">
-                  <DropdownMenuLabel className="px-4 py-3 border-b border-border">
-                    Notifikasi
-                  </DropdownMenuLabel>
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+                    <span className="font-semibold text-sm">Notifikasi</span>
+                    {unreadCount > 0 && (
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-auto p-0 text-xs text-primary hover:text-primary/80"
+                        onClick={() => markAllAsRead()}
+                      >
+                        Tandai semua dibaca
+                      </Button>
+                    )}
+                  </div>
                   <div className="max-h-80 overflow-y-auto">
-                    {mockNotifications.slice(0, 5).map((notif) => (
-                      <DropdownMenuItem key={notif.id} className="flex flex-col items-start gap-1 px-4 py-3 cursor-pointer">
-                        <span className={`text-sm ${!notif.isRead ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
-                          {notif.title}
-                        </span>
-                        <span className="text-xs text-muted-foreground line-clamp-2">{notif.message}</span>
-                      </DropdownMenuItem>
-                    ))}
+                    {notifications.length === 0 ? (
+                      <div className="px-4 py-8 text-center text-muted-foreground text-sm">
+                        Belum ada notifikasi
+                      </div>
+                    ) : (
+                      notifications.map((notif) => (
+                        <DropdownMenuItem 
+                          key={notif.id} 
+                          className={`flex flex-col items-start gap-1 px-4 py-3 cursor-pointer border-b border-border/50 last:border-0 ${!notif.isRead ? 'bg-muted/50' : ''}`}
+                          onClick={() => markAsRead(notif.id)}
+                        >
+                          <div className="flex items-center justify-between w-full">
+                            <span className={`text-sm ${!notif.isRead ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>
+                              {notif.title}
+                            </span>
+                            {!notif.isRead && <span className="w-2 h-2 rounded-full bg-primary" />}
+                          </div>
+                          <span className="text-xs text-muted-foreground line-clamp-2">{notif.message}</span>
+                          <span className="text-[10px] text-muted-foreground mt-1">
+                            {formatDistanceToNow(new Date(notif.timestamp), { addSuffix: true, locale: idLocale })}
+                          </span>
+                        </DropdownMenuItem>
+                      ))
+                    )}
                   </div>
                 </DropdownMenuContent>
               </DropdownMenu>
