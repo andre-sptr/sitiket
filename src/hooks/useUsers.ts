@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { User, UserRole } from '@/types/ticket';
-import { mockUsers } from '@/lib/mockData';
 
 const STORAGE_KEY = 'app_users';
 

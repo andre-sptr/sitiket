@@ -15,7 +15,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getTicketById, mockUsers } from '@/lib/mockData';
+import { useTicket } from '@/hooks/useTickets';
+import { mapDbTicketToTicket } from '@/lib/ticketMappers';
 import { formatDateWIB, generateWhatsAppMessage, generateGoogleMapsLink, getStatusLabel } from '@/lib/formatters';
 import { TicketStatus } from '@/types/ticket';
 import { 
@@ -37,18 +38,11 @@ const TicketDetail = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: dbTicket, isLoading } = useTicket(id || '');
   const [updateMessage, setUpdateMessage] = useState('');
   const [updateStatus, setUpdateStatus] = useState<TicketStatus | ''>('');
-
   const isGuest = user?.role === 'guest';
-
-  const ticket = getTicketById(id || '');
-
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 600);
-    return () => clearTimeout(timer);
-  }, [id]);
+  const ticket = dbTicket ? mapDbTicketToTicket(dbTicket) : null;
 
   if (isLoading) {
     return (

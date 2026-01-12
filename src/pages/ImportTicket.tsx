@@ -19,6 +19,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDropdownOptions, hsaToStoMap } from '@/hooks/useDropdownOptions';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTeknisi } from '@/hooks/useTeknisi';
+import { useCreateTicket } from '@/hooks/useTickets';
 import { cn } from "@/lib/utils";
 import {
   Command,
@@ -113,6 +114,7 @@ const ImportTicket = () => {
   const [touched, setTouched] = useState<Partial<Record<keyof TicketFormData, boolean>>>({});
   const [openTeknisi, setOpenTeknisi] = useState(false);
   const filteredStoOptions = formData.hsa ? hsaToStoMap[formData.hsa] || [] : [];
+  const createTicket = useCreateTicket();
 
   useEffect(() => {
     const kategori = formData.kategori;
@@ -204,7 +206,7 @@ const ImportTicket = () => {
     setTouched({});
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateForm()) {
       toast({
         title: "Validasi Gagal",
@@ -214,12 +216,49 @@ const ImportTicket = () => {
       return;
     }
 
-    toast({
-      title: "Tiket Berhasil Disimpan",
-      description: `Tiket ${formData.tiket} telah ditambahkan dengan status OPEN`,
-    });
-    
-    navigate('/tickets');
+    try {
+      const jamOpen = new Date(formData.reportDate);
+      const ttrHours = parseInt(formData.ttrTarget) || 24;
+      const maxJamClose = new Date(jamOpen.getTime() + (ttrHours * 60 * 60 * 1000));
+      let lat = null;
+      let lon = null;
+      if (formData.koordinat && formData.koordinat.includes(',')) {
+        const [latStr, lonStr] = formData.koordinat.split(',').map(s => s.trim());
+        lat = parseFloat(latStr);
+        lon = parseFloat(lonStr);
+      }
+      await createTicket.mutateAsync({
+        inc_numbers: [formData.tiket],
+        site_code: formData.idPelanggan,
+        site_name: formData.namaPelanggan,
+        kategori: formData.kategori,
+        lokasi_text: `${formData.sto} - ${formData.odc}`,
+        jam_open: jamOpen.toISOString(),
+        ttr_target_hours: ttrHours,
+        max_jam_close: maxJamClose.toISOString(),
+        status: 'OPEN',
+        provider: formData.jenisPelanggan,
+        kjd: formData.kjd || null,
+        inc_gamas: formData.indukGamas || null,
+        teknisi_list: formData.teknisi1 ? [formData.teknisi1] : [],
+        latitude: isNaN(lat!) ? null : lat,
+        longitude: isNaN(lon!) ? null : lon,
+        created_by: user?.id,
+        raw_ticket_text: formData.summary
+      });
+      toast({
+        title: "Tiket Berhasil Disimpan",
+        description: `Tiket ${formData.tiket} telah ditambahkan dengan status OPEN`,
+      });
+      navigate('/tickets');
+    } catch (error) {
+      console.error('Gagal menyimpan tiket:', error);
+      toast({
+        title: "Gagal Menyimpan",
+        description: "Terjadi kesalahan saat menyimpan data ke database.",
+        variant: "destructive",
+      });
+    }
   };
 
   const isFieldRequired = (field: keyof TicketFormData): boolean => {
