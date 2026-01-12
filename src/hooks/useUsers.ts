@@ -11,22 +11,18 @@ export const useUsers = () => {
 
   const fetchUsers = async () => {
     try {
-      // 1. Ambil semua profiles
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('*');
 
       if (profilesError) throw profilesError;
 
-      // 2. Ambil semua roles
       const { data: roles, error: rolesError } = await supabase
         .from('user_roles')
         .select('*');
 
       if (rolesError) throw rolesError;
 
-      // 3. Gabungkan data
-      // Catatan: Database saat ini belum memiliki field 'isActive', jadi kita default ke true
       const combinedUsers: User[] = profiles.map(profile => {
         const userRole = roles.find(r => r.user_id === profile.user_id);
         return {
@@ -51,7 +47,6 @@ export const useUsers = () => {
   useEffect(() => {
     fetchUsers();
 
-    // Subscribe ke perubahan di kedua tabel
     const channel = supabase
       .channel('users-management')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, fetchUsers)
@@ -73,13 +68,11 @@ export const useUsers = () => {
       description: "Fitur 'Tambah Pengguna' dari dalam aplikasi memerlukan akses Admin API (Server-side).",
       duration: 6000
     });
-    // Kita throw error agar UI tahu proses ini tidak selesai
     throw new Error("Action not supported client-side");
   };
 
   const updateUser = async (id: string, userData: Partial<User>) => {
     try {
-      // 1. Update Profile (Nama, HP, Area)
       if (userData.name || userData.phone || userData.area) {
         const { error } = await supabase
           .from('profiles')
@@ -93,9 +86,7 @@ export const useUsers = () => {
         if (error) throw error;
       }
 
-      // 2. Update Role jika berubah
       if (userData.role) {
-        // Cek apakah user sudah punya entry role
         const { data: existingRole } = await supabase
           .from('user_roles')
           .select('id')
@@ -109,7 +100,6 @@ export const useUsers = () => {
             .eq('user_id', id);
           if (error) throw error;
         } else {
-          // Jika belum punya role, insert baru
           const { error } = await supabase
             .from('user_roles')
             .insert({ user_id: id, role: userData.role as any });
@@ -117,17 +107,14 @@ export const useUsers = () => {
         }
       }
 
-      // Tidak perlu setUsers manual karena Realtime akan meng-handle fetch ulang
     } catch (error) {
       console.error('Error updating user:', error);
-      throw error; // Lempar error ke UI
+      throw error;
     }
   };
 
   const deleteUser = async (id: string) => {
     try {
-      // Kita hanya bisa menghapus profile. 
-      // Menghapus User Auth (Login) memerlukan akses Dashboard/Admin API.
       const { error } = await supabase
         .from('profiles')
         .delete()

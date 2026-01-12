@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/select';
 import { ArrowLeft, Save, Clock, AlertTriangle, CheckCircle, AlertCircle, ShieldX, Phone } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { getTicketById } from '@/lib/mockData';
 import { StatusBadge, TTRBadge, ComplianceBadge } from '@/components/StatusBadge';
 import { formatDateWIB } from '@/lib/formatters';
 import { useDropdownOptions } from '@/hooks/useDropdownOptions';

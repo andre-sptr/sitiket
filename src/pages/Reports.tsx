@@ -1,7 +1,7 @@
 import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { mockTickets, mockDashboardStats } from '@/lib/mockData';
+import { useTickets, useDashboardStats } from '@/hooks/useTickets';
 import { 
   BarChart3, 
   TrendingUp, 
@@ -37,7 +37,8 @@ import {
 
 const Reports = () => {
   const { toast } = useToast();
-  const stats = mockDashboardStats;
+  const { data: tickets = [], isLoading } = useTickets();
+  const stats = useDashboardStats();
 
   const [dateRange, setDateRange] = useState<{
     from: Date;
@@ -48,14 +49,14 @@ const Reports = () => {
   });
 
   const filteredTickets = useMemo(() => {
-    return mockTickets.filter(ticket => {
-      const ticketDate = new Date(ticket.jamOpen);
+    return tickets.filter(ticket => {
+      const ticketDate = new Date(ticket.jam_open); 
       return isWithinInterval(ticketDate, {
         start: startOfDay(dateRange.from),
         end: endOfDay(dateRange.to),
       });
     });
-  }, [dateRange]);
+  }, [dateRange, tickets]);
 
   const periodData = useMemo(() => {
     const days = [];
@@ -68,7 +69,7 @@ const Reports = () => {
       const dateStr = format(date, 'EEE, d', { locale: id });
       
       const ticketsOnDay = filteredTickets.filter(ticket => {
-        const ticketDate = new Date(ticket.jamOpen);
+        const ticketDate = new Date(ticket.jam_open);
         return ticketDate.toDateString() === date.toDateString();
       });
       
@@ -134,6 +135,15 @@ const Reports = () => {
     const dateFrom = format(dateRange.from, 'yyyy-MM-dd');
     const dateTo = format(dateRange.to, 'yyyy-MM-dd');
     
+    const escapeCsv = (str: string | number | null | undefined) => {
+      if (str === null || str === undefined) return '';
+      const stringValue = String(str);
+      if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+        return `"${stringValue.replace(/"/g, '""')}"`;
+      }
+      return stringValue;
+    };
+
     let csvContent = '';
     let filename = '';
 
@@ -164,33 +174,34 @@ const Reports = () => {
       filteredTickets.forEach(ticket => {
         const row = [
           ticket.id,
-          ticket.provider || '',
-          ticket.incNumbers?.join('; ') || '',
-          ticket.siteCode || '',
-          ticket.siteName || '',
-          ticket.kategori || '',
-          `"${ticket.lokasiText || ''}"`,
+          ticket.provider,
+          Array.isArray(ticket.inc_numbers) ? ticket.inc_numbers.join('; ') : '',
+          ticket.site_code,
+          ticket.site_name,
+          ticket.kategori,
+          ticket.lokasi_text,
           ticket.status,
-          ticket.ttrCompliance || '',
-          format(new Date(ticket.jamOpen), 'yyyy-MM-dd HH:mm'),
-          ticket.maxJamClose ? format(new Date(ticket.maxJamClose), 'yyyy-MM-dd HH:mm') : '',
-          ticket.sisaTtrHours?.toString() || '',
-          ticket.ttrRealHours?.toString() || '',
-          `"${ticket.teknisiList?.join(', ') || ''}"`,
-          `"${ticket.penyebab || ''}"`,
-          `"${ticket.permanentNotes || ''}"`
+          ticket.ttr_compliance,
+          ticket.jam_open ? format(new Date(ticket.jam_open), 'yyyy-MM-dd HH:mm') : '',
+          ticket.max_jam_close ? format(new Date(ticket.max_jam_close), 'yyyy-MM-dd HH:mm') : '',
+          ticket.sisa_ttr_hours,
+          ticket.ttr_real_hours,
+          Array.isArray(ticket.teknisi_list) ? ticket.teknisi_list.join(', ') : '',
+          ticket.penyebab,
+          ticket.permanent_notes
         ];
-        csvContent += row.join(',') + '\n';
+
+        csvContent += row.map(escapeCsv).join(',') + '\n';
       });
     } else {
       filename = `laporan-ringkasan_${dateFrom}_${dateTo}.csv`;
 
       csvContent = 'RINGKASAN LAPORAN TIKET\n';
-      csvContent += `Periode: ${format(dateRange.from, 'dd MMM yyyy', { locale: id })} - ${format(dateRange.to, 'dd MMM yyyy', { locale: id })}\n\n`;
+      csvContent += `Periode: ${escapeCsv(format(dateRange.from, 'dd MMM yyyy', { locale: id }))} - ${escapeCsv(format(dateRange.to, 'dd MMM yyyy', { locale: id }))}\n\n`;
       
       csvContent += 'STATUS,JUMLAH\n';
       statusData.forEach(s => {
-        csvContent += `${s.name},${s.value}\n`;
+        csvContent += `${escapeCsv(s.name)},${s.value}\n`;
       });
       
       csvContent += '\nKATEGORI,JUMLAH,CLOSED,PERSENTASE SELESAI\n';
@@ -198,13 +209,13 @@ const Reports = () => {
         const categoryTickets = filteredTickets.filter(t => t.kategori === cat.category);
         const closed = categoryTickets.filter(t => t.status === 'CLOSED').length;
         const percentage = categoryTickets.length > 0 ? Math.round((closed / categoryTickets.length) * 100) : 0;
-        csvContent += `${cat.name},${cat.value},${closed},${percentage}%\n`;
+        csvContent += `${escapeCsv(cat.name)},${cat.value},${closed},${percentage}%\n`;
       });
       
       csvContent += '\nSTATISTIK PER HARI\n';
       csvContent += 'TANGGAL,OPEN,ON PROGRESS,CLOSED,TOTAL\n';
       periodData.forEach(day => {
-        csvContent += `${day.name},${day.open},${day.onprogress},${day.closed},${day.total}\n`;
+        csvContent += `${escapeCsv(day.name)},${day.open},${day.onprogress},${day.closed},${day.total}\n`;
       });
     }
 
@@ -548,10 +559,10 @@ const Reports = () => {
                         <Clock className="w-3 h-3" />
                         {categoryTickets.filter(t => t.status === 'ONPROGRESS').length} proses
                       </span>
-                      {categoryTickets.filter(t => t.sisaTtrHours < 0 && t.status !== 'CLOSED').length > 0 && (
+                      {categoryTickets.filter(t => t.sisa_ttr_hours < 0 && t.status !== 'CLOSED').length > 0 && (
                         <span className="flex items-center gap-1 text-destructive">
                           <AlertTriangle className="w-3 h-3" />
-                          {categoryTickets.filter(t => t.sisaTtrHours < 0 && t.status !== 'CLOSED').length} overdue
+                          {categoryTickets.filter(t => t.sisa_ttr_hours < 0 && t.status !== 'CLOSED').length} overdue
                         </span>
                       )}
                     </div>
