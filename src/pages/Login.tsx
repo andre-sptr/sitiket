@@ -110,7 +110,7 @@ const Login = () => {
           />
           <h1 className="text-3xl font-bold text-foreground mb-2">SiTiket</h1>
           <p className="text-muted-foreground text-sm max-w-sm mx-auto">
-            Sistem Manajemen Tiket Gangguan
+            Sistem Manajemen Tiket Gangguan Telkom Infra
           </p>
         </div>
 
@@ -135,7 +135,7 @@ const Login = () => {
                       <Input
                         id="login-email"
                         type="email"
-                        placeholder="nama@email.com"
+                        placeholder="nama@gmail.com"
                         className="pl-10"
                         value={loginEmail}
                         onChange={(e) => setLoginEmail(e.target.value)}
@@ -201,7 +201,7 @@ const Login = () => {
                       <Input
                         id="signup-email"
                         type="email"
-                        placeholder="nama@email.com"
+                        placeholder="nama@gmail.com"
                         className="pl-10"
                         value={signupEmail}
                         onChange={(e) => setSignupEmail(e.target.value)}
