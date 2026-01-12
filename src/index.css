@@ -249,6 +249,48 @@
   100% { background-position: 200% 0; }
 }
 
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes scale-bounce {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
+}
+
+@keyframes subtle-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes icon-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes ripple {
+  0% { transform: scale(0); opacity: 1; }
+  100% { transform: scale(4); opacity: 0; }
+}
+
+@keyframes slide-in-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4); }
+  50% { box-shadow: 0 0 16px 4px hsl(var(--primary) / 0.2); }
+}
+
 .animate-fade-in {
   animation: fade-in 0.4s ease-out forwards;
 }
@@ -269,4 +311,156 @@
   background: linear-gradient(90deg, transparent, hsl(var(--muted-foreground) / 0.1), transparent);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-scale-bounce {
+  animation: scale-bounce 0.5s ease-in-out;
+}
+
+.animate-wiggle {
+  animation: wiggle 0.5s ease-in-out;
+}
+
+.animate-subtle-pulse {
+  animation: subtle-pulse 2s ease-in-out infinite;
+}
+
+.animate-icon-spin {
+  animation: icon-spin 1s linear infinite;
+}
+
+.animate-slide-in-up {
+  animation: slide-in-up 0.5s ease-out forwards;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* Staggered animation delays */
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }
+.stagger-6 { animation-delay: 0.3s; }
+.stagger-7 { animation-delay: 0.35s; }
+.stagger-8 { animation-delay: 0.4s; }
+
+/* Interactive hover effects */
+.hover-scale {
+  @apply transition-transform duration-200;
+}
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+.hover-glow {
+  @apply transition-shadow duration-300;
+}
+.hover-glow:hover {
+  box-shadow: 0 0 20px hsl(var(--primary) / 0.25);
+}
+
+.hover-float {
+  @apply transition-transform duration-300;
+}
+.hover-float:hover {
+  transform: translateY(-4px);
+}
+
+.hover-rotate {
+  @apply transition-transform duration-300;
+}
+.hover-rotate:hover {
+  transform: rotate(5deg);
+}
+
+/* Button ripple effect base */
+.btn-ripple {
+  @apply relative overflow-hidden;
+}
+
+.btn-ripple::after {
+  content: '';
+  @apply absolute inset-0 pointer-events-none;
+  background: radial-gradient(circle, hsl(var(--primary-foreground) / 0.3) 0%, transparent 50%);
+  transform: scale(0);
+  opacity: 0;
+  transition: transform 0.5s, opacity 0.3s;
+}
+
+.btn-ripple:active::after {
+  transform: scale(4);
+  opacity: 1;
+  transition: 0s;
+}
+
+/* Icon hover effects */
+.icon-hover-bounce:hover svg {
+  animation: scale-bounce 0.4s ease-in-out;
+}
+
+.icon-hover-spin:hover svg {
+  animation: icon-spin 0.5s linear;
+}
+
+.icon-hover-wiggle:hover svg {
+  animation: wiggle 0.4s ease-in-out;
+}
+
+/* Card interaction styles */
+.card-interactive {
+  @apply transition-all duration-300 cursor-pointer;
+}
+
+.card-interactive:hover {
+  @apply shadow-lg -translate-y-1;
+  box-shadow: 0 12px 24px -8px hsl(var(--primary) / 0.1);
+}
+
+.card-interactive:active {
+  @apply scale-[0.99];
+}
+
+/* Focus ring animation */
+.focus-ring-animated:focus-visible {
+  @apply ring-2 ring-primary ring-offset-2;
+  animation: glow-pulse 1.5s ease-in-out infinite;
+}
+
+/* Text gradient animation */
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.text-gradient-animated {
+  background: linear-gradient(90deg, hsl(var(--primary)), hsl(262 60% 55%), hsl(var(--primary)));
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-shift 3s linear infinite;
+}
+
+/* Skeleton loading enhancement */
+@keyframes skeleton-wave {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton-wave {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted)) 0%,
+    hsl(var(--muted-foreground) / 0.1) 50%,
+    hsl(var(--muted)) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-wave 1.5s ease-in-out infinite;
 }

@@ -7,205 +7,255 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "13.0.5"
+    PostgrestVersion: "14.1"
   }
   public: {
     Tables: {
-      categories: {
+      profiles: {
         Row: {
-          created_at: string | null
-          description: string | null
+          area: string | null
+          created_at: string
           id: string
           name: string
-          slug: string
+          phone: string | null
+          updated_at: string
+          user_id: string
         }
         Insert: {
-          created_at?: string | null
-          description?: string | null
+          area?: string | null
+          created_at?: string
           id?: string
           name: string
-          slug: string
+          phone?: string | null
+          updated_at?: string
+          user_id: string
         }
         Update: {
-          created_at?: string | null
-          description?: string | null
+          area?: string | null
+          created_at?: string
           id?: string
           name?: string
-          slug?: string
-        }
-        Relationships: []
-      }
-      order_items: {
-        Row: {
-          created_at: string | null
-          id: string
-          order_id: string
-          price: number
-          product_id: string
-          quantity: number
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          order_id: string
-          price: number
-          product_id: string
-          quantity: number
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          order_id?: string
-          price?: number
-          product_id?: string
-          quantity?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "order_items_order_id_fkey"
-            columns: ["order_id"]
-            isOneToOne: false
-            referencedRelation: "orders"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "order_items_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      orders: {
-        Row: {
-          created_at: string | null
-          delivery_address: string | null
-          delivery_method: Database["public"]["Enums"]["delivery_method"]
-          id: string
-          notes: string | null
-          status: Database["public"]["Enums"]["order_status"] | null
-          total_amount: number
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          delivery_address?: string | null
-          delivery_method: Database["public"]["Enums"]["delivery_method"]
-          id?: string
-          notes?: string | null
-          status?: Database["public"]["Enums"]["order_status"] | null
-          total_amount: number
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          delivery_address?: string | null
-          delivery_method?: Database["public"]["Enums"]["delivery_method"]
-          id?: string
-          notes?: string | null
-          status?: Database["public"]["Enums"]["order_status"] | null
-          total_amount?: number
-          updated_at?: string | null
+          phone?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
       }
-      products: {
+      progress_updates: {
         Row: {
-          category_id: string | null
-          created_at: string | null
-          description: string | null
+          attachments: string[] | null
+          created_at: string
+          created_by: string | null
           id: string
-          image_url: string | null
-          is_available: boolean | null
-          name: string
-          price: number
-          stock: number | null
-          updated_at: string | null
+          location_lat: number | null
+          location_lon: number | null
+          message: string
+          source: string
+          status_after_update:
+            | Database["public"]["Enums"]["ticket_status"]
+            | null
+          ticket_id: string
+          timestamp: string
         }
         Insert: {
-          category_id?: string | null
-          created_at?: string | null
-          description?: string | null
+          attachments?: string[] | null
+          created_at?: string
+          created_by?: string | null
           id?: string
-          image_url?: string | null
-          is_available?: boolean | null
-          name: string
-          price: number
-          stock?: number | null
-          updated_at?: string | null
+          location_lat?: number | null
+          location_lon?: number | null
+          message: string
+          source: string
+          status_after_update?:
+            | Database["public"]["Enums"]["ticket_status"]
+            | null
+          ticket_id: string
+          timestamp?: string
         }
         Update: {
-          category_id?: string | null
-          created_at?: string | null
-          description?: string | null
+          attachments?: string[] | null
+          created_at?: string
+          created_by?: string | null
           id?: string
-          image_url?: string | null
-          is_available?: boolean | null
-          name?: string
-          price?: number
-          stock?: number | null
-          updated_at?: string | null
+          location_lat?: number | null
+          location_lon?: number | null
+          message?: string
+          source?: string
+          status_after_update?:
+            | Database["public"]["Enums"]["ticket_status"]
+            | null
+          ticket_id?: string
+          timestamp?: string
         }
         Relationships: [
           {
-            foreignKeyName: "products_category_id_fkey"
-            columns: ["category_id"]
+            foreignKeyName: "progress_updates_ticket_id_fkey"
+            columns: ["ticket_id"]
             isOneToOne: false
-            referencedRelation: "categories"
+            referencedRelation: "tickets"
             referencedColumns: ["id"]
           },
         ]
       }
-      profiles: {
+      teknisi: {
         Row: {
-          class: string | null
-          created_at: string | null
-          full_name: string
+          area: string | null
+          created_at: string
+          employee_id: string
           id: string
+          is_active: boolean
+          name: string
           phone: string | null
-          room_number: string | null
-          updated_at: string | null
+          updated_at: string
+          user_id: string | null
         }
         Insert: {
-          class?: string | null
-          created_at?: string | null
-          full_name: string
-          id: string
+          area?: string | null
+          created_at?: string
+          employee_id: string
+          id?: string
+          is_active?: boolean
+          name: string
           phone?: string | null
-          room_number?: string | null
-          updated_at?: string | null
+          updated_at?: string
+          user_id?: string | null
         }
         Update: {
-          class?: string | null
-          created_at?: string | null
-          full_name?: string
+          area?: string | null
+          created_at?: string
+          employee_id?: string
           id?: string
+          is_active?: boolean
+          name?: string
           phone?: string | null
-          room_number?: string | null
-          updated_at?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      tickets: {
+        Row: {
+          admin_notes: string | null
+          assigned_at: string | null
+          assigned_by: string | null
+          assigned_to: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          inc_gamas: string | null
+          inc_numbers: string[]
+          is_permanent: boolean
+          jam_open: string
+          jarak_km_range: string | null
+          kategori: string
+          kjd: string | null
+          latitude: number | null
+          lokasi_text: string
+          longitude: number | null
+          max_jam_close: string
+          network_element: string | null
+          penyebab: string | null
+          permanent_notes: string | null
+          provider: string
+          raw_ticket_text: string | null
+          segmen: string | null
+          sisa_ttr_hours: number
+          site_code: string
+          site_name: string
+          status: Database["public"]["Enums"]["ticket_status"]
+          teknisi_list: string[] | null
+          ttr_compliance: Database["public"]["Enums"]["ttr_compliance"]
+          ttr_real_hours: number | null
+          ttr_target_hours: number
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          assigned_at?: string | null
+          assigned_by?: string | null
+          assigned_to?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          inc_gamas?: string | null
+          inc_numbers?: string[]
+          is_permanent?: boolean
+          jam_open?: string
+          jarak_km_range?: string | null
+          kategori: string
+          kjd?: string | null
+          latitude?: number | null
+          lokasi_text: string
+          longitude?: number | null
+          max_jam_close: string
+          network_element?: string | null
+          penyebab?: string | null
+          permanent_notes?: string | null
+          provider?: string
+          raw_ticket_text?: string | null
+          segmen?: string | null
+          sisa_ttr_hours?: number
+          site_code: string
+          site_name: string
+          status?: Database["public"]["Enums"]["ticket_status"]
+          teknisi_list?: string[] | null
+          ttr_compliance?: Database["public"]["Enums"]["ttr_compliance"]
+          ttr_real_hours?: number | null
+          ttr_target_hours?: number
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          assigned_at?: string | null
+          assigned_by?: string | null
+          assigned_to?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          inc_gamas?: string | null
+          inc_numbers?: string[]
+          is_permanent?: boolean
+          jam_open?: string
+          jarak_km_range?: string | null
+          kategori?: string
+          kjd?: string | null
+          latitude?: number | null
+          lokasi_text?: string
+          longitude?: number | null
+          max_jam_close?: string
+          network_element?: string | null
+          penyebab?: string | null
+          permanent_notes?: string | null
+          provider?: string
+          raw_ticket_text?: string | null
+          segmen?: string | null
+          sisa_ttr_hours?: number
+          site_code?: string
+          site_name?: string
+          status?: Database["public"]["Enums"]["ticket_status"]
+          teknisi_list?: string[] | null
+          ttr_compliance?: Database["public"]["Enums"]["ttr_compliance"]
+          ttr_real_hours?: number | null
+          ttr_target_hours?: number
+          updated_at?: string
         }
         Relationships: []
       }
       user_roles: {
         Row: {
-          created_at: string | null
           id: string
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Insert: {
-          created_at?: string | null
           id?: string
-          role?: Database["public"]["Enums"]["app_role"]
+          role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Update: {
-          created_at?: string | null
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
@@ -226,15 +276,17 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "student"
-      delivery_method: "pickup" | "delivery"
-      order_status:
-        | "pending"
-        | "processing"
-        | "ready"
-        | "delivering"
-        | "completed"
-        | "cancelled"
+      app_role: "admin" | "hd" | "guest"
+      ticket_status:
+        | "OPEN"
+        | "ASSIGNED"
+        | "ONPROGRESS"
+        | "TEMPORARY"
+        | "WAITING_MATERIAL"
+        | "WAITING_ACCESS"
+        | "WAITING_COORDINATION"
+        | "CLOSED"
+      ttr_compliance: "COMPLY" | "NOT COMPLY"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -362,16 +414,18 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "student"],
-      delivery_method: ["pickup", "delivery"],
-      order_status: [
-        "pending",
-        "processing",
-        "ready",
-        "delivering",
-        "completed",
-        "cancelled",
+      app_role: ["admin", "hd", "guest"],
+      ticket_status: [
+        "OPEN",
+        "ASSIGNED",
+        "ONPROGRESS",
+        "TEMPORARY",
+        "WAITING_MATERIAL",
+        "WAITING_ACCESS",
+        "WAITING_COORDINATION",
+        "CLOSED",
       ],
+      ttr_compliance: ["COMPLY", "NOT COMPLY"],
     },
   },
 } as const

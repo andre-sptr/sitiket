@@ -57,7 +57,7 @@ const guestNavItems = [
 ];
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const { user, logout } = useAuth();
+  const { user, signOut } = useAuth();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -65,7 +65,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                    user?.role === 'hd' ? hdNavItems :
                    user?.role === 'guest' ? guestNavItems : [];
 
-  const unreadNotifications = mockNotifications.filter(n => !n.isRead && n.userId === user?.id).length;
+  const unreadNotifications = mockNotifications.filter(n => !n.isRead).length;
 
   return (
     <div className="min-h-screen bg-background">
@@ -165,7 +165,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={logout} className="text-destructive focus:text-destructive">
+                  <DropdownMenuItem onClick={signOut} className="text-destructive focus:text-destructive">
                     <LogOut className="w-4 h-4 mr-2" />
                     Keluar
                   </DropdownMenuItem>

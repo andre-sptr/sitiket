@@ -6,10 +6,8 @@ import { TicketCard } from '@/components/TicketCard';
 import { StatsCardSkeleton, TicketCardSkeleton } from '@/components/skeletons';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  getTodayTickets, 
-  mockDashboardStats 
-} from '@/lib/mockData';
+import { useTodayTickets, useDashboardStats } from '@/hooks/useTickets';
+import { mapDbTicketToTicket } from '@/lib/ticketMappers';
 import { generateWhatsAppMessage } from '@/lib/formatters';
 import { getSettings, isDueSoon as checkIsDueSoon } from '@/hooks/useSettings';
 import { Ticket } from '@/types/ticket';
@@ -26,21 +24,24 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const { toast } = useToast();
-  const todayTickets = getTodayTickets();
-  const stats = mockDashboardStats;
   const settings = getSettings();
+  
+  const { data: dbTickets, isLoading, refetch } = useTodayTickets();
+  const stats = useDashboardStats();
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const handleRefresh = () => {
-    setIsRefreshing(true); 
-    setTimeout(() => {
-      setIsRefreshing(false);
-      toast({ title: "Data diperbarui", description: "Dashboard telah di-refresh" });
-    }, 1000);
+  const todayTickets = dbTickets?.map(mapDbTicketToTicket) || [];
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await refetch();
+    setIsRefreshing(false);
+    toast({ title: "Data diperbarui", description: "Dashboard telah di-refresh" });
   };
 
   const sortedTickets = [...todayTickets].sort((a, b) => {
@@ -80,12 +81,12 @@ const Dashboard = () => {
               size="sm" 
               className="gap-2 h-9" 
               onClick={handleRefresh} 
-              disabled={isRefreshing}
+              disabled={isRefreshing || isLoading}
             >
               <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
               <span className="hidden sm:inline">Refresh</span>
             </Button>
-            {user?.role !== 'admin' && user?.role !== 'guest' && (
+            {user?.role !== 'guest' && (
               <Link to="/import">
                 <Button size="sm" className="gap-2 h-9">
                   <Plus className="w-4 h-4" />
@@ -97,7 +98,7 @@ const Dashboard = () => {
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-          {isRefreshing ? (
+          {isLoading ? (
             <>
               <StatsCardSkeleton />
               <StatsCardSkeleton />
@@ -111,6 +112,7 @@ const Dashboard = () => {
                 value={stats.totalToday}
                 icon={TicketIcon}
                 variant="primary"
+                index={0}
               />
               <StatsCard
                 title="Open"
@@ -118,25 +120,28 @@ const Dashboard = () => {
                 subtitle={unassignedTickets.length > 0 ? `${unassignedTickets.length} belum assign` : undefined}
                 icon={Clock}
                 variant="warning"
+                index={1}
               />
               <StatsCard
                 title="Overdue"
                 value={stats.overdueTickets}
                 icon={AlertTriangle}
                 variant="danger"
+                index={2}
               />
               <StatsCard
                 title="Closed"
                 value={stats.closedToday}
                 icon={CheckCircle2}
                 variant="success"
+                index={3}
               />
             </>
           )}
         </div>
 
         <div className="grid grid-cols-2 gap-3 md:gap-4">
-          {isRefreshing ? (
+          {isLoading ? (
             <>
               <StatsCardSkeleton />
               <StatsCardSkeleton />
@@ -148,6 +153,7 @@ const Dashboard = () => {
                 value={`${stats.avgResponseTime}m`}
                 subtitle="Waktu respon pertama TA"
                 icon={TrendingUp}
+                index={4}
               />
               <StatsCard
                 title="Compliance Rate"
@@ -155,32 +161,44 @@ const Dashboard = () => {
                 subtitle="Target: 90%"
                 icon={Percent}
                 variant={stats.complianceRate >= 90 ? 'success' : stats.complianceRate >= 70 ? 'warning' : 'danger'}
+                index={5}
               />
             </>
           )}
         </div>
 
         {(overdueTickets.length > 0 || dueSoonTickets.length > 0 || unassignedTickets.length > 0) && (
-          <div className="flex flex-wrap gap-2">
+          <motion.div 
+            className="flex flex-wrap gap-2"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.3 }}
+          >
             {overdueTickets.length > 0 && (
-              <Badge variant="critical" className="gap-1.5 py-1.5 px-3 text-xs font-medium">
-                <AlertTriangle className="w-3.5 h-3.5" />
-                {overdueTickets.length} tiket overdue
-              </Badge>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Badge variant="critical" className="gap-1.5 py-1.5 px-3 text-xs font-medium cursor-pointer">
+                  <AlertTriangle className="w-3.5 h-3.5" />
+                  {overdueTickets.length} tiket overdue
+                </Badge>
+              </motion.div>
             )}
             {dueSoonTickets.length > 0 && (
-              <Badge variant="warning" className="gap-1.5 py-1.5 px-3 text-xs font-medium">
-                <Clock className="w-3.5 h-3.5" />
-                {dueSoonTickets.length} tiket hampir due
-              </Badge>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Badge variant="warning" className="gap-1.5 py-1.5 px-3 text-xs font-medium cursor-pointer">
+                  <Clock className="w-3.5 h-3.5" />
+                  {dueSoonTickets.length} tiket hampir due
+                </Badge>
+              </motion.div>
             )}
             {unassignedTickets.length > 0 && (
-              <Badge variant="info" className="gap-1.5 py-1.5 px-3 text-xs font-medium">
-                <TicketIcon className="w-3.5 h-3.5" />
-                {unassignedTickets.length} belum assign
-              </Badge>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Badge variant="info" className="gap-1.5 py-1.5 px-3 text-xs font-medium cursor-pointer">
+                  <TicketIcon className="w-3.5 h-3.5" />
+                  {unassignedTickets.length} belum assign
+                </Badge>
+              </motion.div>
             )}
-          </div>
+          </motion.div>
         )}
 
         <div>
@@ -195,7 +213,7 @@ const Dashboard = () => {
           </div>
           
           <div className="space-y-3">
-            {isRefreshing ? (
+            {isLoading ? (
               <TicketCardSkeleton count={3} />
             ) : sortedTickets.length === 0 ? (
               <div className="text-center py-16 text-muted-foreground bg-muted/30 rounded-xl border border-dashed border-border">
@@ -205,16 +223,12 @@ const Dashboard = () => {
               </div>
             ) : (
               sortedTickets.map((ticket, index) => (
-                <div 
+                <TicketCard 
                   key={ticket.id}
-                  className="animate-fade-in"
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  <TicketCard 
-                    ticket={ticket} 
-                    onCopyWhatsApp={handleCopyWhatsApp}
-                  />
-                </div>
+                  ticket={ticket} 
+                  onCopyWhatsApp={handleCopyWhatsApp}
+                  index={index}
+                />
               ))
             )}
           </div>
