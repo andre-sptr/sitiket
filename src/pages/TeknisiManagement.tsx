@@ -25,6 +25,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import {
   DropdownMenu,
@@ -317,6 +318,26 @@ const TeknisiManagement = () => {
           </div>
           {isAdmin && (
             <div className="flex gap-2 shrink-0">
+              {/* <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <RotateCcw className="w-4 h-4 mr-2" />
+                    Reset
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Reset Data Teknisi?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Semua data teknisi akan dikembalikan ke nilai default. Perubahan yang disimpan akan hilang.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Batal</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleReset}>Ya, Reset</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog> */}
               <Button 
                 onClick={() => {
                   resetForm();
@@ -487,7 +508,7 @@ const TeknisiManagement = () => {
                               <h3 className="font-semibold text-lg leading-tight group-hover:text-primary transition-colors">
                                 {teknisi.name}
                               </h3>
-                              {/* <p className="text-xs text-muted-foreground mt-1">ID: {teknisi.id.slice(-6)}</p> */}
+                              <p className="text-xs text-muted-foreground mt-1">NIK: {teknisi.id.slice(-6)}</p>
                             </div>
                             
                             <div className="space-y-2 pt-2 border-t border-dashed">
