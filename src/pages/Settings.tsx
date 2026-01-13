@@ -638,10 +638,32 @@ const Settings = () => {
           <TabsContent value="whatsapp" className="space-y-4">
             <div className="flex items-center justify-between">
               <div />
-              <Button onClick={handleSave} disabled={!hasChanges} size="sm">
-                <Save className="w-4 h-4 mr-2" />
-                Simpan
-              </Button>
+              <div className="flex gap-2">
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <RotateCcw className="w-4 h-4 mr-2" />
+                      Reset
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Reset Template WA?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Konfigurasi template akan dikembalikan ke default.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Batal</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleReset}>Ya, Reset</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+                <Button onClick={handleSave} disabled={!hasChanges} size="sm">
+                  <Save className="w-4 h-4 mr-2" />
+                  Simpan
+                </Button>
+              </div>
             </div>
 
             <Card>
