@@ -39,6 +39,7 @@ import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEO from '@/components/SEO';
+import { FilterCombobox } from '@/components/FilterCombobox';
 
 const statusOptions: TicketStatus[] = [
   'OPEN',
@@ -583,19 +584,13 @@ const AllTickets = () => {
               </SelectContent>
             </Select>
 
-            <Select value={kategoriFilter} onValueChange={setKategoriFilter}>
-              <SelectTrigger className="w-[130px] transition-all duration-200 hover:border-primary/50">
-                <SelectValue placeholder="Kategori" />
-              </SelectTrigger>
-              <SelectContent className="max-h-[190px] overflow-y-auto">
-                <SelectItem value="ALL">Saverity</SelectItem>
-                {filterOptions.kategoris.map(kategori => (
-                  <SelectItem key={kategori} value={kategori}>
-                    {kategori}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <FilterCombobox
+              value={kategoriFilter}
+              onValueChange={setKategoriFilter}
+              options={filterOptions.kategoris}
+              placeholder="Saverity"
+              className="w-[150px]"
+            />
 
             <Select value={jarakFilter} onValueChange={setJarakFilter}>
               <SelectTrigger className="w-[120px] transition-all duration-200 hover:border-primary/50">
