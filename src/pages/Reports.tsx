@@ -737,8 +737,8 @@ const Reports = () => {
               <div className="grid lg:grid-cols-2 gap-6">
                 {/* Provider Performance */}
                 <ChartCard 
-                  title="Performa per Provider" 
-                  description="Distribusi dan compliance rate per provider"
+                  title="Performa per Pelanggan" 
+                  description="Distribusi dan compliance rate per pelanggan"
                   icon={Users}
                 >
                   <div className="space-y-4">
@@ -1106,7 +1106,7 @@ const Reports = () => {
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
                   <Users className="w-5 h-5 text-primary" />
-                  <span className="text-sm text-muted-foreground">Provider Aktif</span>
+                  <span className="text-sm text-muted-foreground">Pelanggan Aktif</span>
                 </div>
                 <p className="text-3xl font-bold">{providerData.length}</p>
               </div>

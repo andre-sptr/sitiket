@@ -359,7 +359,7 @@ const ImportTicket = () => {
           >
             <SelectValue placeholder={placeholder} />
           </SelectTrigger>
-          <SelectContent className="bg-popover border shadow-lg z-50 max-h-[200px]">
+          <SelectContent className="bg-popover border shadow-lg z-50 max-h-[180px]">
             {options.map(opt => (
               <SelectItem 
                 key={opt} 
@@ -1014,7 +1014,7 @@ const ImportTicket = () => {
             className="gap-2 icon-hover-spin"
           >
             <RotateCcw className="w-4 h-4" />
-            Reset Form
+            Reset
           </Button>
           <Button 
             onClick={handleSubmit} 

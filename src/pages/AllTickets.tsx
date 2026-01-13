@@ -239,7 +239,7 @@ const AllTickets = () => {
         <SelectTrigger className="w-full transition-all duration-200 hover:border-primary/50 focus:ring-primary/20">
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="max-h-[200px] overflow-y-auto">
           <SelectItem value="ALL">{allLabel}</SelectItem>
           {options.map(option => (
             <SelectItem key={option} value={option}>
@@ -401,7 +401,7 @@ const AllTickets = () => {
                       <SelectTrigger className="transition-all duration-200 hover:border-primary/50">
                         <SelectValue placeholder="Status" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="max-h-[190px] overflow-y-auto">
                         <SelectItem value="ALL">Semua Status</SelectItem>
                         {statusOptions.map(status => (
                           <SelectItem key={status} value={status}>
@@ -548,7 +548,7 @@ const AllTickets = () => {
               <SelectTrigger className="w-[150px] transition-all duration-200 hover:border-primary/50">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-h-[190px] overflow-y-auto">
                 <SelectItem value="ALL">Semua Status</SelectItem>
                 {statusOptions.map(status => (
                   <SelectItem key={status} value={status}>
@@ -573,7 +573,7 @@ const AllTickets = () => {
               <SelectTrigger className="w-[120px] transition-all duration-200 hover:border-primary/50">
                 <SelectValue placeholder="Pelanggan" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-h-[190px] overflow-y-auto">
                 <SelectItem value="ALL">Pelanggan</SelectItem>
                 {filterOptions.providers.map(provider => (
                   <SelectItem key={provider} value={provider}>
@@ -587,7 +587,7 @@ const AllTickets = () => {
               <SelectTrigger className="w-[130px] transition-all duration-200 hover:border-primary/50">
                 <SelectValue placeholder="Kategori" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-h-[190px] overflow-y-auto">
                 <SelectItem value="ALL">Saverity</SelectItem>
                 {filterOptions.kategoris.map(kategori => (
                   <SelectItem key={kategori} value={kategori}>
