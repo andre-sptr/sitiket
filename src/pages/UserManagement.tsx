@@ -89,6 +89,8 @@ const roleIconColors = {
 };
 
 interface UserFormData {
+  email: string;
+  password?: string;
   name: string;
   role: UserRole;
   phone: string;
@@ -97,6 +99,8 @@ interface UserFormData {
 }
 
 const initialFormData: UserFormData = {
+  email: '',  
+  password: '',
   name: '',
   role: 'guest',
   phone: '',
@@ -174,6 +178,7 @@ const UserManagement = () => {
   const openEditDialog = (user: User) => {
     setEditingUser(user);
     setFormData({
+      email: user.email || '',
       name: user.name,
       role: user.role,
       phone: user.phone || '',
@@ -189,8 +194,13 @@ const UserManagement = () => {
   };
 
   const handleSubmit = async () => {
-    if (!formData.name.trim()) {
-      toast.error('Nama pengguna harus diisi');
+    if (!formData.name.trim() || !formData.email.trim()) {
+      toast.error('Nama dan Email harus diisi');
+      return;
+    }
+
+    if (!editingUser && (!formData.password || formData.password.length < 6)) {
+      toast.error('Password wajib diisi minimal 6 karakter');
       return;
     }
     
@@ -587,7 +597,38 @@ const UserManagement = () => {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
+          <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto px-1">
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-xs font-medium text-muted-foreground">
+                Email <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="nama@gmail.com"
+                value={formData.email}
+                disabled={!!editingUser} 
+                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200"
+              />
+            </div>
+
+            {!editingUser && (
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-xs font-medium text-muted-foreground">
+                  Password <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Minimal 6 karakter"
+                  value={formData.password || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                  className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200"
+                />
+              </div>
+            )}
+
             <div className="space-y-2">
               <Label htmlFor="name" className="text-xs font-medium text-muted-foreground">
                 Nama <span className="text-destructive">*</span>

@@ -16,6 +16,7 @@ export type TTRCompliance = 'COMPLY' | 'NOT COMPLY';
 export interface User {
   id: string;
   name: string;
+  email?: string;
   role: UserRole;
   phone?: string;
   area?: string;
