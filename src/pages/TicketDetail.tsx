@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { Layout } from '@/components/Layout';
-import { StatusBadge, ComplianceBadge, TTRBadge } from '@/components/StatusBadge';
+import { StatusBadge, ComplianceBadge } from '@/components/StatusBadge';
 import { Timeline } from '@/components/Timeline';
 import { TicketDetailSkeleton } from '@/components/skeletons';
 import { Button } from '@/components/ui/button';
@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { useTicket, useDeleteTicket, useAddProgressUpdate } from '@/hooks/useTickets';
 import { mapDbTicketToTicket } from '@/lib/ticketMappers';
-import { formatDateWIB, generateWhatsAppMessage, generateGoogleMapsLink, getStatusLabel } from '@/lib/formatters';
+import { formatDateWIB, generateWhatsAppMessage, generateGoogleMapsLink } from '@/lib/formatters';
 import { TicketStatus } from '@/types/ticket';
 import { 
   ArrowLeft, 
@@ -26,12 +26,10 @@ import {
   Clock, 
   User, 
   Copy, 
-  ExternalLink,
   FileText,
   Send,
   Phone,
   Trash2,
-  Calendar,
   Target,
   Navigation,
   AlertTriangle,

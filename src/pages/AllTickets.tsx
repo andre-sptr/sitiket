@@ -252,7 +252,7 @@ const AllTickets = () => {
 
   return (
     <Layout>
-      <SEO title="Semua Tiket" description="Daftar seluruh tiket gangguan telkom infra." />
+      <SEO title="Semua Tiket" description="Daftar seluruh tiket gangguan Telkom Infra." />
       <div className="space-y-4 md:space-y-6">
         <motion.div 
           className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"

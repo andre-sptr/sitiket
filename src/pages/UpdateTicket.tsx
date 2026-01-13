@@ -221,10 +221,6 @@ const UpdateTicket = () => {
   if (!ticket) {
     return (
       <Layout>
-        <SEO 
-          title={`Update ${Array.isArray(ticket.inc_numbers) ? ticket.inc_numbers[0] : ticket.inc_numbers || 'Tiket'}`} 
-          description={`Halaman update untuk tiket ${ticket.site_name}`}
-        />
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -475,6 +471,12 @@ const UpdateTicket = () => {
 
   return (
     <Layout>
+      {ticket && (
+        <SEO 
+          title={`Update ${Array.isArray(ticket.inc_numbers) ? ticket.inc_numbers[0] : ticket.inc_numbers || 'Tiket'}`} 
+          description={`Halaman update untuk tiket ${ticket.site_name}`}
+        />
+      )}
       <motion.div 
         className="space-y-6 max-w-5xl mx-auto pb-8"
         variants={containerVariants}
