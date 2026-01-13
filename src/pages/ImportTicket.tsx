@@ -52,6 +52,7 @@ import {
 } from "@/components/ui/popover";
 import { motion, AnimatePresence } from 'framer-motion';
 import SEO from '@/components/SEO';
+import { ComboboxField } from '@/components/ComboboxField';
 
 interface TicketFormData {
   hsa: string;
@@ -596,7 +597,15 @@ const ImportTicket = () => {
                   </div>
                   <SelectField label="Stake Holder" field="stakeHolder" options={DROPDOWN_OPTIONS.stakeHolder} />
                   <SelectField label="Jenis Pelanggan" field="jenisPelanggan" options={DROPDOWN_OPTIONS.jenisPelanggan} />
-                  <SelectField label="Saverity" field="kategori" options={DROPDOWN_OPTIONS.kategori} />
+                  <ComboboxField 
+                    label="Saverity" 
+                    value={formData.kategori}
+                    options={DROPDOWN_OPTIONS.kategori}
+                    onChange={(val) => updateField('kategori', val)}
+                    onBlur={() => markTouched('kategori')}
+                    error={getFieldError('kategori')}
+                    required={isFieldRequired('kategori')}
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -934,7 +943,7 @@ const ImportTicket = () => {
                       </PopoverTrigger>
                       <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
                         <Command>
-                          <CommandInput placeholder="Cari teknisi..." className="h-10" />
+                          <CommandInput placeholder="Cari Teknisi..." className="h-10" />
                           <CommandList>
                             <CommandEmpty>Teknisi tidak ditemukan.</CommandEmpty>
                             <CommandGroup>
