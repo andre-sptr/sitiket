@@ -279,6 +279,7 @@ export type Database = {
         | "OPEN"
         | "ASSIGNED"
         | "ONPROGRESS"
+        | "PENDING"
         | "TEMPORARY"
         | "WAITING_MATERIAL"
         | "WAITING_ACCESS"
@@ -417,6 +418,7 @@ export const Constants = {
         "OPEN",
         "ASSIGNED",
         "ONPROGRESS",
+        "PENDING",
         "TEMPORARY",
         "WAITING_MATERIAL",
         "WAITING_ACCESS",
