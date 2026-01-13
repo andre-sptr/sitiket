@@ -3,7 +3,6 @@ export type UserRole = 'admin' | 'guest' | 'hd';
 export type TicketStatus = 
   | 'OPEN' 
   | 'ASSIGNED'
-  | 'PENDING'
   | 'ONPROGRESS' 
   | 'TEMPORARY' 
   | 'WAITING_MATERIAL' 
