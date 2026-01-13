@@ -38,6 +38,7 @@ import { id } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { motion, AnimatePresence } from 'framer-motion';
+import SEO from '@/components/SEO';
 
 const statusOptions: TicketStatus[] = [
   'OPEN',
@@ -251,6 +252,7 @@ const AllTickets = () => {
 
   return (
     <Layout>
+      <SEO title="Semua Tiket" description="Daftar seluruh tiket gangguan telkom infra." />
       <div className="space-y-4 md:space-y-6">
         <motion.div 
           className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"

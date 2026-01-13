@@ -60,7 +60,6 @@ export const useTeknisi = () => {
       }
     });
 
-    // Simulate loading for smooth UX
     const timer = setTimeout(() => setIsLoaded(true), 300);
 
     return () => {

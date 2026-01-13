@@ -51,6 +51,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { motion, AnimatePresence } from 'framer-motion';
+import SEO from '@/components/SEO';
 
 interface TicketFormData {
   hsa: string;
@@ -174,6 +175,7 @@ const ImportTicket = () => {
   if (user?.role === 'guest') {
     return (
       <Layout>
+        <SEO title="Input Tiket Baru" />
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -463,8 +465,8 @@ const ImportTicket = () => {
 
   return (
     <Layout>
+      <SEO title="Input Tiket Baru" />
       <div className="space-y-6 max-w-5xl mx-auto pb-8">
-        {/* Header Section */}
         <motion.div 
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -513,7 +515,6 @@ const ImportTicket = () => {
           </div>
         </motion.div>
 
-        {/* Error Summary */}
         <AnimatePresence>
           {hasErrors && Object.keys(touched).length > 0 && (
             <motion.div
@@ -546,9 +547,7 @@ const ImportTicket = () => {
           )}
         </AnimatePresence>
 
-        {/* Form Cards */}
         <div className="grid gap-6">
-          {/* Location & Category Card */}
           <motion.div
             custom={0}
             variants={cardVariants}
@@ -604,7 +603,6 @@ const ImportTicket = () => {
             </Card>
           </motion.div>
 
-          {/* Ticket Information Card */}
           <motion.div
             custom={1}
             variants={cardVariants}
@@ -746,7 +744,6 @@ const ImportTicket = () => {
             </Card>
           </motion.div>
 
-          {/* Customer & Site Card */}
           <motion.div
             custom={2}
             variants={cardVariants}
@@ -894,7 +891,6 @@ const ImportTicket = () => {
             </Card>
           </motion.div>
 
-          {/* Technician & Team Card */}
           <motion.div
             custom={3}
             variants={cardVariants}
@@ -1007,7 +1003,6 @@ const ImportTicket = () => {
           </motion.div>
         </div>
 
-        {/* Footer Actions */}
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

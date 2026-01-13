@@ -54,6 +54,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import SEO from '@/components/SEO';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -328,6 +329,12 @@ const TicketDetail = () => {
 
   return (
     <Layout>
+      {ticket && (
+        <SEO 
+          title={`${ticket.siteCode} - ${ticket.siteName}`}
+          description={`Detail tiket gangguan di ${ticket.siteName}. Status: ${ticket.status}`} 
+        />
+      )}
       <motion.div 
         className="space-y-6"
         variants={containerVariants}

@@ -40,6 +40,7 @@ import { useDropdownOptions } from '@/hooks/useDropdownOptions';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTeknisi } from '@/hooks/useTeknisi';
 import { TicketStatus, TTRCompliance } from '@/types/ticket';
+import SEO from '@/components/SEO';
 
 interface UpdateFormData {
   statusTiket: string;
@@ -220,6 +221,10 @@ const UpdateTicket = () => {
   if (!ticket) {
     return (
       <Layout>
+        <SEO 
+          title={`Update ${Array.isArray(ticket.inc_numbers) ? ticket.inc_numbers[0] : ticket.inc_numbers || 'Tiket'}`} 
+          description={`Halaman update untuk tiket ${ticket.site_name}`}
+        />
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -304,7 +309,6 @@ const UpdateTicket = () => {
         updates: updates 
       });
 
-      // Add progress update if there's a message
       if (formData.progressSaatIni && formData.progressSaatIni.trim() !== '') {
         await addProgressMutation.mutateAsync({
           ticket_id: id!,

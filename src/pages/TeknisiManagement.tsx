@@ -55,6 +55,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import SEO from '@/components/SEO';
 
 const cardVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -109,6 +110,7 @@ const TeknisiManagement = () => {
   if (user?.role === 'guest') {
     return (
       <Layout>
+        <SEO title="Kelola Teknisi" />
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -290,6 +292,7 @@ const TeknisiManagement = () => {
 
   return (
     <Layout>
+      <SEO title="Kelola Teknisi" />
       <div className="space-y-6 max-w-6xl mx-auto pb-8">
         {/* Header Section */}
         <motion.div 

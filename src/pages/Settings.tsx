@@ -34,6 +34,7 @@ import {
   optionGroups,
   DropdownOptions 
 } from '@/hooks/useDropdownOptions';
+import SEO from '@/components/SEO';
 
 const defaultSettings = {
   ttrThresholds: {
@@ -326,6 +327,7 @@ const Settings = () => {
 
   return (
     <Layout>
+      <SEO title="Pengaturan" />
       <div className="space-y-6 max-w-4xl mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>

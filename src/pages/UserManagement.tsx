@@ -61,6 +61,7 @@ import { User, UserRole } from '@/types/ticket';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import SEO from '@/components/SEO';
 
 const roleIcons = {
   admin: Shield,
@@ -226,10 +227,10 @@ const UserManagement = () => {
     toast.success(`Pengguna ${user.isActive ? 'dinonaktifkan' : 'diaktifkan'}`);
   };
 
-  // Access denied for non-admin users (except viewing)
   if (currentUser?.role === 'guest') {
     return (
       <Layout>
+        <SEO title="Manajemen Pengguna" />
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -261,6 +262,7 @@ const UserManagement = () => {
 
   return (
     <Layout>
+      <SEO title="Manajemen Pengguna" />
       <div className="space-y-6 max-w-6xl mx-auto pb-8">
         {/* Header Section */}
         <motion.div 

@@ -60,6 +60,10 @@ const Login = () => {
 
   return (
     <div className="dark min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
+      <SEO 
+        title="Login" 
+        description="Masuk ke SiTiket untuk mengelola tiket gangguan Telkom Infra." 
+      />
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl opacity-50" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-violet-500/20 rounded-full blur-3xl opacity-50" />
       
