@@ -40,6 +40,7 @@ serve(async (req) => {
         { 
           user_id: userId,
           name: name,
+          email: email,
           phone: phone,
           area: area
         }

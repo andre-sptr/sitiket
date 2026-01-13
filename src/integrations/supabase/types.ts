@@ -21,6 +21,7 @@ export type Database = {
           phone: string | null
           updated_at: string
           user_id: string
+          email: string | null
         }
         Insert: {
           area?: string | null
@@ -30,6 +31,7 @@ export type Database = {
           phone?: string | null
           updated_at?: string
           user_id: string
+          email?: string | null
         }
         Update: {
           area?: string | null
@@ -39,6 +41,7 @@ export type Database = {
           phone?: string | null
           updated_at?: string
           user_id?: string
+          email?: string | null
         }
         Relationships: []
       }

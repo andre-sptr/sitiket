@@ -3,8 +3,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { User, UserRole } from '@/types/ticket';
 import { toast } from 'sonner';
 
-const STORAGE_KEY = 'app_users';
-
 export const useUsers = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -29,7 +27,7 @@ export const useUsers = () => {
           id: profile.user_id,
           name: profile.name,
           role: (userRole?.role as UserRole) || 'guest',
-          email: undefined,
+          email: profile.email || undefined,
           phone: profile.phone || undefined,
           area: profile.area || undefined,
           isActive: true 
