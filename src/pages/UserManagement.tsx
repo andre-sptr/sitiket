@@ -62,6 +62,7 @@ import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import SEO from '@/components/SEO';
+import { Separator } from '@/components/ui/separator';
 
 const roleIcons = {
   admin: Shield,
@@ -386,6 +387,7 @@ const UserManagement = () => {
                 </div>
               )}
             </CardHeader>
+            <Separator/>
             <CardContent>
               {!isLoaded ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">

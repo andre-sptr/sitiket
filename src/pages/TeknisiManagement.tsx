@@ -56,6 +56,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import SEO from '@/components/SEO';
+import { Separator } from '@/components/ui/separator';
 
 const cardVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -418,6 +419,7 @@ const TeknisiManagement = () => {
                 </div>
               )}
             </CardHeader>
+            <Separator/>
             <CardContent>
               {!isLoaded ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">

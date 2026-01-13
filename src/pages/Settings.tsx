@@ -35,6 +35,7 @@ import {
   DropdownOptions 
 } from '@/hooks/useDropdownOptions';
 import SEO from '@/components/SEO';
+import { Separator } from '@/components/ui/separator';
 
 const defaultSettings = {
   ttrThresholds: {
@@ -403,6 +404,7 @@ const Settings = () => {
                   Opsi dropdown yang digunakan saat membuat tiket baru
                 </CardDescription>
               </CardHeader>
+              <Separator/>
               <CardContent>
                 <Accordion type="multiple" className="w-full">
                   {optionGroups['Import Tiket'].map((key) => (
@@ -425,6 +427,7 @@ const Settings = () => {
                   Opsi dropdown yang digunakan saat mengupdate tiket
                 </CardDescription>
               </CardHeader>
+              <Separator/>
               <CardContent>
                 <Accordion type="multiple" className="w-full">
                   {optionGroups['Update Tiket'].map((key) => (
@@ -482,6 +485,7 @@ const Settings = () => {
                   Tentukan durasi target untuk setiap kategori tiket
                 </CardDescription>
               </CardHeader>
+              <Separator/>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {Object.entries(settings.categoryTtr || defaultSettings.categoryTtr).map(([key, val]) => (
@@ -511,6 +515,7 @@ const Settings = () => {
                   Atur kapan sistem menampilkan warning dan alert untuk tiket
                 </CardDescription>
               </CardHeader>
+              <Separator/>
               <CardContent className="space-y-6">
                 <div className="grid gap-2">
                   <Label htmlFor="warningHours" className="flex items-center gap-2">
@@ -606,6 +611,7 @@ const Settings = () => {
               <CardHeader>
                 <CardTitle className="text-base">Preview Indikator</CardTitle>
               </CardHeader>
+              <Separator/>
               <CardContent>
                 <div className="flex flex-wrap gap-3">
                   <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700 text-sm">
@@ -645,6 +651,7 @@ const Settings = () => {
                   Gunakan variabel berikut dalam template, sistem akan mengganti otomatis
                 </CardDescription>
               </CardHeader>
+              <Separator/>
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                   {templateVariables.map((v) => (
@@ -679,6 +686,7 @@ const Settings = () => {
                   </Button>
                 </div>
               </CardHeader>
+              <Separator/>
               <CardContent>
                 <Textarea
                   value={settings.whatsappTemplates.shareTemplate}
@@ -711,6 +719,7 @@ const Settings = () => {
                   </Button>
                 </div>
               </CardHeader>
+              <Separator/>
               <CardContent>
                 <Textarea
                   value={settings.whatsappTemplates.updateTemplate}
