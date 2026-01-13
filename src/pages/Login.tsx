@@ -4,11 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Ticket, ArrowRight, Mail, Lock, User, Loader2 } from 'lucide-react';
+import { ArrowRight, Mail, Lock, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import SEO from "@/components/SEO";
 
 const Login = () => {
   const { signIn, signUp, isAuthenticated, isLoading: authLoading } = useAuth();
