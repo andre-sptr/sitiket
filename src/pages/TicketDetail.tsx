@@ -297,7 +297,7 @@ const TicketDetail = () => {
     }
 
     if (!ticket || !user) return;
-
+ 
     try {
       await addProgressUpdate.mutateAsync({
         ticket_id: ticket.id,
@@ -609,10 +609,10 @@ const TicketDetail = () => {
                         <SelectItem value="ONPROGRESS">On Progress</SelectItem>
                         <SelectItem value="PENDING">Pending</SelectItem>
                         <SelectItem value="TEMPORARY">Temporary</SelectItem>
-                        <SelectItem value="CLOSED">Closed</SelectItem>
                         <SelectItem value="WAITING_MATERIAL">Menunggu Material</SelectItem>
                         <SelectItem value="WAITING_ACCESS">Menunggu Akses</SelectItem>
                         <SelectItem value="WAITING_COORDINATION">Menunggu Koordinasi</SelectItem>
+                        <SelectItem value="CLOSED">Closed</SelectItem>
                       </SelectContent>
                     </Select>
                     

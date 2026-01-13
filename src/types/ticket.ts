@@ -4,6 +4,7 @@ export type TicketStatus =
   | 'OPEN' 
   | 'ASSIGNED'
   | 'ONPROGRESS' 
+  | 'PENDING'
   | 'TEMPORARY' 
   | 'WAITING_MATERIAL' 
   | 'WAITING_ACCESS' 

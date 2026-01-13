@@ -44,6 +44,7 @@ const statusOptions: TicketStatus[] = [
   'OPEN',
   'ASSIGNED',
   'ONPROGRESS',
+  'PENDING',
   'TEMPORARY',
   'WAITING_MATERIAL',
   'WAITING_ACCESS',
@@ -426,11 +427,11 @@ const AllTickets = () => {
                   </div>
 
                   <FilterSelect
-                    label="Provider"
+                    label="Pelanggan"
                     value={providerFilter}
                     onValueChange={setProviderFilter}
                     options={filterOptions.providers}
-                    placeholder="Provider"
+                    placeholder="Pelanggan"
                   />
 
                   <FilterSelect
@@ -570,10 +571,10 @@ const AllTickets = () => {
 
             <Select value={providerFilter} onValueChange={setProviderFilter}>
               <SelectTrigger className="w-[120px] transition-all duration-200 hover:border-primary/50">
-                <SelectValue placeholder="Provider" />
+                <SelectValue placeholder="Pelanggan" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL">Provider</SelectItem>
+                <SelectItem value="ALL">Pelanggan</SelectItem>
                 {filterOptions.providers.map(provider => (
                   <SelectItem key={provider} value={provider}>
                     {provider}
