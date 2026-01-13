@@ -30,7 +30,7 @@ import {
   Timer,
   FileWarning,
   Loader2,
-  Sparkles
+  Ticket as TicketIcon
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useTicket, useUpdateTicket, useAddProgressUpdate } from '@/hooks/useTickets';
@@ -503,7 +503,7 @@ const UpdateTicket = () => {
               transition={{ delay: 0.1 }}
             >
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/20">
-                <Sparkles className="w-5 h-5 text-primary-foreground" />
+                <TicketIcon className="w-5 h-5 text-primary-foreground" />
               </div>
               Update Tiket
             </motion.h1>
@@ -522,7 +522,7 @@ const UpdateTicket = () => {
               ) : (
                 <Save className="w-4 h-4" />
               )}
-              Simpan Update
+              Simpan
             </Button>
           </motion.div>
         </motion.div>
