@@ -13,6 +13,7 @@ import {
   CheckCircle2,
   AlertTriangle 
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface StatusBadgeProps {
   status: TicketStatus;
@@ -46,13 +47,28 @@ const statusIconMap: Record<TicketStatus, React.ReactNode> = {
 
 export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, showIcon = true, size = 'default' }) => {
   return (
-    <Badge 
-      variant={statusVariantMap[status]} 
-      className={`gap-1.5 font-medium ${size === 'sm' ? 'text-[10px] px-2 py-0.5' : 'text-xs px-2.5 py-1'}`}
+    <motion.div
+      initial={{ scale: 0.9, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ duration: 0.2 }}
+      whileHover={{ scale: 1.05 }}
     >
-      {showIcon && statusIconMap[status]}
-      {getStatusLabel(status)}
-    </Badge>
+      <Badge 
+        variant={statusVariantMap[status]} 
+        className={`gap-1.5 font-medium transition-all duration-200 ${size === 'sm' ? 'text-[10px] px-2 py-0.5' : 'text-xs px-2.5 py-1'}`}
+      >
+        {showIcon && (
+          <motion.span
+            initial={{ rotate: -10 }}
+            animate={{ rotate: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            {statusIconMap[status]}
+          </motion.span>
+        )}
+        {getStatusLabel(status)}
+      </Badge>
+    </motion.div>
   );
 };
 
@@ -63,17 +79,34 @@ interface ComplianceBadgeProps {
 
 export const ComplianceBadge: React.FC<ComplianceBadgeProps> = ({ compliance, size = 'default' }) => {
   return (
-    <Badge 
-      variant={compliance === 'COMPLY' ? 'comply' : 'notcomply'}
-      className={`gap-1.5 font-medium ${size === 'sm' ? 'text-[10px] px-2 py-0.5' : 'text-xs px-2.5 py-1'}`}
+    <motion.div
+      initial={{ scale: 0.9, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ duration: 0.2, delay: 0.1 }}
+      whileHover={{ scale: 1.05 }}
     >
-      {compliance === 'COMPLY' ? (
-        <CheckCircle2 className="w-3 h-3" />
-      ) : (
-        <AlertTriangle className="w-3 h-3" />
-      )}
-      {compliance}
-    </Badge>
+      <Badge 
+        variant={compliance === 'COMPLY' ? 'comply' : 'notcomply'}
+        className={`gap-1.5 font-medium transition-all duration-200 ${size === 'sm' ? 'text-[10px] px-2 py-0.5' : 'text-xs px-2.5 py-1'}`}
+      >
+        {compliance === 'COMPLY' ? (
+          <motion.span
+            animate={{ rotate: [0, 10, 0] }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <CheckCircle2 className="w-3 h-3" />
+          </motion.span>
+        ) : (
+          <motion.span
+            animate={{ y: [0, -2, 0] }}
+            transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
+          >
+            <AlertTriangle className="w-3 h-3" />
+          </motion.span>
+        )}
+        {compliance}
+      </Badge>
+    </motion.div>
   );
 };
 
@@ -102,13 +135,33 @@ export const TTRBadge: React.FC<TTRBadgeProps> = ({ hours, size = 'default' }) =
   };
 
   return (
-    <Badge 
-      variant={variantMap[ttrStatus]}
-      className={`font-mono gap-1.5 font-medium ${size === 'sm' ? 'text-[10px] px-2 py-0.5' : 'text-xs px-2.5 py-1'} ${ttrStatus === 'overdue' ? 'animate-pulse' : ''}`}
+    <motion.div
+      initial={{ scale: 0.9, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ duration: 0.2, delay: 0.15 }}
+      whileHover={{ scale: 1.05 }}
     >
-      <Clock className="w-3 h-3" />
-      {formatHours(hours)}
-      {ttrStatus === 'overdue' && <span className="ml-0.5">OVERDUE</span>}
-    </Badge>
+      <Badge 
+        variant={variantMap[ttrStatus]}
+        className={`font-mono gap-1.5 font-medium transition-all duration-200 ${size === 'sm' ? 'text-[10px] px-2 py-0.5' : 'text-xs px-2.5 py-1'} ${ttrStatus === 'overdue' ? 'animate-pulse' : ''}`}
+      >
+        <motion.span
+          animate={ttrStatus === 'overdue' ? { rotate: [0, 10, -10, 0] } : {}}
+          transition={{ duration: 0.5, repeat: Infinity }}
+        >
+          <Clock className="w-3 h-3" />
+        </motion.span>
+        {formatHours(hours)}
+        {ttrStatus === 'overdue' && (
+          <motion.span 
+            className="ml-0.5"
+            animate={{ opacity: [1, 0.5, 1] }}
+            transition={{ duration: 1, repeat: Infinity }}
+          >
+            OVERDUE
+          </motion.span>
+        )}
+      </Badge>
+    </motion.div>
   );
 };

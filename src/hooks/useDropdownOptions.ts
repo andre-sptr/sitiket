@@ -32,7 +32,7 @@ export const hsaToStoMap: Record<string, string[]> = {
 export const defaultDropdownOptions: DropdownOptions = {
   hsa: ['ARENGKA', 'BUKIT RAYA', 'DUMAI', 'PANGKALAN KERINCI', 'PEKANBARU', 'RENGAT'],
   sto: ['ARK', 'BKR', 'BKN', 'UBT', 'PPN', 'SAK', 'SEA', 'SGP', 'DUM', 'BAG', 'BAS', 'SLJ', 'DRI', 'BGU', 'PKR', 'RBI', 'PWG', 'SOK', 'MIS', 'PBR', 'RGT', 'TBH', 'AMK', 'TAK', 'PMB', 'KLE'],
-  odc: ['MIS', 'SLJ', 'TBH', 'DUM', 'PKU', 'BKN'],
+  odc: [],
   stakeHolder: ['TLKM', 'MTEL', 'LA', 'SPBU', 'UMT', 'ALFAMART', 'INDOMARET', 'KIMIA FARMA'],
   jenisPelanggan: ['DATIN', 'FTM', 'GAMAS', 'HSI', 'INDIBIZ', 'LA', 'MTEL', 'NE', 'ODC', 'OLO', 'POTS', 'SDWAN', 'SIPTRUNK', 'SPBU', 'TSEL', 'UMT', 'WICO', 'WMS LITE', 'WMS REGULER'],
   
@@ -45,10 +45,10 @@ export const defaultDropdownOptions: DropdownOptions = {
   classSite: ['Platinum'],
   tim: ['SQUAT-A', 'SQUAT-B'],
   
-  statusTiket: ['OPEN', 'CLOSED', 'GAMAS', 'PENDING', 'ASSIGNED', 'ONPROGRESS', 'TEMPORARY', 'WAITING_MATERIAL', 'WAITING_ACCESS', 'WAITING_COORDINATION' ],
+  statusTiket: ['OPEN', 'ASSIGNED', 'ONPROGRESS', 'PENDING', 'TEMPORARY', 'WAITING_MATERIAL', 'WAITING_ACCESS', 'WAITING_COORDINATION', 'CLOSED', 'GAMAS'],
   compliance: ['COMPLY', 'NOT COMPLY'],
   permanenTemporer: ['PERMANEN', 'TEMPORER LAMA', 'TEMPORER BARU'],
-  statusAlatBerat: ['TIDAK PERLU', 'DIMINTA', 'DALAM PROSES', 'SELESAI'],
+  statusAlatBerat: ['DI LOKASI DAN BEROPERASI', 'STOP TETAPI DI LOKASI', 'TIDAK ADA ALBER DI LOKASI'],
   penyebabGangguan: [
     'Kabel Putus',
     'ODP Rusak',
@@ -66,15 +66,7 @@ export const defaultDropdownOptions: DropdownOptions = {
     'Reset Perangkat',
     'Lainnya'
   ],
-  kendala: [
-    'Tidak Ada Kendala',
-    'Akses Lokasi Sulit',
-    'Menunggu Material',
-    'Menunggu Koordinasi',
-    'Cuaca Buruk',
-    'Alat Berat Belum Tersedia',
-    'Lainnya'
-  ],
+  kendala: [],
 };
 
 const STORAGE_KEY = 'tiketops_dropdown_options';
@@ -131,12 +123,12 @@ export const useDropdownOptions = () => {
 };
 
 export const dropdownLabels: Record<keyof DropdownOptions, string> = {
-  hsa: 'HSA (Holding Sub Area)',
+  hsa: 'HSA (Head of Service Area)',
   sto: 'STO (Sentral Telepon Otomat)',
   odc: 'ODC',
   stakeHolder: 'Stake Holder',
   jenisPelanggan: 'Jenis Pelanggan',
-  kategori: 'Kategori Tiket',
+  kategori: 'Saverity',
   losNonLos: 'LOS / Non LOS',
   classSite: 'Class Site',
   tim: 'Tim',
