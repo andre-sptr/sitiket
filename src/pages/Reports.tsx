@@ -943,7 +943,7 @@ const Reports = () => {
                 {/* Category Pie Chart */}
                 <ChartCard 
                   title="Tiket per Severity" 
-                  description="Distribusi tiket berdasarkan severity/kategori"
+                  description="Distribusi tiket berdasarkan severity"
                   icon={PieChart}
                 >
                   <ChartContainer config={pieChartConfig} className="h-[320px] w-full">

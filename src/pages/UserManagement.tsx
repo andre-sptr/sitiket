@@ -321,13 +321,15 @@ const UserManagement = () => {
             </div>
           </div>
           {isAdmin && (
-            <Button 
-              className="gap-2 self-start btn-ripple" 
-              onClick={openAddDialog}
-            >
-              <Plus className="w-4 h-4" />
-              Tambah Pengguna
-            </Button>
+            <div className="flex gap-2 shrink-0">
+              <Button 
+                className="gap-2 self-start btn-ripple" 
+                onClick={openAddDialog}
+              >
+                <Plus className="w-4 h-4" />
+                Tambah Pengguna
+              </Button>
+            </div>
           )}
         </motion.div>
 

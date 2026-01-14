@@ -380,7 +380,7 @@ const TeknisiManagement = () => {
                   resetForm();
                   setIsAddDialogOpen(true);
                 }}
-                className="gap-2 btn-ripple"
+                className="btn-ripple gap-2"
               >
                 <Plus className="w-4 h-4" />
                 Tambah Teknisi
