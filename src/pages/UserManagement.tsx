@@ -56,7 +56,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useState } from 'react';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import { useEffect, useState } from 'react';
 import { User, UserRole } from '@/types/ticket';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -145,6 +153,12 @@ const UserManagement = () => {
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [formData, setFormData] = useState<UserFormData>(initialFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 12;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   const isAdmin = currentUser?.role === 'admin';
 
@@ -159,6 +173,10 @@ const UserManagement = () => {
     hd: filteredUsers.filter(u => u.role === 'hd'),
     guest: filteredUsers.filter(u => u.role === 'guest'),
   };
+
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedUsers = filteredUsers.slice(startIndex, startIndex + itemsPerPage);
 
   const handleWhatsApp = (phone: string) => {
     const formatted = phone.replace(/\D/g, '').replace(/^0/, '62');
@@ -412,7 +430,7 @@ const UserManagement = () => {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                   <AnimatePresence mode="popLayout">
-                    {filteredUsers.map((user, index) => {
+                    {paginatedUsers.map((user, index) => {
                       const Icon = roleIcons[user.role];
                       const roleColor = roleColors[user.role];
                       const iconColorClass = roleIconColors[user.role];
@@ -577,6 +595,49 @@ const UserManagement = () => {
                       <p className="text-sm mt-1">Coba ubah kata kunci pencarian</p>
                     </motion.div>
                   )}
+                </div>
+              )}
+
+              {totalPages > 1 && (
+                <div className="flex justify-center mt-8">
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious 
+                          onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                          className={cn(
+                            "cursor-pointer select-none", 
+                            currentPage === 1 && "pointer-events-none opacity-50"
+                          )} 
+                        />
+                      </PaginationItem>
+                      
+                      {Array.from({ length: totalPages }).map((_, i) => {
+                        const pageNumber = i + 1;
+                        return (
+                          <PaginationItem key={i}>
+                            <PaginationLink
+                              isActive={pageNumber === currentPage}
+                              onClick={() => setCurrentPage(pageNumber)}
+                              className="cursor-pointer select-none"
+                            >
+                              {pageNumber}
+                            </PaginationLink>
+                          </PaginationItem>
+                        );
+                      })}
+
+                      <PaginationItem>
+                        <PaginationNext 
+                          onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                          className={cn(
+                            "cursor-pointer select-none", 
+                            currentPage === totalPages && "pointer-events-none opacity-50"
+                          )}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
                 </div>
               )}
             </CardContent>
