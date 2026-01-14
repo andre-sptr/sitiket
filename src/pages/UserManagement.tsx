@@ -21,7 +21,8 @@ import {
   Headphones,
   ShieldX,
   UserCircle,
-  RefreshCcw
+  RefreshCcw,
+  Filter
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -147,6 +148,7 @@ const UserManagement = () => {
   const { user: currentUser } = useAuth();
   const { users, isLoaded, addUser, updateUser, deleteUser, toggleUserActive } = useUsers();
   const [searchQuery, setSearchQuery] = useState('');
+  const [roleFilter, setRoleFilter] = useState<string>('all');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -162,11 +164,15 @@ const UserManagement = () => {
 
   const isAdmin = currentUser?.role === 'admin';
 
-  const filteredUsers = users.filter(user => 
-    user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.area?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.area?.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesRole = roleFilter === 'all' ? true : user.role === roleFilter;
+
+    return matchesSearch && matchesRole;
+  });
 
   const usersByRole = {
     admin: filteredUsers.filter(u => u.role === 'admin'),
@@ -325,15 +331,32 @@ const UserManagement = () => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
-          className="relative max-w-sm"
+          className="flex flex-col sm:flex-row gap-4"
         >
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Cari nama, role, atau area..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200"
-          />
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Cari nama, role, atau area..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200"
+            />
+          </div>
+
+          <Select value={roleFilter} onValueChange={setRoleFilter}>
+            <SelectTrigger className="w-full sm:w-[200px] h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Filter className="w-4 h-4" />
+                <SelectValue placeholder="Filter Role" />
+              </div>
+            </SelectTrigger>
+            <SelectContent className="glass-card">
+              <SelectItem value="all">Semua Role</SelectItem>
+              <SelectItem value="admin">Admin</SelectItem>
+              <SelectItem value="hd">Help Desk</SelectItem>
+              <SelectItem value="guest">Guest</SelectItem>
+            </SelectContent>
+          </Select>
         </motion.div>
 
         {/* Stats Cards */}
