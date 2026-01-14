@@ -567,7 +567,7 @@ const UserManagement = () => {
                                     onClick={() => openDeleteDialog(user)}
                                   >
                                     <Trash2 className="w-4 h-4 mr-2" />
-                                    Hapus Permanen
+                                    Hapus
                                   </DropdownMenuItem>
                                 </DropdownMenuContent>
                               </DropdownMenu>

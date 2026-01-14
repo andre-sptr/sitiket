@@ -132,16 +132,20 @@ export const useUsers = () => {
 
   const deleteUser = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('user_id', id);
+      const { data, error } = await supabase.functions.invoke('delete-user', {
+        body: { user_id: id }
+      });
 
       if (error) throw error;
-      toast.success('Profil pengguna dihapus (Akun login mungkin masih ada di Auth)');
-    } catch (error) {
+      if (data?.error) throw new Error(data.error);
+
+      toast.success('Pengguna berhasil dihapus');
+      
+      await fetchUsers(); 
+      
+    } catch (error: any) {
       console.error('Error deleting user:', error);
-      toast.error('Gagal menghapus pengguna');
+      toast.error(error.message || 'Gagal menghapus pengguna');
     }
   };
 
