@@ -228,6 +228,11 @@ const UserManagement = () => {
       toast.error('Password wajib diisi minimal 6 karakter');
       return;
     }
+
+    if (editingUser && formData.password && formData.password.length < 6) {
+      toast.error('Password baru minimal harus 6 karakter');
+      return;
+    }
     
     setIsSubmitting(true);
     
@@ -709,21 +714,24 @@ const UserManagement = () => {
               />
             </div>
 
-            {!editingUser && (
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-xs font-medium text-muted-foreground">
-                  Password <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Minimal 6 karakter"
-                  value={formData.password || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                  className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200"
-                />
-              </div>
-            )}
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-xs font-medium text-muted-foreground">
+                Password
+                {!editingUser ? (
+                  <span className="text-destructive"> *</span>
+                ) : (
+                  <span className="text-muted-foreground ml-1 font-normal text-[10px]">(Opsional)</span>
+                )}
+              </Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder={editingUser ? "Password baru" : "Minimal 6 karakter"}
+                value={formData.password || ''}
+                onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200"
+              />
+            </div>
 
             <div className="space-y-2">
               <Label htmlFor="name" className="text-xs font-medium text-muted-foreground">
