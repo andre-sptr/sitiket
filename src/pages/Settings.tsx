@@ -53,7 +53,6 @@ import {
 import SEO from '@/components/SEO';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
-import { AppSettingsDB, DropdownOptionDB } from '@/types/settings';
 
 const defaultSettings = {
   ttrThresholds: {
@@ -63,11 +62,11 @@ const defaultSettings = {
     dueSoonHours: 2,
   },
   categoryTtr: {
-    premium: 2,
-    critical: 4,
-    major: 8,
-    minor: 16,
     low: 24,
+    minor: 16,
+    major: 8,
+    critical: 4,
+    premium: 2,
   },
   whatsappTemplates: {
     shareTemplate: `🎫 *TIKET HARI INI*
@@ -274,12 +273,13 @@ const DropdownOptionEditor = ({
 const Settings = () => {
   const { toast } = useToast();
   const [settings, setSettings] = useState<AppSettings>(defaultSettings);
-  const [dropdownOptions, setDropdownOptions] = useState<DropdownOptions>(defaultDropdownOptions);
+  const [dropdownOptions, setDropdownOptions] = useState<DropdownOptions>(() => getDropdownOptions());
   const [isLoading, setIsLoading] = useState(true);
   const [isSavingSettings, setIsSavingSettings] = useState(false);
   const [isSavingDropdown, setIsSavingDropdown] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [hasDropdownChanges, setHasDropdownChanges] = useState(false);
+  const categoryOrder: (keyof AppSettings['categoryTtr'])[] = ['low', 'minor', 'major', 'critical', 'premium'];
 
   useEffect(() => {
     const loadData = async () => {
@@ -306,23 +306,23 @@ const Settings = () => {
 
         if (dropdownError) {
           console.error('Error fetching dropdowns:', dropdownError);
-        } else if (dropdownData) {
-          const newOptions = { ...defaultDropdownOptions };
-          dropdownData.forEach((item: any) => {
-            if (item.option_key && item.field_values) {
-              (newOptions as any)[item.option_key] = item.field_values;
-            }
-          });
-          setDropdownOptions(newOptions);
-        }
+        } else if (dropdownData && dropdownData.length > 0) {
+          setDropdownOptions(prevOptions => {
+            const mergedOptions = { ...prevOptions }; 
+            
+            dropdownData.forEach((item: any) => {
+              if (item.option_key && item.field_values) {
+                (mergedOptions as any)[item.option_key] = item.field_values;
+              }
+            });
 
+            saveDropdownOptions(mergedOptions); 
+            return mergedOptions;
+          });
+        }
+        
       } catch (error) {
         console.error('Unexpected error loading settings:', error);
-        toast({
-          title: "Error",
-          description: "Gagal memuat pengaturan.",
-          variant: "destructive"
-        });
       } finally {
         setIsLoading(false);
       }
@@ -420,6 +420,7 @@ const Settings = () => {
   const handleSaveDropdownOptions = async () => {
     setIsSavingDropdown(true);
     try {
+      saveDropdownOptions(dropdownOptions);
       const updates = Object.entries(dropdownOptions).map(([key, values]) => {
         let groupName = 'Unknown';
         if (optionGroups['Import Tiket'].includes(key as keyof DropdownOptions)) groupName = 'Import Tiket';
@@ -434,22 +435,23 @@ const Settings = () => {
         };
       });
 
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('dropdown_options')
-        .upsert(updates, { onConflict: 'option_key' });
+        .upsert(updates, { onConflict: 'option_key' })
+        .select();
 
       if (error) throw error;
 
       setHasDropdownChanges(false);
       toast({
-        title: "Opsi Dropdown Disimpan",
-        description: "Semua perubahan opsi dropdown berhasil disimpan ke database.",
+        title: "Pengaturan Disimpan",
+        description: "Konfigurasi berhasil disimpan ke database.",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving dropdowns:', error);
       toast({
         title: "Gagal Menyimpan",
-        description: "Terjadi kesalahan saat menyimpan opsi dropdown.",
+        description: "Terjadi kesalahan saat menyimpan pengaturan.",
         variant: "destructive",
       });
     } finally {
@@ -754,7 +756,7 @@ const Settings = () => {
                   </CardHeader>
                   <CardContent className="pt-6">
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                      {Object.entries(settings.categoryTtr || defaultSettings.categoryTtr).map(([key, val]) => (
+                      {categoryOrder.map((key) => (
                         <motion.div 
                           key={key} 
                           className="space-y-2"
@@ -768,7 +770,7 @@ const Settings = () => {
                               id={`cat-${key}`}
                               type="number"
                               min={1}
-                              value={val}
+                              value={settings.categoryTtr[key]}
                               onChange={(e) => handleCategoryTtrChange(key as keyof AppSettings['categoryTtr'], parseFloat(e.target.value) || 0)}
                               className="bg-muted/30 border-border/50 focus:border-primary/50 focus:ring-primary/20 pr-12"
                             />
