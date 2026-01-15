@@ -12,6 +12,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          id: string
+          ttr_thresholds: Json
+          category_ttr: Json
+          whatsapp_templates: Json
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          ttr_thresholds?: Json
+          category_ttr?: Json
+          whatsapp_templates?: Json
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          ttr_thresholds?: Json
+          category_ttr?: Json
+          whatsapp_templates?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      dropdown_options: {
+        Row: {
+          option_key: string
+          label: string
+          field_values: string[] | null
+          group_name: string | null
+          updated_at: string
+        }
+        Insert: {
+          option_key: string
+          label: string
+          field_values?: string[] | null
+          group_name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          option_key?: string
+          label?: string
+          field_values?: string[] | null
+          group_name?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           area: string | null

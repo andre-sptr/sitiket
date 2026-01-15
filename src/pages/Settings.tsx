@@ -22,7 +22,8 @@ import {
   X, 
   GripVertical,
   Sparkles,
-  Zap
+  Zap,
+  Loader2
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -50,8 +51,9 @@ import {
   DropdownOptions 
 } from '@/hooks/useDropdownOptions';
 import SEO from '@/components/SEO';
-import { Separator } from '@/components/ui/separator';
 import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '@/integrations/supabase/client';
+import { AppSettingsDB, DropdownOptionDB } from '@/types/settings';
 
 const defaultSettings = {
   ttrThresholds: {
@@ -121,22 +123,6 @@ export interface AppSettings {
     updateTemplate: string;
   };
 }
-
-export const getSettings = (): AppSettings => {
-  try {
-    const stored = localStorage.getItem('tiketops_settings');
-    if (stored) {
-      return JSON.parse(stored);
-    }
-  } catch (e) {
-    console.error('Failed to parse settings', e);
-  }
-  return defaultSettings;
-};
-
-export const saveSettings = (settings: AppSettings): void => {
-  localStorage.setItem('tiketops_settings', JSON.stringify(settings));
-};
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -287,16 +273,63 @@ const DropdownOptionEditor = ({
 
 const Settings = () => {
   const { toast } = useToast();
-  const [settings, setSettings] = useState<AppSettings>(getSettings());
-  const [dropdownOptions, setDropdownOptions] = useState<DropdownOptions>(getDropdownOptions());
+  const [settings, setSettings] = useState<AppSettings>(defaultSettings);
+  const [dropdownOptions, setDropdownOptions] = useState<DropdownOptions>(defaultDropdownOptions);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
+  const [isSavingDropdown, setIsSavingDropdown] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [hasDropdownChanges, setHasDropdownChanges] = useState(false);
 
   useEffect(() => {
-    const stored = getSettings();
-    setSettings(stored);
-    setDropdownOptions(getDropdownOptions());
-  }, []);
+    const loadData = async () => {
+      setIsLoading(true);
+      try {
+        const { data: settingsData, error: settingsError } = await supabase
+          .from('app_settings')
+          .select('*')
+          .single();
+
+        if (settingsError && settingsError.code !== 'PGRST116') { 
+           console.error('Error fetching settings:', settingsError);
+        } else if (settingsData) {
+          setSettings({
+            ttrThresholds: settingsData.ttr_thresholds as any,
+            categoryTtr: settingsData.category_ttr as any,
+            whatsappTemplates: settingsData.whatsapp_templates as any,
+          });
+        }
+
+        const { data: dropdownData, error: dropdownError } = await supabase
+          .from('dropdown_options')
+          .select('*');
+
+        if (dropdownError) {
+          console.error('Error fetching dropdowns:', dropdownError);
+        } else if (dropdownData) {
+          const newOptions = { ...defaultDropdownOptions };
+          dropdownData.forEach((item: any) => {
+            if (item.option_key && item.field_values) {
+              (newOptions as any)[item.option_key] = item.field_values;
+            }
+          });
+          setDropdownOptions(newOptions);
+        }
+
+      } catch (error) {
+        console.error('Unexpected error loading settings:', error);
+        toast({
+          title: "Error",
+          description: "Gagal memuat pengaturan.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, [toast]);
 
   const handleThresholdChange = (key: keyof AppSettings['ttrThresholds'], value: number) => {
     setSettings(prev => ({
@@ -339,41 +372,106 @@ const Settings = () => {
     setHasDropdownChanges(true);
   };
 
-  const handleSave = () => {
-    saveSettings(settings);
-    setHasChanges(false);
-    toast({
-      title: "Pengaturan Disimpan",
-      description: "Konfigurasi berhasil disimpan.",
-    });
+  const handleSaveSettings = async () => {
+    setIsSavingSettings(true);
+    try {
+      const { data: existing } = await supabase.from('app_settings').select('id').single();
+      
+      const payload = {
+        ttr_thresholds: settings.ttrThresholds,
+        category_ttr: settings.categoryTtr,
+        whatsapp_templates: settings.whatsappTemplates,
+        updated_at: new Date().toISOString(),
+      };
+
+      let error;
+      if (existing?.id) {
+        const { error: updateError } = await supabase
+          .from('app_settings')
+          .update(payload)
+          .eq('id', existing.id);
+        error = updateError;
+      } else {
+        const { error: insertError } = await supabase
+          .from('app_settings')
+          .insert([payload]);
+        error = insertError;
+      }
+
+      if (error) throw error;
+
+      setHasChanges(false);
+      toast({
+        title: "Pengaturan Disimpan",
+        description: "Konfigurasi berhasil disimpan ke database.",
+      });
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      toast({
+        title: "Gagal Menyimpan",
+        description: "Terjadi kesalahan saat menyimpan pengaturan.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSavingSettings(false);
+    }
   };
 
-  const handleSaveDropdownOptions = () => {
-    saveDropdownOptions(dropdownOptions);
-    setHasDropdownChanges(false);
-    toast({
-      title: "Opsi Dropdown Disimpan",
-      description: "Semua perubahan opsi dropdown berhasil disimpan.",
-    });
+  const handleSaveDropdownOptions = async () => {
+    setIsSavingDropdown(true);
+    try {
+      const updates = Object.entries(dropdownOptions).map(([key, values]) => {
+        let groupName = 'Unknown';
+        if (optionGroups['Import Tiket'].includes(key as keyof DropdownOptions)) groupName = 'Import Tiket';
+        else if (optionGroups['Update Tiket'].includes(key as keyof DropdownOptions)) groupName = 'Update Tiket';
+
+        return {
+          option_key: key,
+          label: dropdownLabels[key] || key,
+          field_values: values,
+          group_name: groupName,
+          updated_at: new Date().toISOString(),
+        };
+      });
+
+      const { error } = await supabase
+        .from('dropdown_options')
+        .upsert(updates, { onConflict: 'option_key' });
+
+      if (error) throw error;
+
+      setHasDropdownChanges(false);
+      toast({
+        title: "Opsi Dropdown Disimpan",
+        description: "Semua perubahan opsi dropdown berhasil disimpan ke database.",
+      });
+    } catch (error) {
+      console.error('Error saving dropdowns:', error);
+      toast({
+        title: "Gagal Menyimpan",
+        description: "Terjadi kesalahan saat menyimpan opsi dropdown.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSavingDropdown(false);
+    }
   };
 
   const handleReset = () => {
     setSettings(defaultSettings);
-    saveSettings(defaultSettings);
-    setHasChanges(false);
+    setHasChanges(true);
     toast({
       title: "Pengaturan Direset",
-      description: "Konfigurasi dikembalikan ke default.",
+      description: "Nilai dikembalikan ke default (Klik Simpan untuk menerapkan ke database).",
     });
   };
 
   const handleResetDropdownOptions = () => {
     setDropdownOptions(defaultDropdownOptions);
-    saveDropdownOptions(defaultDropdownOptions);
-    setHasDropdownChanges(false);
+    setHasDropdownChanges(true);
     toast({
       title: "Opsi Dropdown Direset",
-      description: "Semua opsi dropdown dikembalikan ke default.",
+      description: "Nilai dikembalikan ke default (Klik Simpan untuk menerapkan ke database).",
     });
   };
 
@@ -400,6 +498,19 @@ const Settings = () => {
     { var: '{{ticketLink}}', desc: 'Link ke halaman tiket' },
     { var: '{{currentTime}}', desc: 'Waktu saat ini (WIB)' },
   ];
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="flex h-[80vh] items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-muted-foreground">Memuat pengaturan...</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -503,11 +614,15 @@ const Settings = () => {
                   <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                     <Button 
                       onClick={handleSaveDropdownOptions} 
-                      disabled={!hasDropdownChanges} 
+                      disabled={!hasDropdownChanges || isSavingDropdown} 
                       size="sm"
                       className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20"
                     >
-                      <Save className="w-4 h-4 mr-2" />
+                      {isSavingDropdown ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Save className="w-4 h-4 mr-2" />
+                      )}
                       Simpan
                     </Button>
                   </motion.div>
@@ -537,7 +652,7 @@ const Settings = () => {
                           optionKey={key}
                           label={dropdownLabels[key]}
                           values={dropdownOptions[key]}
-                          onChange={(values) => handleDropdownOptionChange(key, values)}
+                          onChange={(values) => handleDropdownOptionChange(key as keyof DropdownOptions, values)}
                         />
                       ))}
                     </Accordion>
@@ -568,7 +683,7 @@ const Settings = () => {
                           optionKey={key}
                           label={dropdownLabels[key]}
                           values={dropdownOptions[key]}
-                          onChange={(values) => handleDropdownOptionChange(key, values)}
+                          onChange={(values) => handleDropdownOptionChange(key as keyof DropdownOptions, values)}
                         />
                       ))}
                     </Accordion>
@@ -607,12 +722,16 @@ const Settings = () => {
                 </AlertDialog>
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <Button 
-                    onClick={handleSave} 
-                    disabled={!hasChanges} 
+                    onClick={handleSaveSettings} 
+                    disabled={!hasChanges || isSavingSettings} 
                     size="sm"
                     className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20"
                   >
-                    <Save className="w-4 h-4 mr-2" />
+                    {isSavingSettings ? (
+                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                       <Save className="w-4 h-4 mr-2" />
+                    )}
                     Simpan
                   </Button>
                 </motion.div>
@@ -848,12 +967,16 @@ const Settings = () => {
                 </AlertDialog>
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <Button 
-                    onClick={handleSave} 
-                    disabled={!hasChanges} 
+                    onClick={handleSaveSettings} 
+                    disabled={!hasChanges || isSavingSettings} 
                     size="sm"
                     className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20"
                   >
-                    <Save className="w-4 h-4 mr-2" />
+                    {isSavingSettings ? (
+                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                       <Save className="w-4 h-4 mr-2" />
+                    )}
                     Simpan
                   </Button>
                 </motion.div>
