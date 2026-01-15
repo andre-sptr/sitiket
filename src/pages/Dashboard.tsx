@@ -225,12 +225,10 @@ const Dashboard = () => {
                 <p className="text-sm mt-1">Tiket yang dibuat hari ini akan muncul di sini</p>
               </div>
             ) : (
-              sortedTickets.map((ticket, index) => (
+              sortedTickets.map((ticket) => (
                 <TicketCard 
                   key={ticket.id}
                   ticket={ticket} 
-                  onCopyWhatsApp={handleCopyWhatsApp}
-                  index={index}
                 />
               ))
             )}

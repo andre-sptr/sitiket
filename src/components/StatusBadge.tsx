@@ -16,8 +16,6 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-// --- Types ---
-
 interface StatusBadgeProps {
   status: TicketStatus;
   showIcon?: boolean;
@@ -31,12 +29,10 @@ interface ComplianceBadgeProps {
 }
 
 interface TTRBadgeProps {
-  targetDate?: Date | string | null; // Diganti menjadi targetDate untuk countdown
+  targetDate?: Date | string | null;
   status: TicketStatus;
   size?: 'sm' | 'default';
 }
-
-// --- Maps ---
 
 const statusVariantMap: Record<TicketStatus, 'open' | 'assigned' | 'onprogress' | 'pending' | 'temporary' | 'waiting' | 'closed'> = {
   OPEN: 'open',
@@ -61,8 +57,6 @@ const statusIconMap: Record<TicketStatus, React.ReactNode> = {
   WAITING_COORDINATION: <Users className="w-3 h-3" />,
   CLOSED: <CheckCircle2 className="w-3 h-3" />,
 };
-
-// --- Components ---
 
 export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, showIcon = true, size = 'default', className }) => {
   return (
@@ -109,13 +103,13 @@ export const TTRBadge: React.FC<TTRBadgeProps> = ({ targetDate, status, size = '
 
       let text = `${hours}j ${minutes}m`;
       if (days > 0) text = `${days}h ${text}`;
-      if (isLate) text = `+${text}`; // Menandakan lewat waktu
+      if (isLate) text = `+${text}`;
 
       setTimeLeft({ text, isOverdue: isLate });
     };
 
     calculate();
-    const interval = setInterval(calculate, 60000); // Update tiap menit cukup untuk badge
+    const interval = setInterval(calculate, 60000);
     return () => clearInterval(interval);
   }, [targetDate, status]);
 

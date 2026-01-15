@@ -1,25 +1,25 @@
-import { Ticket, ProgressUpdate } from '@/types/ticket';
+import { Ticket, ProgressUpdate, TicketStatus, TTRCompliance } from '@/types/ticket';
 import { TicketWithProgress, ProgressUpdateRow } from '@/hooks/useTickets';
 
 export const mapDbTicketToTicket = (dbTicket: TicketWithProgress): Ticket => ({
   id: dbTicket.id,
-  provider: dbTicket.provider,
+  provider: dbTicket.provider || 'TSEL',
   incNumbers: dbTicket.inc_numbers,
   siteCode: dbTicket.site_code,
   siteName: dbTicket.site_name,
   networkElement: dbTicket.network_element || undefined,
-  kategori: dbTicket.kategori,
-  lokasiText: dbTicket.lokasi_text,
+  kategori: dbTicket.kategori || '',
+  lokasiText: dbTicket.lokasi_text || '',
   latitude: dbTicket.latitude || undefined,
   longitude: dbTicket.longitude || undefined,
-  jarakKmRange: dbTicket.jarak_km_range || undefined,
-  ttrCompliance: dbTicket.ttr_compliance,
+  jarakKmRange: dbTicket.jarak_km_range?.toString() || undefined,
+  ttrCompliance: (dbTicket.ttr_compliance || 'COMPLY') as TTRCompliance,
   jamOpen: new Date(dbTicket.jam_open),
   ttrTargetHours: dbTicket.ttr_target_hours,
   maxJamClose: new Date(dbTicket.max_jam_close),
   ttrRealHours: dbTicket.ttr_real_hours || undefined,
   sisaTtrHours: dbTicket.sisa_ttr_hours,
-  status: dbTicket.status,
+  status: (dbTicket.status || 'OPEN') as TicketStatus,
   isPermanent: dbTicket.is_permanent,
   permanentNotes: dbTicket.permanent_notes || undefined,
   penyebab: dbTicket.penyebab || undefined,

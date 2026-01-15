@@ -856,12 +856,10 @@ const AllTickets = () => {
               className="space-y-3"
             >
               <AnimatePresence mode="popLayout">
-                {sortedTickets.map((ticket, index) => (
+                {sortedTickets.map((ticket) => (
                   <TicketCard 
                     key={ticket.id}
                     ticket={ticket} 
-                    onCopyWhatsApp={handleCopyWhatsApp}
-                    index={index}
                   />
                 ))}
               </AnimatePresence>
