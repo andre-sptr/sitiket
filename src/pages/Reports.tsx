@@ -525,6 +525,14 @@ const Reports = () => {
     });
   };
 
+  if (isLoading) {
+    return (
+      <Layout>
+         <ReportsSkeleton />
+      </Layout>
+    );
+  }
+  
   return (
     <Layout>
       <SEO title="Laporan & Analitik" description="Statistik dan performa penanganan tiket." />

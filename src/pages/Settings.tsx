@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { SettingsSkeleton } from '@/components/skeletons';
 import { 
   Settings as SettingsIcon, 
   Clock, 
@@ -504,12 +505,7 @@ const Settings = () => {
   if (isLoading) {
     return (
       <Layout>
-        <div className="flex h-[80vh] items-center justify-center">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-muted-foreground">Memuat pengaturan...</p>
-          </div>
-        </div>
+        <SettingsSkeleton />
       </Layout>
     );
   }

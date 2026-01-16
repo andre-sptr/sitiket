@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
+import { TeknisiManagementSkeleton } from '@/components/skeletons';
 import {
   Pagination,
   PaginationContent,
@@ -328,6 +329,14 @@ const TeknisiManagement = () => {
   const handleCall = (phone: string) => {
     window.location.href = `tel:${phone}`;
   };
+
+  if (!isLoaded) {
+    return (
+      <Layout>
+         <TeknisiManagementSkeleton />
+      </Layout>
+    );
+  }
 
   return (
     <Layout>

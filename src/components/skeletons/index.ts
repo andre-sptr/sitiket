@@ -4,3 +4,6 @@ export { TicketDetailSkeleton } from './TicketDetailSkeleton';
 export { FormSkeleton } from './FormSkeleton';
 export { UpdateFormSkeleton } from './UpdateFormSkeleton';
 export { ReportsSkeleton } from './ReportsSkeleton';
+export { UserManagementSkeleton } from './UserManagementSkeleton';
+export { TeknisiManagementSkeleton } from './TeknisiManagementSkeleton';
+export { SettingsSkeleton } from './SettingsSkeleton';

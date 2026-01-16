@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useUsers } from '@/hooks/useUsers';
 import { Skeleton } from '@/components/ui/skeleton';
+import { UserManagementSkeleton } from '@/components/skeletons';
 import { 
   Users, 
   Plus, 
@@ -292,6 +293,14 @@ const UserManagement = () => {
             Kembali
           </Button>
         </motion.div>
+      </Layout>
+    );
+  }
+
+  if (!isLoaded) {
+    return (
+      <Layout>
+        <UserManagementSkeleton />
       </Layout>
     );
   }
