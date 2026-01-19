@@ -45,9 +45,9 @@ export const defaultDropdownOptions: DropdownOptions = {
   classSite: ['Platinum'],
   tim: ['SQUAT-A', 'SQUAT-B'],
   
-  statusTiket: ['OPEN', 'ASSIGNED', 'ONPROGRESS', 'PENDING', 'TEMPORARY', 'WAITING_MATERIAL', 'WAITING_ACCESS', 'WAITING_COORDINATION', 'CLOSED', 'GAMAS'],
+  statusTiket: ['OPEN', 'ASSIGNED', 'ONPROGRESS', 'PENDING', 'WAITING_MATERIAL', 'WAITING_ACCESS', 'WAITING_COORDINATION', 'CLOSED', 'GAMAS'],
   compliance: ['COMPLY', 'NOT COMPLY'],
-  permanenTemporer: ['PERMANEN', 'TEMPORER LAMA', 'TEMPORER BARU'],
+  permanenTemporer: ['PERMANEN', 'TEMPORARY'],
   statusAlatBerat: ['DI LOKASI DAN BEROPERASI', 'STOP TETAPI DI LOKASI', 'TIDAK ADA ALBER DI LOKASI'],
   penyebabGangguan: [
     'Kabel Putus',

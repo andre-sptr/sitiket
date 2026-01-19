@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -39,7 +39,13 @@ import {
   Timer,
   Zap,
   MessageSquare,
-  ChevronRight
+  ChevronRight,
+  Activity,
+  Building2,
+  FileStack,
+  ShieldCheck,
+  Wrench,
+  Flag
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -222,6 +228,28 @@ const TicketDetail = () => {
   const isAdmin = user?.role === 'admin';
   const ticket = dbTicket ? mapDbTicketToTicket(dbTicket) : null;
 
+  const displayStatus = useMemo(() => {
+    if (!ticket) return 'OPEN';
+  
+    if (ticket.status !== 'TEMPORARY') {
+      return ticket.status;
+    }
+
+    if (ticket.progressUpdates && ticket.progressUpdates.length > 0) {
+      const sortedUpdates = [...ticket.progressUpdates].sort((a, b) => 
+        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      );
+      const lastValidUpdate = sortedUpdates.find(u => 
+        u.statusAfterUpdate && u.statusAfterUpdate !== 'TEMPORARY'
+      );
+
+      if (lastValidUpdate?.statusAfterUpdate) {
+        return lastValidUpdate.statusAfterUpdate;
+      }
+    }
+    return (ticket.teknisiList && ticket.teknisiList.length > 0) ? 'ASSIGNED' : 'OPEN';
+  }, [ticket]);
+
   const { data: profiles } = useQuery({
     queryKey: ['profiles-map'],
     queryFn: async () => {
@@ -383,7 +411,7 @@ const TicketDetail = () => {
               >
                 {ticket.incNumbers.join(', ')}
               </motion.span>
-              <StatusBadge status={ticket.status} />
+              <StatusBadge status={displayStatus} />
             </div>
             
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
@@ -495,6 +523,93 @@ const TicketDetail = () => {
                       <span className="font-bold text-emerald-600 dark:text-emerald-400">
                         {formatTTR(ticket.ttrRealHours)}
                       </span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div variants={cardVariants}>
+              <Card className="overflow-hidden border-0 shadow-lg shadow-black/5 dark:shadow-black/20">
+                <CardHeader className="pb-3 bg-gradient-to-r from-muted/50 to-transparent">
+                  <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                    <FileStack className="w-4 h-4" />
+                    Informasi Teknis
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  
+                  {/* Stakeholder & Provider Grid */}
+                  <div className="grid grid-cols-2 gap-3">
+                    {/* Stakeholder */}
+                    <div className="p-3 rounded-xl bg-muted/30">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Flag className="w-3 h-3 text-muted-foreground" />
+                        <p className="text-xs text-muted-foreground">Stake Holder</p>
+                      </div>
+                      {/* Menggunakan casting (ticket as any) karena field stakeHolder mungkin belum ada di interface Ticket */}
+                      <p className="text-sm font-medium">{ticket.stakeHolder || '-'}</p>
+                    </div>
+
+                    {/* Provider (Jenis Pelanggan) */}
+                    <div className="p-3 rounded-xl bg-muted/30">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Building2 className="w-3 h-3 text-muted-foreground" />
+                        <p className="text-xs text-muted-foreground">Pelanggan</p>
+                      </div>
+                      <p className="text-sm font-medium">{ticket.provider || '-'}</p>
+                    </div>
+                  </div>
+
+                  {/* KJD & Gamas Grid */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="p-3 rounded-xl bg-muted/30">
+                      <div className="flex items-center gap-2 mb-1">
+                        <ShieldCheck className="w-3 h-3 text-muted-foreground" />
+                        <p className="text-xs text-muted-foreground">KJD</p>
+                      </div>
+                      <p className="font-mono text-xs font-medium truncate" title={ticket.kjd}>
+                        {ticket.kjd || '-'}
+                      </p>
+                    </div>
+                    <div className="p-3 rounded-xl bg-muted/30">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Activity className="w-3 h-3 text-muted-foreground" />
+                        <p className="text-xs text-muted-foreground">Gamas</p>
+                      </div>
+                      <p className="font-mono text-xs font-medium truncate" title={ticket.incGamas}>
+                        {ticket.incGamas || '-'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Sifat Perbaikan */}
+                  <div className="p-3 rounded-xl bg-muted/30 flex items-center justify-between">
+                     <div className="flex items-center gap-2">
+                        <Wrench className="w-3 h-3 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">Sifat Perbaikan</span>
+                     </div>
+                     {ticket.isPermanent === null ? (
+                        <Badge variant="outline" className="bg-background/50 text-muted-foreground border-dashed">
+                          -
+                        </Badge>
+                     ) : (
+                        <Badge 
+                          variant={ticket.isPermanent ? "default" : "secondary"}
+                          className={`${ticket.isPermanent ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-orange-500 hover:bg-orange-600 text-white'}`}
+                        >
+                          {ticket.isPermanent ? 'PERMANEN' : 'TEMPORARY'}
+                        </Badge>
+                     )}
+                  </div>
+
+                  {/* Summary / Laporan Awal */}
+                  {ticket.rawTicketText && (
+                    <div className="p-3 rounded-xl bg-muted/30">
+                      <p className="text-xs text-muted-foreground mb-2">Summary</p>
+                      <div className="text-xs font-mono bg-background/50 p-2 rounded-lg border border-border/50 break-words whitespace-pre-wrap max-h-[100px] overflow-y-auto custom-scrollbar">
+                        {ticket.rawTicketText}
+                      </div>
                     </div>
                   )}
                 </CardContent>
@@ -643,7 +758,6 @@ const TicketDetail = () => {
                       <SelectContent className="rounded-xl">
                         <SelectItem value="ONPROGRESS">On Progress</SelectItem>
                         <SelectItem value="PENDING">Pending</SelectItem>
-                        <SelectItem value="TEMPORARY">Temporary</SelectItem>
                         <SelectItem value="WAITING_MATERIAL">Menunggu Material</SelectItem>
                         <SelectItem value="WAITING_ACCESS">Menunggu Akses</SelectItem>
                         <SelectItem value="WAITING_COORDINATION">Menunggu Koordinasi</SelectItem>

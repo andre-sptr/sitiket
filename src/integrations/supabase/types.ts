@@ -196,7 +196,7 @@ export type Database = {
           id: string
           inc_gamas: string | null
           inc_numbers: string[]
-          is_permanent: boolean
+          is_permanent: boolean | null
           jam_open: string
           jarak_km_range: string | null
           kategori: string
@@ -209,6 +209,7 @@ export type Database = {
           penyebab: string | null
           permanent_notes: string | null
           provider: string
+          stake_holder: string | null
           raw_ticket_text: string | null
           segmen: string | null
           sisa_ttr_hours: number
@@ -231,7 +232,7 @@ export type Database = {
           id?: string
           inc_gamas?: string | null
           inc_numbers?: string[]
-          is_permanent?: boolean
+          is_permanent?: boolean | null
           jam_open?: string
           jarak_km_range?: string | null
           kategori: string
@@ -244,6 +245,7 @@ export type Database = {
           penyebab?: string | null
           permanent_notes?: string | null
           provider?: string
+          stake_holder?: string | null
           raw_ticket_text?: string | null
           segmen?: string | null
           sisa_ttr_hours?: number
@@ -266,7 +268,7 @@ export type Database = {
           id?: string
           inc_gamas?: string | null
           inc_numbers?: string[]
-          is_permanent?: boolean
+          is_permanent?: boolean | null
           jam_open?: string
           jarak_km_range?: string | null
           kategori?: string
@@ -279,6 +281,7 @@ export type Database = {
           penyebab?: string | null
           permanent_notes?: string | null
           provider?: string
+          stake_holder?: string | null
           raw_ticket_text?: string | null
           segmen?: string | null
           sisa_ttr_hours?: number

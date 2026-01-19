@@ -201,6 +201,10 @@ export const useAddProgressUpdate = () => {
           updated_at: new Date().toISOString() 
         };
 
+        if (update.status_after_update === 'TEMPORARY') {
+          updatePayload.is_permanent = false;
+        }
+
         if (update.status_after_update === 'CLOSED') {
           const { data: ticketData } = await supabase
             .from('tickets')

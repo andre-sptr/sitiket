@@ -38,6 +38,7 @@ export interface ProgressUpdate {
 export interface Ticket {
   id: string;
   provider: string;
+  stakeHolder?: string;
   incNumbers: string[];
   siteCode: string;
   siteName: string;
@@ -54,7 +55,7 @@ export interface Ticket {
   ttrRealHours?: number;
   sisaTtrHours: number;
   status: TicketStatus;
-  isPermanent: boolean;
+  isPermanent: boolean | null;
   permanentNotes?: string;
   penyebab?: string;
   segmen?: string;

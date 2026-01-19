@@ -4,6 +4,7 @@ import { TicketWithProgress, ProgressUpdateRow } from '@/hooks/useTickets';
 export const mapDbTicketToTicket = (dbTicket: TicketWithProgress): Ticket => ({
   id: dbTicket.id,
   provider: dbTicket.provider || 'TSEL',
+  stakeHolder: dbTicket.stake_holder || undefined,
   incNumbers: dbTicket.inc_numbers,
   siteCode: dbTicket.site_code,
   siteName: dbTicket.site_name,
@@ -54,6 +55,7 @@ export const mapDbProgressToProgress = (pu: ProgressUpdateRow): ProgressUpdate =
 
 export const mapTicketToDbInsert = (ticket: Partial<Ticket>, userId?: string) => ({
   provider: ticket.provider || 'TSEL',
+  stakeHolder: ticket.stakeHolder || undefined,
   inc_numbers: ticket.incNumbers || [],
   site_code: ticket.siteCode || '',
   site_name: ticket.siteName || '',
@@ -70,7 +72,7 @@ export const mapTicketToDbInsert = (ticket: Partial<Ticket>, userId?: string) =>
   ttr_real_hours: ticket.ttrRealHours,
   sisa_ttr_hours: ticket.sisaTtrHours || 0,
   status: ticket.status || 'OPEN',
-  is_permanent: ticket.isPermanent || false,
+  is_permanent: ticket.isPermanent || null,
   permanent_notes: ticket.permanentNotes,
   penyebab: ticket.penyebab,
   segmen: ticket.segmen,

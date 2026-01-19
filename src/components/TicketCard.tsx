@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
@@ -17,10 +17,27 @@ interface TicketCardProps {
 export const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
   const navigate = useNavigate();
 
-  const relativeTime = formatDistanceToNow(new Date(ticket.updatedAt || ticket.jamOpen), { 
-    addSuffix: true, 
-    locale: idLocale 
-  });
+  const displayStatus = useMemo(() => {
+    if (!ticket) return 'OPEN';
+  
+    if (ticket.status !== 'TEMPORARY') {
+      return ticket.status;
+    }
+
+    if (ticket.progressUpdates && ticket.progressUpdates.length > 0) {
+      const sortedUpdates = [...ticket.progressUpdates].sort((a, b) => 
+        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      );
+      const lastValidUpdate = sortedUpdates.find(u => 
+        u.statusAfterUpdate && u.statusAfterUpdate !== 'TEMPORARY'
+      );
+
+      if (lastValidUpdate?.statusAfterUpdate) {
+        return lastValidUpdate.statusAfterUpdate;
+      }
+    }
+    return (ticket.teknisiList && ticket.teknisiList.length > 0) ? 'ASSIGNED' : 'OPEN';
+  }, [ticket]);
 
   return (
     <motion.div
@@ -53,7 +70,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
                 {formatDateWIB(ticket.jamOpen)}
               </span>
             </div>
-            <StatusBadge status={ticket.status} size="sm" />
+            <StatusBadge status={displayStatus} />
           </div>
 
           {/* Baris 2: Judul Utama (Site) */}

@@ -316,6 +316,7 @@ const ImportTicket = () => {
         max_jam_close: maxJamClose.toISOString(),
         status: initialStatus,
         provider: formData.jenisPelanggan,
+        stake_holder: formData.stakeHolder,
         kjd: formData.kjd || null,
         inc_gamas: formData.indukGamas || null,
         teknisi_list: formData.teknisi1 ? [formData.teknisi1] : [],

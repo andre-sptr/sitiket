@@ -177,7 +177,9 @@ const UpdateTicket = () => {
         ttrSisa: ticket.sisa_ttr_hours?.toString() || '',
         penyebabGangguan: ticket.penyebab || '',
         segmenTerganggu: ticket.segmen || '',
-        permanenTemporer: ticket.is_permanent ? 'PERMANEN' : 'TEMPORER',
+        permanenTemporer: ticket.is_permanent === null 
+          ? '' 
+          : (ticket.is_permanent ? 'PERMANEN' : 'TEMPORARY'),
         teknisi1: ticket.teknisi_list?.[0] || '',
         teknisi2: ticket.teknisi_list?.[1] || '',
         teknisi3: ticket.teknisi_list?.[2] || '',
@@ -185,6 +187,15 @@ const UpdateTicket = () => {
       }));
     }
   }, [ticket]);
+
+  useEffect(() => {
+    if (formData.statusTiket === 'TEMPORARY') {
+      setFormData(prev => ({
+        ...prev,
+        permanenTemporer: 'TEMPORARY'
+      }));
+    }
+  }, [formData.statusTiket]);
 
   if (user?.role === 'guest') {
     return (
@@ -300,7 +311,9 @@ const UpdateTicket = () => {
         sisa_ttr_hours: parseFloat(formData.ttrSisa) || 0,
         penyebab: formData.penyebabGangguan,
         segmen: formData.segmenTerganggu,
-        is_permanent: formData.permanenTemporer === 'PERMANEN',
+        is_permanent: formData.permanenTemporer === 'PERMANEN' 
+          ? true 
+          : (formData.permanenTemporer === 'TEMPORARY' ? false : null),
         teknisi_list: teknisiList.length > 0 ? teknisiList : null,
       };
 
@@ -552,11 +565,6 @@ const UpdateTicket = () => {
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">Kategori</p>
                   <p className="font-medium">{ticket.kategori}</p>
-                </div>
-                <div className="h-10 w-px bg-border/50 hidden md:block" />
-                <div>
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">Status</p>
-                  <StatusBadge status={ticket.status as TicketStatus} />
                 </div>
                 <div className="h-10 w-px bg-border/50 hidden md:block" />
                 <div>
