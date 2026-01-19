@@ -284,13 +284,13 @@ const UserManagement = () => {
           </motion.div>
           <h2 className="text-2xl font-bold mb-2">Akses Ditolak</h2>
           <p className="text-muted-foreground mb-6 max-w-md">
-            Role Guest tidak dapat mengakses halaman ini.
+            Anda tidak dapat mengakses halaman ini.
           </p>
           <Button 
             onClick={() => window.history.back()}
             className="btn-ripple gap-2"
           >
-            Kembali
+            Kembali ke Dashboard
           </Button>
         </motion.div>
       </Layout>

@@ -190,12 +190,12 @@ const ImportTicket = () => {
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
             className="w-20 h-20 rounded-full bg-destructive/10 flex items-center justify-center mb-6"
-          >
+          > 
             <ShieldX className="w-10 h-10 text-destructive" />
           </motion.div>
           <h2 className="text-2xl font-bold mb-2">Akses Ditolak</h2>
           <p className="text-muted-foreground mb-6 max-w-md">
-            Role Guest hanya dapat melihat data, tidak dapat menambah atau mengedit tiket.
+            Anda tidak dapat mengakses halaman ini.
           </p>
           <Button 
             onClick={() => navigate('/dashboard')}

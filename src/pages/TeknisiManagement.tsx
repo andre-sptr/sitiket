@@ -158,7 +158,7 @@ const TeknisiManagement = () => {
           </motion.div>
           <h2 className="text-2xl font-bold mb-2">Akses Ditolak</h2>
           <p className="text-muted-foreground mb-6 max-w-md">
-            Anda tidak memiliki izin untuk mengelola data teknisi. Silakan hubungi admin.
+            Anda tidak dapat mengakses halaman ini.
           </p>
           <Button 
             onClick={() => navigate('/dashboard')} 

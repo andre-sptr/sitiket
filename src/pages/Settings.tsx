@@ -24,7 +24,8 @@ import {
   GripVertical,
   Sparkles,
   Zap,
-  Loader2
+  Loader2,
+  ShieldX
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -54,6 +55,7 @@ import {
 import SEO from '@/components/SEO';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 const defaultSettings = {
   ttrThresholds: {
@@ -273,6 +275,7 @@ const DropdownOptionEditor = ({
 
 const Settings = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [settings, setSettings] = useState<AppSettings>(defaultSettings);
   const [dropdownOptions, setDropdownOptions] = useState<DropdownOptions>(() => getDropdownOptions());
   const [isLoading, setIsLoading] = useState(true);
@@ -501,6 +504,39 @@ const Settings = () => {
     { var: '{{ticketLink}}', desc: 'Link ke halaman tiket' },
     { var: '{{currentTime}}', desc: 'Waktu saat ini (WIB)' },
   ];
+
+  if (user?.role === 'guest' || user?.role === 'hd') {
+    return (
+      <Layout>
+        <SEO title="Manajemen Pengguna" description="Kelola pengguna sistem - admin, help desk, dan guest. Atur role dan akses pengguna." noIndex={true} />
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4 }}
+          className="flex flex-col items-center justify-center py-16 text-center"
+        >
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+            className="w-20 h-20 rounded-full bg-destructive/10 flex items-center justify-center mb-6"
+          >
+            <ShieldX className="w-10 h-10 text-destructive" />
+          </motion.div>
+          <h2 className="text-2xl font-bold mb-2">Akses Ditolak</h2>
+          <p className="text-muted-foreground mb-6 max-w-md">
+            Anda tidak dapat mengakses halaman ini.
+          </p>
+          <Button 
+            onClick={() => window.history.back()}
+            className="btn-ripple gap-2"
+          >
+            Kembali ke Dashboard
+          </Button>
+        </motion.div>
+      </Layout>
+    );
+  }
 
   if (isLoading) {
     return (

@@ -204,7 +204,7 @@ const UpdateTicket = () => {
           </motion.div>
           <h2 className="text-2xl font-bold mb-2">Akses Ditolak</h2>
           <p className="text-muted-foreground mb-6 max-w-md">
-            Role Guest hanya dapat melihat data, tidak dapat menambah atau mengedit tiket.
+            Anda tidak dapat mengakses halaman ini.
           </p>
           <Button onClick={() => navigate('/dashboard')} className="btn-ripple">
             Kembali ke Dashboard

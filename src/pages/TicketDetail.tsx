@@ -217,6 +217,7 @@ const TicketDetail = () => {
   const [updateStatus, setUpdateStatus] = useState<TicketStatus | ''>('');
   const addProgressUpdate = useAddProgressUpdate();
   const isGuest = user?.role === 'guest';
+  const isAdmin = user?.role === 'admin';
   const ticket = dbTicket ? mapDbTicketToTicket(dbTicket) : null;
 
   if (isLoading) {
@@ -377,18 +378,20 @@ const TicketDetail = () => {
 
         {!isGuest && (
           <motion.div variants={itemVariants} className="flex flex-wrap gap-2">
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Button 
-                size="sm" 
-                className="gap-2 rounded-xl shadow-lg shadow-primary/20" 
-                onClick={() => navigate(`/ticket/${id}/update`)}
-              >
-                <FileText className="w-4 h-4" />
-                Update Tiket
-              </Button>
-            </motion.div>
-            
-            {user?.role !== 'guest' && (
+            {!isAdmin && (
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Button 
+                  size="sm" 
+                  className="gap-2 rounded-xl shadow-lg shadow-primary/20" 
+                  onClick={() => navigate(`/ticket/${id}/update`)}
+                >
+                  <FileText className="w-4 h-4" />
+                  Update Tiket
+                </Button>
+              </motion.div>
+            )}
+
+            {!isAdmin && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
@@ -591,7 +594,7 @@ const TicketDetail = () => {
           </motion.div>
 
           <motion.div variants={containerVariants} className="lg:col-span-2 space-y-4">
-            {!isGuest && (
+            {!isGuest && !isAdmin && (
               <motion.div variants={cardVariants}>
                 <Card className="overflow-hidden border-0 shadow-lg shadow-black/5 dark:shadow-black/20">
                   <CardHeader className="pb-3 bg-gradient-to-r from-primary/5 to-transparent">
