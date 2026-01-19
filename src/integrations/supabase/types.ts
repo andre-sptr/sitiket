@@ -194,6 +194,15 @@ export type Database = {
           created_at: string
           created_by: string | null
           id: string
+          hsa: string | null
+          sto: string | null
+          odc: string | null
+          datek: string | null
+          los_non_los: string | null
+          site_impact: string | null
+          class_site: string | null
+          tacc: string | null
+          tim: string | null
           inc_gamas: string | null
           inc_numbers: string[]
           is_permanent: boolean | null
@@ -213,6 +222,8 @@ export type Database = {
           raw_ticket_text: string | null
           segmen: string | null
           sisa_ttr_hours: number
+          id_pelanggan: string | null
+          nama_pelanggan: string | null
           site_code: string
           site_name: string
           status: Database["public"]["Enums"]["ticket_status"]
@@ -230,6 +241,15 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           id?: string
+          hsa?: string | null
+          sto?: string | null
+          odc?: string | null
+          datek?: string | null
+          los_non_los?: string | null
+          site_impact?: string | null
+          class_site?: string | null
+          tacc?: string | null
+          tim?: string | null
           inc_gamas?: string | null
           inc_numbers?: string[]
           is_permanent?: boolean | null
@@ -249,6 +269,8 @@ export type Database = {
           raw_ticket_text?: string | null
           segmen?: string | null
           sisa_ttr_hours?: number
+          id_pelanggan?: string | null
+          nama_pelanggan?: string | null
           site_code: string
           site_name: string
           status?: Database["public"]["Enums"]["ticket_status"]
@@ -266,6 +288,15 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           id?: string
+          hsa?: string | null
+          sto?: string | null
+          odc?: string | null
+          datek?: string | null
+          los_non_los?: string | null
+          site_impact?: string | null
+          class_site?: string | null
+          tacc?: string | null
+          tim?: string | null
           inc_gamas?: string | null
           inc_numbers?: string[]
           is_permanent?: boolean | null
@@ -285,6 +316,8 @@ export type Database = {
           raw_ticket_text?: string | null
           segmen?: string | null
           sisa_ttr_hours?: number
+          id_pelanggan?: string | null
+          nama_pelanggan?: string | null
           site_code?: string
           site_name?: string
           status?: Database["public"]["Enums"]["ticket_status"]

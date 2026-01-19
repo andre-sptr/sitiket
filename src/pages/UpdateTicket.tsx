@@ -559,11 +559,11 @@ const UpdateTicket = () => {
                 <div className="h-10 w-px bg-border/50 hidden md:block" />
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">Site</p>
-                  <p className="font-medium">{ticket.site_code} - {ticket.site_name}</p>
+                  <p className="font-medium">{ticket.site_name} - {ticket.site_code}</p>
                 </div>
                 <div className="h-10 w-px bg-border/50 hidden md:block" />
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">Kategori</p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">Saverity</p>
                   <p className="font-medium">{ticket.kategori}</p>
                 </div>
                 <div className="h-10 w-px bg-border/50 hidden md:block" />
@@ -629,25 +629,6 @@ const UpdateTicket = () => {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                   <SelectField 
-                    label="Status Tiket" 
-                    field="statusTiket" 
-                    options={DROPDOWN_OPTIONS.statusTiket}
-                    icon={Clock}
-                  />
-                  <InputField 
-                    label="Closed Date" 
-                    field="closedDate" 
-                    placeholder="DD/MM/YYYY HH:MM"
-                    icon={Timer}
-                  />
-                  <InputField 
-                    label="TTR Sisa (Jam)" 
-                    field="ttrSisa" 
-                    placeholder="Otomatis" 
-                    type="number"
-                    icon={Timer}
-                  />
-                  <SelectField 
                     label="Compliance" 
                     field="compliance" 
                     options={DROPDOWN_OPTIONS.compliance}
@@ -698,30 +679,6 @@ const UpdateTicket = () => {
                     options={DROPDOWN_OPTIONS.statusAlatBerat} 
                   />
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* Progress */}
-          <motion.div variants={cardVariants}>
-            <Card className="glass-card card-hover overflow-hidden group">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-base font-semibold flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center group-hover:bg-emerald-500/20 transition-colors">
-                    <Wrench className="w-4 h-4 text-emerald-500" />
-                  </div>
-                  Progress Saat Ini
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Textarea
-                  value={formData.progressSaatIni}
-                  onChange={(e) => updateField('progressSaatIni', e.target.value)}
-                  placeholder="Deskripsikan progress penanganan saat ini..."
-                  className="min-h-[120px] bg-muted/30 border-border/50 transition-all duration-200 
-                    hover:border-primary/30 hover:bg-muted/50
-                    focus:ring-2 focus:ring-primary/20 focus:border-primary/50 resize-none"
-                />
               </CardContent>
             </Card>
           </motion.div>

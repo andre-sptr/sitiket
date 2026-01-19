@@ -135,8 +135,8 @@ const cardVariants = {
 };
 
 const TEAM_CONFIG: Record<string, string[]> = {
-  'SQUAT-A': ['teknisi1', 'hsa', 'sto', 'odc', 'stakeHolder', 'jenisPelanggan', 'kategori', 'tiket', 'tiketTacc', 'indukGamas', 'kjd', 'reportDate', 'ttrTarget', 'summary' ],
-  'SQUAT-B': ['teknisi1', 'idPelanggan', 'namaPelanggan', 'datek', 'losNonLos', 'siteImpact', 'classSite', 'koordinat', ],
+  'SQUAT-A': ['teknisi1', 'hsa', 'sto', 'odc', 'stakeHolder', 'jenisPelanggan', 'kategori', 'tiket', 'tiketTacc', 'indukGamas', 'kjd', 'reportDate', 'ttrTarget', 'summary','idPelanggan', 'namaPelanggan', 'datek', 'losNonLos', 'siteImpact', 'classSite', 'koordinat' ],
+  'SQUAT-B': ['teknisi1', 'idPelanggan', 'namaPelanggan', 'datek', 'losNonLos', 'siteImpact', 'classSite', 'koordinat' ],
 };
 
 const getVisibleFields = (tim: string) => {
@@ -306,7 +306,18 @@ const ImportTicket = () => {
         lon = parseFloat(lonStr);
       }
       await createTicket.mutateAsync({
+        hsa: formData.hsa,
+        sto: formData.sto,
+        odc: formData.odc,
+        datek: formData.datek,
+        los_non_los: formData.losNonLos,
+        site_impact: formData.siteImpact,
+        class_site: formData.classSite,
+        tacc: formData.tiketTacc, 
+        tim: formData.tim,
         inc_numbers: [formData.tiket],
+        id_pelanggan: formData.idPelanggan,
+        nama_pelanggan: formData.namaPelanggan,
         site_code: formData.idPelanggan,
         site_name: formData.namaPelanggan,
         kategori: formData.kategori,

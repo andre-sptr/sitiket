@@ -39,7 +39,18 @@ export interface Ticket {
   id: string;
   provider: string;
   stakeHolder?: string;
+  hsa?: string;
+  sto?: string;
+  odc?: string;
+  datek?: string;
+  losNonLos?: string;
+  siteImpact?: string;
+  classSite?: string;
+  tacc?: string;
+  tim?: string;
   incNumbers: string[];
+  idPelanggan?: string;
+  namaPelanggan?: string;
   siteCode: string;
   siteName: string;
   networkElement?: string;

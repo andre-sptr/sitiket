@@ -45,7 +45,14 @@ import {
   FileStack,
   ShieldCheck,
   Wrench,
-  Flag
+  Flag,
+  Hash,
+  Database,
+  Signal,
+  TowerControl,
+  Globe,
+  CheckSquare,
+  Users
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -415,7 +422,7 @@ const TicketDetail = () => {
             </div>
             
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
-              {ticket.siteCode} - {ticket.siteName}
+              {ticket.lokasiText}
             </h1>
             
             <div className="flex items-center gap-2 mt-3 flex-wrap">
@@ -547,7 +554,6 @@ const TicketDetail = () => {
                         <Flag className="w-3 h-3 text-muted-foreground" />
                         <p className="text-xs text-muted-foreground">Stake Holder</p>
                       </div>
-                      {/* Menggunakan casting (ticket as any) karena field stakeHolder mungkin belum ada di interface Ticket */}
                       <p className="text-sm font-medium">{ticket.stakeHolder || '-'}</p>
                     </div>
 
@@ -603,6 +609,15 @@ const TicketDetail = () => {
                      )}
                   </div>
 
+                  {/* TACC Field */}
+                  <div className="p-3 rounded-xl bg-muted/30">
+                     <div className="flex items-center gap-2 mb-1">
+                        <CheckSquare className="w-3 h-3 text-muted-foreground" />
+                        <p className="text-xs text-muted-foreground">TACC</p>
+                     </div>
+                     <p className="text-sm font-medium">{ticket.tacc || '-'}</p>
+                  </div>
+
                   {/* Summary / Laporan Awal */}
                   {ticket.rawTicketText && (
                     <div className="p-3 rounded-xl bg-muted/30">
@@ -612,6 +627,77 @@ const TicketDetail = () => {
                       </div>
                     </div>
                   )}
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div variants={cardVariants}>
+              <Card className="overflow-hidden border-0 shadow-lg shadow-black/5 dark:shadow-black/20">
+                <CardHeader className="pb-3 bg-gradient-to-r from-muted/50 to-transparent">
+                  <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    Detail Pelanggan
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  
+                  {/* ID Pelanggan & Nama Pelanggan */}
+                  <div className="grid grid-cols-1 gap-3">
+                    <div className="p-3 rounded-xl bg-muted/30">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Hash className="w-3 h-3 text-muted-foreground" />
+                        <p className="text-xs text-muted-foreground">ID Pelanggan</p>
+                      </div>
+                      <p className="font-mono text-sm font-medium">{ticket.idPelanggan || '-'}</p>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-muted/30">
+                      <div className="flex items-center gap-2 mb-1">
+                        <User className="w-3 h-3 text-muted-foreground" />
+                        <p className="text-xs text-muted-foreground">Nama Pelanggan</p>
+                      </div>
+                      <p className="text-sm font-medium">{ticket.namaPelanggan || '-'}</p>
+                    </div>
+                  </div>
+
+                  {/* Datek */}
+                  <div className="p-3 rounded-xl bg-muted/30">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Database className="w-3 h-3 text-muted-foreground" />
+                      <p className="text-xs text-muted-foreground">Datek</p>
+                    </div>
+                    <p className="text-sm font-medium">{ticket.datek || '-'}</p>
+                  </div>
+
+                  {/* LOS & Site Impact */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="p-3 rounded-xl bg-muted/30">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Signal className="w-3 h-3 text-muted-foreground" />
+                        <p className="text-xs text-muted-foreground">LOS/Non-LOS</p>
+                      </div>
+                      <p className="text-sm font-medium">{ticket.losNonLos || '-'}</p>
+                    </div>
+                    
+                    <div className="p-3 rounded-xl bg-muted/30">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Globe className="w-3 h-3 text-muted-foreground" />
+                        <p className="text-xs text-muted-foreground">Site Impact</p>
+                      </div>
+                      <p className="text-sm font-medium">{ticket.siteImpact || '-'}</p>
+                    </div>
+                  </div>
+
+                  {/* Class Site */}
+                  <div className="p-3 rounded-xl bg-muted/30">
+                    <div className="flex items-center gap-2 mb-1">
+                      <TowerControl className="w-3 h-3 text-muted-foreground" />
+                      <p className="text-xs text-muted-foreground">Class Site</p>
+                    </div>
+                    <Badge variant="outline" className="bg-background/50">
+                      {ticket.classSite || '-'}
+                    </Badge>
+                  </div>
                 </CardContent>
               </Card>
             </motion.div>
@@ -668,10 +754,18 @@ const TicketDetail = () => {
                 <CardHeader className="pb-3 bg-gradient-to-r from-muted/50 to-transparent">
                   <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                     <User className="w-4 h-4" />
-                    Teknisi
+                    Unit & Teknisi
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
+                  <div className="mb-3 p-3 rounded-xl bg-muted/30">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Users className="w-3 h-3 text-muted-foreground" />
+                      <p className="text-xs text-muted-foreground">Unit</p>
+                    </div>
+                    <p className="text-sm font-medium">{ticket.tim || '-'}</p>
+                  </div>
+                  
                   {ticket.teknisiList && ticket.teknisiList.length > 0 ? (
                     <div className="space-y-2">
                       {ticket.teknisiList.map((name, i) => (
@@ -773,12 +867,6 @@ const TicketDetail = () => {
                     />
                     
                     <div className="flex justify-end gap-2">
-                      <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                        <Button variant="outline" size="sm" onClick={handleCopyUpdateTemplate} className="rounded-xl">
-                          <FileText className="w-4 h-4 mr-2" />
-                          Pakai Template
-                        </Button>
-                      </motion.div>
                       <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                         <Button 
                           size="sm" 

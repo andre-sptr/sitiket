@@ -85,7 +85,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5 truncate">
                 <MapPin className="w-3 h-3 shrink-0" />
                 <span className="truncate max-w-[200px] sm:max-w-none">
-                  {ticket.lokasiText || 'Lokasi belum diset'}
+                  {ticket.hsa} ({ticket.lokasiText})
                 </span>
               </div>
             </div>

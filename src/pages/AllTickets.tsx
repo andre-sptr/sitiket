@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Layout } from '@/components/Layout';
 import { TicketCard } from '@/components/TicketCard';
 import { TicketCardSkeleton } from '@/components/skeletons';
@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/popover";
 import { useTickets } from '@/hooks/useTickets';
 import { mapDbTicketToTicket } from '@/lib/ticketMappers';
-import { generateWhatsAppMessage, getStatusLabel } from '@/lib/formatters';
+import { getStatusLabel } from '@/lib/formatters';
 import { Ticket, TicketStatus } from '@/types/ticket';
 import { Search, Filter, X, SlidersHorizontal, Calendar as CalendarIcon, RotateCcw, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -40,6 +40,14 @@ import { Separator } from '@/components/ui/separator';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEO from '@/components/SEO';
 import { FilterCombobox } from '@/components/FilterCombobox';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 const statusOptions: TicketStatus[] = [
   'OPEN',
@@ -68,23 +76,6 @@ const containerVariants = {
   }
 };
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { 
-    opacity: 1, 
-    y: 0,
-    transition: {
-      duration: 0.3,
-      ease: [0.25, 0.46, 0.45, 0.94]
-    }
-  },
-  exit: { 
-    opacity: 0, 
-    y: -10,
-    transition: { duration: 0.2 }
-  }
-};
-
 const AllTickets = () => {
   const { toast } = useToast();
   const { data: dbTickets, isLoading, refetch } = useTickets();
@@ -110,6 +101,9 @@ const AllTickets = () => {
   });
 
   const [sortBy, setSortBy] = useState<string>('newest');
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 7;
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -165,6 +159,10 @@ const AllTickets = () => {
   }, [allTickets, searchQuery, statusFilter, complianceFilter, providerFilter, 
       kategoriFilter, jarakFilter, dateRange]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filteredTickets.length, sortBy]);
+
   const sortedTickets = useMemo(() => {
     return [...filteredTickets].sort((a, b) => {
       switch (sortBy) {
@@ -184,14 +182,9 @@ const AllTickets = () => {
     });
   }, [filteredTickets, sortBy]);
 
-  const handleCopyWhatsApp = (ticket: Ticket) => {
-    const message = generateWhatsAppMessage('share', ticket);
-    navigator.clipboard.writeText(message);
-    toast({
-      title: "Pesan WhatsApp Disalin",
-      description: `Pesan untuk ${ticket.siteCode} sudah disalin ke clipboard`,
-    });
-  };
+  const totalPages = Math.ceil(sortedTickets.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedTickets = sortedTickets.slice(startIndex, startIndex + itemsPerPage);
 
   const clearFilters = () => {
     setSearchQuery('');
@@ -255,7 +248,7 @@ const AllTickets = () => {
   return (
     <Layout>
       <SEO title="Semua Tiket" description="Daftar seluruh tiket gangguan Telkom Infra." />
-      <div className="space-y-4 md:space-y-6">
+      <div className="space-y-4 md:space-y-6 pb-8">
         <motion.div 
           className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
           initial={{ opacity: 0, y: -10 }}
@@ -849,21 +842,84 @@ const AllTickets = () => {
               </motion.div>
             </motion.div>
           ) : (
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              className="space-y-3"
-            >
-              <AnimatePresence mode="popLayout">
-                {sortedTickets.map((ticket) => (
-                  <TicketCard 
-                    key={ticket.id}
-                    ticket={ticket} 
-                  />
-                ))}
-              </AnimatePresence>
-            </motion.div>
+            <>
+              {/* LIST TIKET YANG SUDAH DI-PAGINASI */}
+              <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="space-y-3"
+              >
+                <AnimatePresence mode="popLayout">
+                  {paginatedTickets.map((ticket) => (
+                    <TicketCard 
+                      key={ticket.id}
+                      ticket={ticket} 
+                    />
+                  ))}
+                </AnimatePresence>
+              </motion.div>
+
+              {/* KONTROL PAGINATION */}
+              {totalPages > 1 && (
+                <div className="flex justify-center mt-6 pt-2">
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious 
+                          onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                          className={cn(
+                            "cursor-pointer select-none", 
+                            currentPage === 1 && "pointer-events-none opacity-50"
+                          )} 
+                        />
+                      </PaginationItem>
+                      
+                      {Array.from({ length: totalPages }).map((_, i) => {
+                        const pageNumber = i + 1;
+                        if (
+                          totalPages > 7 &&
+                          pageNumber !== 1 &&
+                          pageNumber !== totalPages &&
+                          (pageNumber < currentPage - 1 || pageNumber > currentPage + 1)
+                        ) {
+                          if (pageNumber === 2 || pageNumber === totalPages - 1) {
+                            return (
+                                <PaginationItem key={i}>
+                                    <span className="flex h-9 w-9 items-center justify-center text-muted-foreground">...</span>
+                                </PaginationItem>
+                            )
+                          }
+                          return null;
+                        }
+
+                        return (
+                          <PaginationItem key={i}>
+                            <PaginationLink
+                              isActive={pageNumber === currentPage}
+                              onClick={() => setCurrentPage(pageNumber)}
+                              className="cursor-pointer select-none"
+                            >
+                              {pageNumber}
+                            </PaginationLink>
+                          </PaginationItem>
+                        );
+                      })}
+
+                      <PaginationItem>
+                        <PaginationNext 
+                          onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                          className={cn(
+                            "cursor-pointer select-none", 
+                            currentPage === totalPages && "pointer-events-none opacity-50"
+                          )}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

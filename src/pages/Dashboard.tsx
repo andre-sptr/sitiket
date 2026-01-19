@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Layout } from '@/components/Layout';
 import { StatsCard } from '@/components/StatsCard';
@@ -26,6 +26,15 @@ import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import SEO from '@/components/SEO';
+import { cn } from '@/lib/utils';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -36,7 +45,14 @@ const Dashboard = () => {
   const stats = useDashboardStats();
   const [isRefreshing, setIsRefreshing] = useState(false);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
   const todayTickets = dbTickets?.map(mapDbTicketToTicket) || [];
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [dbTickets]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -50,6 +66,10 @@ const Dashboard = () => {
     if (a.status !== 'CLOSED' && b.status === 'CLOSED') return -1;
     return a.sisaTtrHours - b.sisaTtrHours;
   });
+
+  const totalPages = Math.ceil(sortedTickets.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedTickets = sortedTickets.slice(startIndex, startIndex + itemsPerPage);
 
   const overdueTickets = todayTickets.filter(t => t.sisaTtrHours < 0 && t.status !== 'CLOSED');
   const dueSoonTickets = todayTickets.filter(t => 
@@ -206,7 +226,9 @@ const Dashboard = () => {
 
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-foreground">Tiket Hari Ini</h2>
+            <h2 className="text-lg font-semibold text-foreground">
+              Tiket Hari Ini {sortedTickets.length > 0 && <span className="text-muted-foreground font-normal text-sm ml-1">({sortedTickets.length} total)</span>}
+            </h2>
             <Link to="/tickets">
               <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground">
                 Lihat Semua
@@ -225,12 +247,59 @@ const Dashboard = () => {
                 <p className="text-sm mt-1">Tiket yang dibuat hari ini akan muncul di sini</p>
               </div>
             ) : (
-              sortedTickets.map((ticket) => (
-                <TicketCard 
-                  key={ticket.id}
-                  ticket={ticket} 
-                />
-              ))
+              <>
+                {/* Menggunakan paginatedTickets, bukan sortedTickets */}
+                {paginatedTickets.map((ticket) => (
+                  <TicketCard 
+                    key={ticket.id}
+                    ticket={ticket} 
+                  />
+                ))}
+
+                {/* Kontrol Pagination */}
+                {totalPages > 1 && (
+                  <div className="flex justify-center mt-6 pt-2">
+                    <Pagination>
+                      <PaginationContent>
+                        <PaginationItem>
+                          <PaginationPrevious 
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            className={cn(
+                              "cursor-pointer select-none", 
+                              currentPage === 1 && "pointer-events-none opacity-50"
+                            )} 
+                          />
+                        </PaginationItem>
+                        
+                        {Array.from({ length: totalPages }).map((_, i) => {
+                          const pageNumber = i + 1;
+                          return (
+                            <PaginationItem key={i}>
+                              <PaginationLink
+                                isActive={pageNumber === currentPage}
+                                onClick={() => setCurrentPage(pageNumber)}
+                                className="cursor-pointer select-none"
+                              >
+                                {pageNumber}
+                              </PaginationLink>
+                            </PaginationItem>
+                          );
+                        })}
+
+                        <PaginationItem>
+                          <PaginationNext 
+                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            className={cn(
+                              "cursor-pointer select-none", 
+                              currentPage === totalPages && "pointer-events-none opacity-50"
+                            )}
+                          />
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
