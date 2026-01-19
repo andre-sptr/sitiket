@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { motion, Variants } from 'framer-motion';
 import { Layout } from '@/components/Layout';
 import { StatusBadge, ComplianceBadge } from '@/components/StatusBadge';
@@ -18,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { useTicket, useDeleteTicket, useAddProgressUpdate } from '@/hooks/useTickets';
 import { mapDbTicketToTicket } from '@/lib/ticketMappers';
-import { formatDateWIB, generateWhatsAppMessage, generateGoogleMapsLink } from '@/lib/formatters';
+import { formatDateWIB, generateWhatsAppMessage, generateGoogleMapsLink, formatTTR } from '@/lib/formatters';
 import { TicketStatus } from '@/types/ticket';
 import { 
   ArrowLeft, 
@@ -219,6 +221,27 @@ const TicketDetail = () => {
   const isGuest = user?.role === 'guest';
   const isAdmin = user?.role === 'admin';
   const ticket = dbTicket ? mapDbTicketToTicket(dbTicket) : null;
+
+  const { data: profiles } = useQuery({
+    queryKey: ['profiles-map'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('user_id, name');
+      return data || [];
+    },
+    enabled: !!ticket
+  });
+
+  const profileMap = profiles?.reduce((acc, profile) => {
+    acc[profile.user_id] = profile.name;
+    return acc;
+  }, {} as Record<string, string>) || {};
+
+  const enrichedUpdates = ticket?.progressUpdates.map(update => ({
+    ...update,
+    createdBy: profileMap[update.createdBy] || update.createdBy
+  })) || [];
 
   if (isLoading) {
     return (
@@ -465,6 +488,15 @@ const TicketDetail = () => {
                     <span className="text-sm text-muted-foreground">Target TTR</span>
                     <span className="font-bold text-primary">{ticket.ttrTargetHours} jam</span>
                   </div>
+
+                  {ticket.ttrRealHours !== undefined && (
+                    <div className="flex items-center justify-between p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
+                      <span className="text-sm text-muted-foreground">Real TTR</span>
+                      <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                        {formatTTR(ticket.ttrRealHours)}
+                      </span>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </motion.div>
@@ -663,7 +695,7 @@ const TicketDetail = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Timeline updates={ticket.progressUpdates} />
+                  <Timeline updates={enrichedUpdates} />
                 </CardContent>
               </Card>
             </motion.div>

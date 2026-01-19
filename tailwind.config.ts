@@ -65,6 +65,7 @@ export default {
           open: "hsl(var(--status-open))",
           assigned: "hsl(var(--status-assigned))",
           onprogress: "hsl(var(--status-onprogress))",
+          pending: "hsl(var(--status-pending))",
           temporary: "hsl(var(--status-temporary))",
           waiting: "hsl(var(--status-waiting))",
           closed: "hsl(var(--status-closed))",

@@ -45,19 +45,6 @@ export const Timeline: React.FC<TimelineProps> = ({ updates }) => {
     }
   };
 
-  const getSourceLabel = (source: ProgressUpdate['source']) => {
-    switch (source) {
-      case 'ADMIN':
-        return 'Admin';
-      case 'SYSTEM':
-        return 'Sistem';
-      case 'HD':
-        return 'Help Desk';
-      default:
-        return 'Unknown';
-    }
-  };
-
   if (updates.length === 0) {
     return (
       <motion.div 
@@ -121,7 +108,7 @@ export const Timeline: React.FC<TimelineProps> = ({ updates }) => {
               <div className="flex items-center justify-between gap-2 mb-3">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-xs font-medium px-2 py-1 rounded-full bg-muted/50 text-muted-foreground">
-                    {getSourceLabel(update.source)}
+                    {update.createdBy} ({(update.source)})
                   </span>
                   {update.statusAfterUpdate && (
                     <motion.div

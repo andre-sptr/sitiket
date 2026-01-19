@@ -42,6 +42,7 @@
     --status-open: 238 65% 60%;
     --status-assigned: 262 60% 55%;
     --status-onprogress: 38 92% 50%;
+    --status-pending: 30 100% 55%;
     --status-temporary: 175 60% 45%;
     --status-waiting: 45 93% 47%;
     --status-closed: 152 60% 42%;

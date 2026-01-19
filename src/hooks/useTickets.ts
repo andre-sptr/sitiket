@@ -196,12 +196,38 @@ export const useAddProgressUpdate = () => {
       if (error) throw error;
 
       if (update.status_after_update) {
+        const updatePayload: TicketUpdate = { 
+          status: update.status_after_update,
+          updated_at: new Date().toISOString() 
+        };
+
+        if (update.status_after_update === 'CLOSED') {
+          const { data: ticketData } = await supabase
+            .from('tickets')
+            .select('jam_open, ttr_target_hours') 
+            .eq('id', update.ticket_id)
+            .single();
+
+          if (ticketData?.jam_open) {
+            const jamOpen = new Date(ticketData.jam_open);
+            const now = new Date();
+            const diffMs = now.getTime() - jamOpen.getTime();
+            const realHours = diffMs / (1000 * 60 * 60);
+            
+            updatePayload.ttr_real_hours = realHours;
+
+            const target = ticketData.ttr_target_hours || 0;
+            if (realHours > target) {
+              updatePayload.ttr_compliance = 'NOT COMPLY';
+            } else {
+              updatePayload.ttr_compliance = 'COMPLY';
+            }
+          }
+        }
+
         const { error: ticketError } = await supabase
           .from('tickets')
-          .update({ 
-            status: update.status_after_update,
-            updated_at: new Date().toISOString() 
-          })
+          .update(updatePayload)
           .eq('id', update.ticket_id);
 
         if (ticketError) throw ticketError;
