@@ -4,11 +4,11 @@ import { motion } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
 import { id as idLocale } from 'date-fns/locale';
 import { MapPin, Calendar, Signal, ChevronRight, User } from 'lucide-react';
-
 import { Card } from '@/components/ui/card';
 import { StatusBadge, ComplianceBadge, TTRBadge } from '@/components/StatusBadge';
 import { Ticket } from '@/types/ticket';
 import { formatDateWIB } from '@/lib/formatters';
+import { Badge } from "@/components/ui/badge";
 
 interface TicketCardProps {
   ticket: Ticket;
@@ -86,6 +86,17 @@ export const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
 
             {/* Teknisi Stack + Nama */}
             <div className="flex items-center gap-2 shrink-0 max-w-[40%] justify-end">
+              {/* Jenis Pelanggan */}
+              <Badge variant="outline" className="h-5 px-1.5 text-[10px] font-normal shrink-0 bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800">
+                {ticket.provider}
+              </Badge>
+              {/* Kategori */}
+              <Badge variant="outline" className="h-5 px-1.5 text-[10px] font-normal shrink-0">
+                {ticket.kategori}
+              </Badge>
+
+              <div className="h-3 w-px bg-border shrink-0 mx-1" />
+
               {ticket.teknisiList && ticket.teknisiList.length > 0 ? (
                 <>
                   <div className="flex -space-x-1.5 shrink-0">
