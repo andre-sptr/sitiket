@@ -730,7 +730,7 @@ const TicketDetail = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <p className="text-sm">{ticket.lokasiText}</p>
+                  <p className="text-sm">{ticket.hsa} - {ticket.lokasiText}</p>
                   
                   {ticket.latitude && ticket.longitude && (
                     <>
@@ -829,16 +829,16 @@ const TicketDetail = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    {ticket.penyebab && (
-                      <div className="p-3 rounded-xl bg-muted/30">
-                        <p className="text-xs text-muted-foreground mb-1">Penyebab</p>
-                        <p className="text-sm font-medium">{ticket.penyebab}</p>
-                      </div>
-                    )}
                     {ticket.segmen && (
                       <div className="p-3 rounded-xl bg-muted/30">
                         <p className="text-xs text-muted-foreground mb-1">Segmen</p>
                         <p className="text-sm font-medium">{ticket.segmen}</p>
+                      </div>
+                    )}
+                    {ticket.penyebab && (
+                      <div className="p-3 rounded-xl bg-muted/30">
+                        <p className="text-xs text-muted-foreground mb-1">Penyebab</p>
+                        <p className="text-sm font-medium">{ticket.penyebab}</p>
                       </div>
                     )}
                     {ticket.networkElement && (

@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -25,7 +24,6 @@ import {
   ShieldX, 
   Phone,
   Users,
-  Wrench,
   MapPin,
   Timer,
   FileWarning,
@@ -34,7 +32,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useTicket, useUpdateTicket, useAddProgressUpdate } from '@/hooks/useTickets';
-import { StatusBadge, TTRBadge, ComplianceBadge } from '@/components/StatusBadge';
+import { TTRBadge } from '@/components/StatusBadge';
 import { formatDateWIB } from '@/lib/formatters';
 import { useDropdownOptions } from '@/hooks/useDropdownOptions';
 import { useAuth } from '@/contexts/AuthContext';
@@ -73,6 +71,144 @@ interface UpdateFormData {
 }
 
 type FormErrors = Partial<Record<keyof UpdateFormData, string>>;
+
+interface InputFieldProps {
+  label: string;
+  value: string;
+  onChange: (val: string) => void;
+  onBlur: () => void;
+  error?: string;
+  required?: boolean;
+  placeholder?: string;
+  type?: string;
+  disabled?: boolean;
+  icon?: React.ElementType;
+}
+
+const InputField = ({ 
+  label, 
+  value,
+  onChange,
+  onBlur,
+  error,
+  required = false,
+  placeholder = "",
+  type = "text",
+  disabled = false,
+  icon: Icon
+}: InputFieldProps) => {
+  return (
+    <motion.div 
+      className="space-y-2"
+      whileTap={{ scale: 0.995 }}
+    >
+      <Label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+        {Icon && <Icon className="w-3.5 h-3.5" />}
+        {label} {required && <span className="text-destructive">*</span>}
+      </Label>
+      <Input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onBlur={onBlur}
+        placeholder={placeholder}
+        className={`h-10 bg-muted/30 border-border/50 transition-all duration-200 
+          hover:border-primary/30 hover:bg-muted/50
+          focus:ring-2 focus:ring-primary/20 focus:border-primary/50
+          ${error ? 'border-destructive ring-1 ring-destructive/20' : ''}`}
+        disabled={disabled}
+      />
+      <AnimatePresence>
+        {error && (
+          <motion.p 
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            className="text-xs text-destructive flex items-center gap-1"
+          >
+            <AlertCircle className="w-3 h-3" />
+            {error}
+          </motion.p>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+};
+
+interface SelectFieldProps {
+  label: string;
+  value: string;
+  onValueChange: (val: string) => void;
+  error?: string;
+  required?: boolean;
+  options: string[];
+  placeholder?: string;
+  icon?: React.ElementType;
+  disabled?: boolean;
+}
+
+const SelectField = ({ 
+  label, 
+  value, 
+  onValueChange,
+  error,
+  required = false,
+  options,
+  placeholder = "Pilih...",
+  icon: Icon,
+  disabled = false
+}: SelectFieldProps) => {
+  return (
+    <motion.div 
+      className="space-y-2"
+      whileTap={disabled ? undefined : { scale: 0.995 }}
+    >
+      <Label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+        {Icon && <Icon className="w-3.5 h-3.5" />}
+        {label} {required && <span className="text-destructive">*</span>}
+      </Label>
+      <Select 
+        disabled={disabled}
+        value={value} 
+        onValueChange={onValueChange}
+      >
+        <SelectTrigger 
+          className={`h-10 bg-muted/30 border-border/50 transition-all duration-200 
+            hover:border-primary/30 hover:bg-muted/50
+            focus:ring-2 focus:ring-primary/20 focus:border-primary/50
+            ${error ? 'border-destructive ring-1 ring-destructive/20' : ''}
+            ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+        >
+          <SelectValue placeholder={placeholder} />
+        </SelectTrigger>
+        <SelectContent className="bg-popover/95 backdrop-blur-xl border-border/60 shadow-xl z-50">
+          {options.map(opt => (
+            <SelectItem 
+              key={opt} 
+              value={opt}
+              className="focus:bg-primary/10 cursor-pointer transition-colors"
+            >
+              {opt}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <AnimatePresence>
+        {error && (
+          <motion.p 
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            className="text-xs text-destructive flex items-center gap-1"
+          >
+            <AlertCircle className="w-3 h-3" />
+            {error}
+          </motion.p>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+};
 
 const emptyForm: UpdateFormData = {
   statusTiket: '',
@@ -184,6 +320,115 @@ const UpdateTicket = () => {
     }
   }, [formData.statusTiket]);
 
+  const updateField = (field: keyof UpdateFormData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: undefined }));
+    }
+  };
+
+  const markTouched = (field: keyof UpdateFormData) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+  };
+
+  const isFieldRequired = (field: keyof UpdateFormData): boolean => {
+    const allRequiredFields = [...REQUIRED_FIELDS, ...getConditionalRequiredFields(formData)];
+    return allRequiredFields.some(f => f.field === field);
+  };
+
+  const getFieldError = (field: keyof UpdateFormData): string | undefined => {
+    return touched[field] ? errors[field] : undefined;
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
+    const allRequiredFields = [...REQUIRED_FIELDS, ...getConditionalRequiredFields(formData)];
+    
+    allRequiredFields.forEach(({ field, label }) => {
+      if (!formData[field] || formData[field].trim() === '') {
+        newErrors[field] = `${label} wajib diisi`;
+      }
+    });
+
+    if (formData.closedDate && !/^\d{2}\/\d{2}\/\d{4}\s\d{2}:\d{2}$/.test(formData.closedDate)) {
+      newErrors.closedDate = 'Format harus DD/MM/YYYY HH:MM';
+    }
+
+    setErrors(newErrors);
+    
+    const touchedFields: Partial<Record<keyof UpdateFormData, boolean>> = {};
+    allRequiredFields.forEach(({ field }) => {
+      touchedFields[field] = true;
+    });
+    setTouched(prev => ({ ...prev, ...touchedFields }));
+
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async () => {
+    if (!validateForm()) {
+      toast({
+        title: "Validasi Gagal",
+        description: "Mohon lengkapi semua field yang wajib diisi",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const teknisiList = [formData.teknisi1, formData.teknisi2, formData.teknisi3, formData.teknisi4]
+        .filter(t => t && t.trim() !== '');
+
+      const updates = {
+        status: formData.statusTiket as TicketStatus,
+        ttr_compliance: formData.compliance as TTRCompliance,
+        penyebab_not_comply: formData.penyebabNotComply,
+        sisa_ttr_hours: parseFloat(formData.ttrSisa) || 0,
+        penyebab: formData.penyebabGangguan,
+        perbaikan: formData.perbaikanGangguan,
+        status_alat_berat: formData.statusAlatBerat,
+        segmen: formData.segmenTerganggu,
+        is_permanent: formData.permanenTemporer === 'PERMANEN' 
+          ? true 
+          : (formData.permanenTemporer === 'TEMPORARY' ? false : null),
+        teknisi_list: teknisiList.length > 0 ? teknisiList : null,
+      };
+
+      await updateTicketMutation.mutateAsync({ 
+        id: id!, 
+        updates: updates 
+      });
+
+      if (formData.progressSaatIni && formData.progressSaatIni.trim() !== '') {
+        await addProgressMutation.mutateAsync({
+          ticket_id: id!,
+          message: formData.progressSaatIni,
+          source: 'web',
+          status_after_update: formData.statusTiket as TicketStatus,
+        });
+      }
+
+      toast({
+        title: "Update Berhasil",
+        description: `Tiket berhasil diupdate`,
+      });
+      
+      navigate(`/ticket/${id}`);
+
+    } catch (error) {
+      console.error('Error updating ticket:', error);
+      toast({
+        title: "Gagal Update",
+        description: "Terjadi kesalahan saat menyimpan data.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   if (user?.role === 'guest') {
     return (
       <Layout>
@@ -239,242 +484,6 @@ const UpdateTicket = () => {
       </Layout>
     );
   }
-
-  const updateField = (field: keyof UpdateFormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: undefined }));
-    }
-  };
-
-  const markTouched = (field: keyof UpdateFormData) => {
-    setTouched(prev => ({ ...prev, [field]: true }));
-  };
-
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {};
-    const allRequiredFields = [...REQUIRED_FIELDS, ...getConditionalRequiredFields(formData)];
-    
-    allRequiredFields.forEach(({ field, label }) => {
-      if (!formData[field] || formData[field].trim() === '') {
-        newErrors[field] = `${label} wajib diisi`;
-      }
-    });
-
-    if (formData.closedDate && !/^\d{2}\/\d{2}\/\d{4}\s\d{2}:\d{2}$/.test(formData.closedDate)) {
-      newErrors.closedDate = 'Format harus DD/MM/YYYY HH:MM';
-    }
-
-    setErrors(newErrors);
-    
-    const touchedFields: Partial<Record<keyof UpdateFormData, boolean>> = {};
-    allRequiredFields.forEach(({ field }) => {
-      touchedFields[field] = true;
-    });
-    setTouched(prev => ({ ...prev, ...touchedFields }));
-
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async () => {
-    if (!validateForm()) {
-      toast({
-        title: "Validasi Gagal",
-        description: "Mohon lengkapi semua field yang wajib diisi",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      const teknisiList = [formData.teknisi1, formData.teknisi2, formData.teknisi3, formData.teknisi4]
-        .filter(t => t && t.trim() !== '');
-
-      const updates = {
-        status: formData.statusTiket as TicketStatus,
-        ttr_compliance: formData.compliance as TTRCompliance,
-        penyebab_not_comply: formData.penyebabNotComply,
-        sisa_ttr_hours: parseFloat(formData.ttrSisa) || 0,
-        penyebab: formData.penyebabGangguan,
-        segmen: formData.segmenTerganggu,
-        is_permanent: formData.permanenTemporer === 'PERMANEN' 
-          ? true 
-          : (formData.permanenTemporer === 'TEMPORARY' ? false : null),
-        teknisi_list: teknisiList.length > 0 ? teknisiList : null,
-      };
-
-      await updateTicketMutation.mutateAsync({ 
-        id: id!, 
-        updates: updates 
-      });
-
-      if (formData.progressSaatIni && formData.progressSaatIni.trim() !== '') {
-        await addProgressMutation.mutateAsync({
-          ticket_id: id!,
-          message: formData.progressSaatIni,
-          source: 'web',
-          status_after_update: formData.statusTiket as TicketStatus,
-        });
-      }
-
-      toast({
-        title: "Update Berhasil",
-        description: `Tiket berhasil diupdate`,
-      });
-      
-      navigate(`/ticket/${id}`);
-
-    } catch (error) {
-      console.error('Error updating ticket:', error);
-      toast({
-        title: "Gagal Update",
-        description: "Terjadi kesalahan saat menyimpan data.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const isFieldRequired = (field: keyof UpdateFormData): boolean => {
-    const allRequiredFields = [...REQUIRED_FIELDS, ...getConditionalRequiredFields(formData)];
-    return allRequiredFields.some(f => f.field === field);
-  };
-
-  const getFieldError = (field: keyof UpdateFormData): string | undefined => {
-    return touched[field] ? errors[field] : undefined;
-  };
-
-  const SelectField = ({ 
-    label, 
-    field, 
-    options,
-    placeholder = "Pilih...",
-    icon: Icon,
-    disabled = false
-  }: { 
-    label: string; 
-    field: keyof UpdateFormData; 
-    options: string[];
-    placeholder?: string;
-    icon?: React.ElementType;
-    disabled?: boolean;
-  }) => {
-    const error = getFieldError(field);
-    const required = isFieldRequired(field);
-    
-    return (
-      <motion.div 
-        className="space-y-2"
-        whileTap={disabled ? undefined : { scale: 0.995 }}
-      >
-        <Label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
-          {Icon && <Icon className="w-3.5 h-3.5" />}
-          {label} {required && <span className="text-destructive">*</span>}
-        </Label>
-        <Select 
-          disabled={disabled}
-          value={formData[field]} 
-          onValueChange={(v) => {
-            updateField(field, v);
-            markTouched(field);
-          }}
-        >
-          <SelectTrigger 
-            className={`h-10 bg-muted/30 border-border/50 transition-all duration-200 
-              hover:border-primary/30 hover:bg-muted/50
-              focus:ring-2 focus:ring-primary/20 focus:border-primary/50
-              ${error ? 'border-destructive ring-1 ring-destructive/20' : ''}
-              ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-          >
-            <SelectValue placeholder={placeholder} />
-          </SelectTrigger>
-          <SelectContent className="bg-popover/95 backdrop-blur-xl border-border/60 shadow-xl z-50">
-            {options.map(opt => (
-              <SelectItem 
-                key={opt} 
-                value={opt}
-                className="focus:bg-primary/10 cursor-pointer transition-colors"
-              >
-                {opt}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <AnimatePresence>
-          {error && (
-            <motion.p 
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              className="text-xs text-destructive flex items-center gap-1"
-            >
-              <AlertCircle className="w-3 h-3" />
-              {error}
-            </motion.p>
-          )}
-        </AnimatePresence>
-      </motion.div>
-    );
-  };
-
-  const InputField = ({ 
-    label, 
-    field, 
-    placeholder = "",
-    type = "text",
-    disabled = false,
-    icon: Icon
-  }: { 
-    label: string; 
-    field: keyof UpdateFormData; 
-    placeholder?: string;
-    type?: string;
-    disabled?: boolean;
-    icon?: React.ElementType;
-  }) => {
-    const error = getFieldError(field);
-    const required = isFieldRequired(field);
-    
-    return (
-      <motion.div 
-        className="space-y-2"
-        whileTap={{ scale: 0.995 }}
-      >
-        <Label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
-          {Icon && <Icon className="w-3.5 h-3.5" />}
-          {label} {required && <span className="text-destructive">*</span>}
-        </Label>
-        <Input
-          type={type}
-          value={formData[field]}
-          onChange={(e) => updateField(field, e.target.value)}
-          onBlur={() => markTouched(field)}
-          placeholder={placeholder}
-          className={`h-10 bg-muted/30 border-border/50 transition-all duration-200 
-            hover:border-primary/30 hover:bg-muted/50
-            focus:ring-2 focus:ring-primary/20 focus:border-primary/50
-            ${error ? 'border-destructive ring-1 ring-destructive/20' : ''}`}
-          disabled={disabled}
-        />
-        <AnimatePresence>
-          {error && (
-            <motion.p 
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              className="text-xs text-destructive flex items-center gap-1"
-            >
-              <AlertCircle className="w-3 h-3" />
-              {error}
-            </motion.p>
-          )}
-        </AnimatePresence>
-      </motion.div>
-    );
-  };
 
   const hasErrors = Object.keys(errors).length > 0;
 
@@ -555,7 +564,7 @@ const UpdateTicket = () => {
                 </div>
                 <div className="h-10 w-px bg-border/50 hidden md:block" />
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">Saverity</p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">Severity</p>
                   <p className="font-medium">{ticket.kategori}</p>
                 </div>
                 <div className="h-10 w-px bg-border/50 hidden md:block" />
@@ -620,14 +629,78 @@ const UpdateTicket = () => {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
-                  <InputField label="Dispatch" field="dispatchMbb" placeholder="HH:MM" />
-                  <InputField label="Prepare" field="prepareTim" placeholder="HH:MM" />
-                  <InputField label="OTW" field="otwKeLokasi" placeholder="HH:MM" />
-                  <InputField label="Identifikasi" field="identifikasi" placeholder="HH:MM" />
-                  <InputField label="Break" field="breakTime" placeholder="HH:MM" />
-                  <InputField label="Splicing" field="splicing" placeholder="HH:MM" />
-                  <InputField label="Closing" field="closing" placeholder="HH:MM" />
-                  <InputField label="Total TTR" field="totalTtr" placeholder="HH:MM" />
+                  <InputField 
+                    label="Dispatch" 
+                    value={formData.dispatchMbb}
+                    onChange={(v) => updateField('dispatchMbb', v)}
+                    onBlur={() => markTouched('dispatchMbb')}
+                    error={getFieldError('dispatchMbb')}
+                    required={isFieldRequired('dispatchMbb')}
+                    placeholder="HH:MM" 
+                  />
+                  <InputField 
+                    label="Prepare" 
+                    value={formData.prepareTim}
+                    onChange={(v) => updateField('prepareTim', v)}
+                    onBlur={() => markTouched('prepareTim')}
+                    error={getFieldError('prepareTim')}
+                    required={isFieldRequired('prepareTim')}
+                    placeholder="HH:MM" 
+                  />
+                  <InputField 
+                    label="OTW" 
+                    value={formData.otwKeLokasi}
+                    onChange={(v) => updateField('otwKeLokasi', v)}
+                    onBlur={() => markTouched('otwKeLokasi')}
+                    error={getFieldError('otwKeLokasi')}
+                    required={isFieldRequired('otwKeLokasi')}
+                    placeholder="HH:MM" 
+                  />
+                  <InputField 
+                    label="Identifikasi" 
+                    value={formData.identifikasi}
+                    onChange={(v) => updateField('identifikasi', v)}
+                    onBlur={() => markTouched('identifikasi')}
+                    error={getFieldError('identifikasi')}
+                    required={isFieldRequired('identifikasi')}
+                    placeholder="HH:MM" 
+                  />
+                  <InputField 
+                    label="Break" 
+                    value={formData.breakTime}
+                    onChange={(v) => updateField('breakTime', v)}
+                    onBlur={() => markTouched('breakTime')}
+                    error={getFieldError('breakTime')}
+                    required={isFieldRequired('breakTime')}
+                    placeholder="HH:MM" 
+                  />
+                  <InputField 
+                    label="Splicing" 
+                    value={formData.splicing}
+                    onChange={(v) => updateField('splicing', v)}
+                    onBlur={() => markTouched('splicing')}
+                    error={getFieldError('splicing')}
+                    required={isFieldRequired('splicing')}
+                    placeholder="HH:MM" 
+                  />
+                  <InputField 
+                    label="Closing" 
+                    value={formData.closing}
+                    onChange={(v) => updateField('closing', v)}
+                    onBlur={() => markTouched('closing')}
+                    error={getFieldError('closing')}
+                    required={isFieldRequired('closing')}
+                    placeholder="HH:MM" 
+                  />
+                  <InputField 
+                    label="Total TTR" 
+                    value={formData.totalTtr}
+                    onChange={(v) => updateField('totalTtr', v)}
+                    onBlur={() => markTouched('totalTtr')}
+                    error={getFieldError('totalTtr')}
+                    required={isFieldRequired('totalTtr')}
+                    placeholder="HH:MM" 
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -648,22 +721,35 @@ const UpdateTicket = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   <InputField 
                     label="Segmen Terganggu" 
-                    field="segmenTerganggu" 
+                    value={formData.segmenTerganggu}
+                    onChange={(v) => updateField('segmenTerganggu', v)}
+                    onBlur={() => markTouched('segmenTerganggu')}
+                    error={getFieldError('segmenTerganggu')}
+                    required={isFieldRequired('segmenTerganggu')}
                     placeholder="Segmen A-B" 
                   />
                   <SelectField 
                     label="Penyebab Gangguan" 
-                    field="penyebabGangguan" 
+                    value={formData.penyebabGangguan}
+                    onValueChange={(v) => { updateField('penyebabGangguan', v); markTouched('penyebabGangguan'); }}
+                    error={getFieldError('penyebabGangguan')}
+                    required={isFieldRequired('penyebabGangguan')}
                     options={DROPDOWN_OPTIONS.penyebabGangguan} 
                   />
                   <SelectField 
                     label="Perbaikan Gangguan" 
-                    field="perbaikanGangguan" 
+                    value={formData.perbaikanGangguan}
+                    onValueChange={(v) => { updateField('perbaikanGangguan', v); markTouched('perbaikanGangguan'); }}
+                    error={getFieldError('perbaikanGangguan')}
+                    required={isFieldRequired('perbaikanGangguan')}
                     options={DROPDOWN_OPTIONS.perbaikanGangguan} 
                   />
                   <SelectField 
                     label="Status Alat Berat" 
-                    field="statusAlatBerat" 
+                    value={formData.statusAlatBerat}
+                    onValueChange={(v) => { updateField('statusAlatBerat', v); markTouched('statusAlatBerat'); }}
+                    error={getFieldError('statusAlatBerat')}
+                    required={isFieldRequired('statusAlatBerat')}
                     options={DROPDOWN_OPTIONS.statusAlatBerat} 
                   />
                 </div>
@@ -686,12 +772,19 @@ const UpdateTicket = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <SelectField 
                     label="Permanen / Temporer" 
-                    field="permanenTemporer" 
+                    value={formData.permanenTemporer}
+                    onValueChange={(v) => { updateField('permanenTemporer', v); markTouched('permanenTemporer'); }}
+                    error={getFieldError('permanenTemporer')}
+                    required={isFieldRequired('permanenTemporer')}
                     options={DROPDOWN_OPTIONS.permanenTemporer} 
                   />
                   <InputField 
                     label="Koordinat Tipus" 
-                    field="koordinatTipus" 
+                    value={formData.koordinatTipus}
+                    onChange={(v) => updateField('koordinatTipus', v)}
+                    onBlur={() => markTouched('koordinatTipus')}
+                    error={getFieldError('koordinatTipus')}
+                    required={isFieldRequired('koordinatTipus')}
                     placeholder="-0.123456, 101.123456"
                     icon={MapPin}
                   />
@@ -715,7 +808,10 @@ const UpdateTicket = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                   <SelectField 
                     label="Compliance" 
-                    field="compliance" 
+                    value={formData.compliance}
+                    onValueChange={(v) => { updateField('compliance', v); markTouched('compliance'); }}
+                    error={getFieldError('compliance')}
+                    required={isFieldRequired('compliance')}
                     options={DROPDOWN_OPTIONS.compliance}
                     icon={CheckCircle}
                     disabled={true}
@@ -723,7 +819,11 @@ const UpdateTicket = () => {
                   <div className={formData.compliance !== 'NOT COMPLY' ? 'opacity-50 pointer-events-none grayscale' : ''}>
                     <InputField 
                       label="Penyebab Not Comply" 
-                      field="penyebabNotComply" 
+                      value={formData.penyebabNotComply}
+                      onChange={(v) => updateField('penyebabNotComply', v)}
+                      onBlur={() => markTouched('penyebabNotComply')}
+                      error={getFieldError('penyebabNotComply')}
+                      required={isFieldRequired('penyebabNotComply')}
                       placeholder="Jika NOT COMPLY"
                       icon={AlertTriangle}
                     />
@@ -748,11 +848,30 @@ const UpdateTicket = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <SelectField 
                     label="Kendala" 
-                    field="kendala" 
+                    value={formData.kendala}
+                    onValueChange={(v) => { updateField('kendala', v); markTouched('kendala'); }}
+                    error={getFieldError('kendala')}
+                    required={isFieldRequired('kendala')}
                     options={DROPDOWN_OPTIONS.kendala} 
                   />
-                  <InputField label="ATBT" field="atbt" placeholder="Alat Berat yang digunakan" />
-                  <InputField label="Tiket Eksternal" field="tiketEksternal" placeholder="Tiket dari sistem lain" />
+                  <InputField 
+                    label="ATBT" 
+                    value={formData.atbt}
+                    onChange={(v) => updateField('atbt', v)}
+                    onBlur={() => markTouched('atbt')}
+                    error={getFieldError('atbt')}
+                    required={isFieldRequired('atbt')}
+                    placeholder="Alat Berat yang digunakan" 
+                  />
+                  <InputField 
+                    label="Tiket Eksternal" 
+                    value={formData.tiketEksternal}
+                    onChange={(v) => updateField('tiketEksternal', v)}
+                    onBlur={() => markTouched('tiketEksternal')}
+                    error={getFieldError('tiketEksternal')}
+                    required={isFieldRequired('tiketEksternal')}
+                    placeholder="Tiket dari sistem lain" 
+                  />
                 </div>
               </CardContent>
             </Card>
