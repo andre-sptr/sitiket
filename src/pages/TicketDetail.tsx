@@ -818,39 +818,6 @@ const TicketDetail = () => {
                 </CardContent>
               </Card>
             </motion.div>
-
-            {(ticket.penyebab || ticket.segmen || ticket.networkElement) && (
-              <motion.div variants={cardVariants}>
-                <Card className="overflow-hidden border-0 shadow-lg shadow-black/5 dark:shadow-black/20">
-                  <CardHeader className="pb-3 bg-gradient-to-r from-muted/50 to-transparent">
-                    <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                      <Zap className="w-4 h-4" />
-                      Detail Tambahan
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {ticket.segmen && (
-                      <div className="p-3 rounded-xl bg-muted/30">
-                        <p className="text-xs text-muted-foreground mb-1">Segmen</p>
-                        <p className="text-sm font-medium">{ticket.segmen}</p>
-                      </div>
-                    )}
-                    {ticket.penyebab && (
-                      <div className="p-3 rounded-xl bg-muted/30">
-                        <p className="text-xs text-muted-foreground mb-1">Penyebab</p>
-                        <p className="text-sm font-medium">{ticket.penyebab}</p>
-                      </div>
-                    )}
-                    {ticket.networkElement && (
-                      <div className="p-3 rounded-xl bg-muted/30">
-                        <p className="text-xs text-muted-foreground mb-1">Network Element</p>
-                        <p className="text-xs font-mono break-all">{ticket.networkElement}</p>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
           </motion.div>
 
           <motion.div variants={containerVariants} className="lg:col-span-2 space-y-4">
@@ -920,6 +887,101 @@ const TicketDetail = () => {
                 </CardContent>
               </Card>
             </motion.div>
+
+            {(dbTicket.timeline_dispatch || dbTicket.timeline_prepare || dbTicket.timeline_otw || dbTicket.timeline_identifikasi || dbTicket.timeline_break || dbTicket.timeline_splicing) && (
+              <motion.div variants={cardVariants}>
+                <Card className="overflow-hidden border-0 shadow-lg shadow-black/5 dark:shadow-black/20">
+                  <CardHeader className="pb-3 bg-gradient-to-r from-muted/50 to-transparent">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Timer className="w-4 h-4" />
+                      Timeline Penanganan (MBB)
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {[
+                        { label: 'Dispatch', value: dbTicket.timeline_dispatch },
+                        { label: 'Prepare', value: dbTicket.timeline_prepare },
+                        { label: 'OTW', value: dbTicket.timeline_otw },
+                        { label: 'Identifikasi', value: dbTicket.timeline_identifikasi },
+                        { label: 'Break', value: dbTicket.timeline_break },
+                        { label: 'Progress', value: dbTicket.timeline_splicing },
+                      ].map((item, index) => (
+                        <div key={index} className="p-3 rounded-xl bg-muted/30">
+                          <p className="text-xs text-muted-foreground mb-1">{item.label}</p>
+                          <p className="font-mono text-sm font-medium">
+                            {item.value || '-'}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+
+            {(ticket.penyebab || ticket.segmen || ticket.perbaikan) && (
+              <motion.div variants={cardVariants}>
+                <Card className="overflow-hidden border-0 shadow-lg shadow-black/5 dark:shadow-black/20">
+                  <CardHeader className="pb-3 bg-gradient-to-r from-muted/50 to-transparent">
+                    <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                      <Zap className="w-4 h-4" />
+                      Detail Tambahan
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid grid-cols-4 sm:grid-cols-2 gap-3">
+                    {ticket.segmen && (
+                      <div className="p-3 rounded-xl bg-muted/30">
+                        <p className="text-xs text-muted-foreground mb-1">Segmen</p>
+                        <p className="text-sm font-medium">{ticket.segmen}</p>
+                      </div>
+                    )}
+                    {ticket.penyebab && (
+                      <div className="p-3 rounded-xl bg-muted/30">
+                        <p className="text-xs text-muted-foreground mb-1">Penyebab</p>
+                        <p className="text-sm font-medium">{ticket.penyebab}</p>
+                      </div>
+                    )}
+                    {ticket.perbaikan && (
+                      <div className="p-3 rounded-xl bg-muted/30">
+                        <p className="text-xs text-muted-foreground mb-1">Perbaikan</p>
+                        <p className="text-sm font-medium">{ticket.perbaikan}</p>
+                      </div>
+                    )}
+                    {(ticket.latitude && ticket.longitude)  && (
+                      <div className="p-3 rounded-xl bg-muted/30">
+                        <p className="text-xs text-muted-foreground mb-1">Koordinat Tipus</p>
+                        <p className="text-sm font-medium">{ticket.latitude}, {ticket.longitude}</p>
+                      </div>
+                    )}
+                    {ticket.kendala  && (
+                      <div className="p-3 rounded-xl bg-muted/30">
+                        <p className="text-xs text-muted-foreground mb-1">Kendala</p>
+                        <p className="text-sm font-medium">{ticket.kendala}</p>
+                      </div>
+                    )}
+                    {ticket.statusAlatBerat  && (
+                      <div className="p-3 rounded-xl bg-muted/30">
+                        <p className="text-xs text-muted-foreground mb-1">Status Alat Berat</p>
+                        <p className="text-sm font-medium">{ticket.statusAlatBerat}</p>
+                      </div>
+                    )}
+                    {ticket.atbt  && (
+                      <div className="p-3 rounded-xl bg-muted/30">
+                        <p className="text-xs text-muted-foreground mb-1">ATBT</p>
+                        <p className="text-sm font-medium">{ticket.atbt}</p>
+                      </div>
+                    )}
+                    {ticket.tiketEksternal  && (
+                      <div className="p-3 rounded-xl bg-muted/30">
+                        <p className="text-xs text-muted-foreground mb-1">Tiket Eksternal</p>
+                        <p className="text-sm font-medium">{ticket.tiketEksternal}</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
           </motion.div>
         </div>
       </motion.div>
