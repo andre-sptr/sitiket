@@ -98,8 +98,7 @@ const defaultSettings = {
 *STATUS TIKET:* {{status}}
 *PERMANEN:* {{permanen}}
 
-{{ticketLink}}
-━━━━━━━━━━━━━━━━━━`,
+{{ticketLink}}`,
     updateTemplate: `📍 *UPDATE PROGRESS*
 ━━━━━━━━━━━━━━━━━━
 🎫 Tiket: {{incNumbers}}

@@ -20,9 +20,9 @@ import {
 } from "@/components/ui/popover";
 import { useTickets } from '@/hooks/useTickets';
 import { mapDbTicketToTicket } from '@/lib/ticketMappers';
-import { getStatusLabel } from '@/lib/formatters';
+import { getStatusLabel, generateWhatsAppMessage, formatDateWIB } from '@/lib/formatters';
 import { Ticket, TicketStatus } from '@/types/ticket';
-import { Search, Filter, X, SlidersHorizontal, Calendar as CalendarIcon, RotateCcw, RefreshCw } from 'lucide-react';
+import { Search, Filter, X, SlidersHorizontal, Calendar as CalendarIcon, RotateCcw, RefreshCw, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   Sheet,
@@ -186,6 +186,44 @@ const AllTickets = () => {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedTickets = sortedTickets.slice(startIndex, startIndex + itemsPerPage);
 
+  const handleCopyPageTickets = () => {
+    if (sortedTickets.length === 0) {
+      toast({
+        title: "Tidak ada tiket",
+        description: "Tidak ada tiket untuk disalin pada halaman ini.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const messages = sortedTickets.map((ticket, index) => {
+      const header = generateWhatsAppMessage('share', ticket);
+      const sortedUpdates = [...(ticket.progressUpdates || [])].sort((a, b) => 
+        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      );
+
+      let timelineContent = "\n\n*Timeline Progress:*\n";
+
+      if (sortedUpdates.length > 0) {
+        timelineContent += sortedUpdates.map((u, i) => 
+          `${i + 1}. [${formatDateWIB(u.timestamp)}] ${u.message}`
+        ).join('\n');
+      } else {
+        timelineContent += "Belum ada update.";
+      }
+      return `${index + 1}. ${header}${timelineContent}`;
+    });
+
+    const fullMessage = messages.join('\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n\n');  
+
+    navigator.clipboard.writeText(fullMessage);
+    
+    toast({
+      title: "Berhasil Disalin",
+      description: `${sortedTickets.length} tiket telah disalin ke clipboard.`,
+    });
+  };
+
   const clearFilters = () => {
     setSearchQuery('');
     setStatusFilter('ALL');
@@ -296,6 +334,17 @@ const AllTickets = () => {
               <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
               <span>Refresh</span>
             </Button>
+
+            <Button 
+              variant="whatsapp"
+              size="sm" 
+              className="gap-2 h-9 mr-2" 
+              onClick={handleCopyPageTickets}
+              disabled={sortedTickets.length === 0}
+            >
+              <Copy className="w-4 h-4" />
+              <span>Copy Pesan WA</span>
+            </Button>
             
             <span className="text-sm text-muted-foreground">Urutkan:</span>
             <Select value={sortBy} onValueChange={setSortBy}>
@@ -306,7 +355,6 @@ const AllTickets = () => {
                 <SelectItem value="newest">Terbaru</SelectItem>
                 <SelectItem value="oldest">Terlama</SelectItem>
                 <SelectItem value="ttr">Sisa TTR</SelectItem>
-                <SelectItem value="site">Site Code</SelectItem>
               </SelectContent>
             </Select>
           </motion.div>
