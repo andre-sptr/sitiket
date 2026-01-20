@@ -83,6 +83,17 @@ export interface Ticket {
   rawTicketText?: string;
   progressUpdates: ProgressUpdate[];
   adminNotes?: string;
+  perbaikan?: string;
+  statusAlatBerat?: string;
+  timelineDispatch?: string;
+  timelinePrepare?: string;
+  timelineOtw?: string;
+  timelineIdentifikasi?: string;
+  timelineBreak?: string;
+  timelineSplicing?: string;
+  kendala?: string;
+  atbt?: string;
+  tiketEksternal?: string;
 }
 
 export interface DashboardStats {

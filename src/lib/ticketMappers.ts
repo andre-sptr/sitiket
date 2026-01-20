@@ -49,6 +49,17 @@ export const mapDbTicketToTicket = (dbTicket: TicketWithProgress): Ticket => ({
   rawTicketText: dbTicket.raw_ticket_text || undefined,
   progressUpdates: dbTicket.progress_updates?.map(mapDbProgressToProgress) || [],
   adminNotes: dbTicket.admin_notes || undefined,
+  perbaikan: dbTicket.perbaikan || undefined,
+  statusAlatBerat: dbTicket.status_alat_berat || undefined,
+  timelineDispatch: dbTicket.timeline_dispatch || undefined,
+  timelinePrepare: dbTicket.timeline_prepare || undefined,
+  timelineOtw: dbTicket.timeline_otw || undefined,
+  timelineIdentifikasi: dbTicket.timeline_identifikasi || undefined,
+  timelineBreak: dbTicket.timeline_break || undefined,
+  timelineSplicing: dbTicket.timeline_splicing || undefined,
+  kendala: dbTicket.kendala || undefined,
+  atbt: dbTicket.atbt || undefined,
+  tiketEksternal: dbTicket.tiket_eksternal || undefined,
 });
 
 export const mapDbProgressToProgress = (pu: ProgressUpdateRow): ProgressUpdate => ({
@@ -101,4 +112,15 @@ export const mapTicketToDbInsert = (ticket: Partial<Ticket>, userId?: string) =>
   created_by: userId,
   raw_ticket_text: ticket.rawTicketText,
   admin_notes: ticket.adminNotes,
+  perbaikan: ticket.perbaikan,
+  status_alat_berat: ticket.statusAlatBerat,
+  timeline_dispatch: ticket.timelineDispatch,
+  timeline_prepare: ticket.timelinePrepare,
+  timeline_otw: ticket.timelineOtw,
+  timeline_identifikasi: ticket.timelineIdentifikasi,
+  timeline_break: ticket.timelineBreak,
+  timeline_splicing: ticket.timelineSplicing,
+  kendala: ticket.kendala,
+  atbt: ticket.atbt,
+  tiket_eksternal: ticket.tiketEksternal,
 });

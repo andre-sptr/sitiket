@@ -233,6 +233,17 @@ export type Database = {
           ttr_real_hours: number | null
           ttr_target_hours: number
           updated_at: string
+          perbaikan: string | null
+          status_alat_berat: string | null
+          timeline_dispatch: string | null
+          timeline_prepare: string | null
+          timeline_otw: string | null
+          timeline_identifikasi: string | null
+          timeline_break: string | null
+          timeline_splicing: string | null
+          kendala: string | null
+          atbt: string | null
+          tiket_eksternal: string | null
         }
         Insert: {
           admin_notes?: string | null
@@ -281,6 +292,17 @@ export type Database = {
           ttr_real_hours?: number | null
           ttr_target_hours?: number
           updated_at?: string
+          perbaikan?: string | null
+          status_alat_berat?: string | null
+          timeline_dispatch?: string | null
+          timeline_prepare?: string | null
+          timeline_otw?: string | null
+          timeline_identifikasi?: string | null
+          timeline_break?: string | null
+          timeline_splicing?: string | null
+          kendala?: string | null
+          atbt?: string | null
+          tiket_eksternal?: string | null
         }
         Update: {
           admin_notes?: string | null
@@ -329,6 +351,17 @@ export type Database = {
           ttr_real_hours?: number | null
           ttr_target_hours?: number
           updated_at?: string
+          perbaikan?: string | null
+          status_alat_berat?: string | null
+          timeline_dispatch?: string | null
+          timeline_prepare?: string | null
+          timeline_otw?: string | null
+          timeline_identifikasi?: string | null
+          timeline_break?: string | null
+          timeline_splicing?: string | null
+          kendala?: string | null
+          atbt?: string | null
+          tiket_eksternal?: string | null
         }
         Relationships: []
       }

@@ -276,6 +276,85 @@ const cardVariants = {
   }
 };
 
+const TimeInputField = ({ 
+  label, 
+  value, 
+  onChange, 
+  onBlur, 
+  error, 
+  required = false 
+}: InputFieldProps) => {
+  const handleTimeChange = (val: string) => {
+    let cleanVal = val.replace(/[^0-9]/g, '');
+
+    if (cleanVal.length > 4) cleanVal = cleanVal.slice(0, 4);
+    
+    if (cleanVal.length > 2) {
+      cleanVal = `${cleanVal.slice(0, 2)}:${cleanVal.slice(2)}`;
+    }
+    
+    onChange(cleanVal);
+  };
+
+  const setNow = () => {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('id-ID', { 
+      hour: '2-digit', 
+      minute: '2-digit', 
+      hour12: false 
+    }).replace('.', ':');
+    onChange(timeString);
+  };
+
+  return (
+    <motion.div 
+      className="space-y-2"
+      whileTap={{ scale: 0.995 }}
+    >
+      <div className="flex items-center justify-between">
+        <Label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+          {label} {required && <span className="text-destructive">*</span>}
+        </Label>
+        <button
+          type="button"
+          onClick={setNow}
+          className="text-[10px] h-5 px-2 rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition-colors font-medium flex items-center gap-1 cursor-pointer"
+          title="Set Waktu Sekarang"
+        >
+          <Clock className="w-3 h-3" />
+          Now
+        </button>
+      </div>
+      <Input
+        type="text"
+        inputMode="numeric"
+        value={value}
+        onChange={(e) => handleTimeChange(e.target.value)}
+        onBlur={onBlur}
+        placeholder="HH:MM"
+        maxLength={5}
+        className={`h-10 bg-muted/30 border-border/50 transition-all duration-200 
+          hover:border-primary/30 hover:bg-muted/50
+          focus:ring-2 focus:ring-primary/20 focus:border-primary/50 text-center font-mono tracking-wider
+          ${error ? 'border-destructive ring-1 ring-destructive/20' : ''}`}
+      />
+      <AnimatePresence>
+        {error && (
+          <motion.p 
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            className="text-xs text-destructive flex items-center gap-1"
+          >
+            <AlertCircle className="w-3 h-3" />
+            {error}
+          </motion.p>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+};
+
 const UpdateTicket = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -297,9 +376,24 @@ const UpdateTicket = () => {
         ...prev,
         statusTiket: ticket.status || '',
         compliance: ticket.ttr_compliance || '', 
+        penyebabNotComply: ticket.penyebab_not_comply || '',
         ttrSisa: ticket.sisa_ttr_hours?.toString() || '',
         penyebabGangguan: ticket.penyebab || '',
         segmenTerganggu: ticket.segmen || '',
+        perbaikanGangguan: ticket.perbaikan || '',
+        statusAlatBerat: ticket.status_alat_berat || '',
+        dispatchMbb: ticket.timeline_dispatch || '',
+        prepareTim: ticket.timeline_prepare || '',
+        otwKeLokasi: ticket.timeline_otw || '',
+        identifikasi: ticket.timeline_identifikasi || '',
+        breakTime: ticket.timeline_break || '',
+        splicing: ticket.timeline_splicing || '',
+        kendala: ticket.kendala || '',
+        atbt: ticket.atbt || '',
+        tiketEksternal: ticket.tiket_eksternal || '',
+        koordinatTipus: (ticket.latitude && ticket.longitude) 
+          ? `${ticket.latitude}, ${ticket.longitude}` 
+          : '',
         permanenTemporer: ticket.is_permanent === null 
           ? '' 
           : (ticket.is_permanent ? 'PERMANEN' : 'TEMPORARY'),
@@ -381,6 +475,16 @@ const UpdateTicket = () => {
       const teknisiList = [formData.teknisi1, formData.teknisi2, formData.teknisi3, formData.teknisi4]
         .filter(t => t && t.trim() !== '');
 
+      let lat = null;
+      let lon = null;
+      if (formData.koordinatTipus) {
+        const parts = formData.koordinatTipus.split(',').map(s => s.trim());
+        if (parts.length === 2) {
+          lat = parseFloat(parts[0]);
+          lon = parseFloat(parts[1]);
+        }
+      }
+
       const updates = {
         status: formData.statusTiket as TicketStatus,
         ttr_compliance: formData.compliance as TTRCompliance,
@@ -388,6 +492,17 @@ const UpdateTicket = () => {
         sisa_ttr_hours: parseFloat(formData.ttrSisa) || 0,
         penyebab: formData.penyebabGangguan,
         perbaikan: formData.perbaikanGangguan,
+        timeline_dispatch: formData.dispatchMbb,
+        timeline_prepare: formData.prepareTim,
+        timeline_otw: formData.otwKeLokasi,
+        timeline_identifikasi: formData.identifikasi,
+        timeline_break: formData.breakTime,
+        timeline_splicing: formData.splicing,
+        kendala: formData.kendala,
+        atbt: formData.atbt,
+        tiket_eksternal: formData.tiketEksternal,
+        latitude: lat,
+        longitude: lon,
         status_alat_berat: formData.statusAlatBerat,
         segmen: formData.segmenTerganggu,
         is_permanent: formData.permanenTemporer === 'PERMANEN' 
@@ -628,78 +743,54 @@ const UpdateTicket = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
-                  <InputField 
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                  <TimeInputField 
                     label="Dispatch" 
                     value={formData.dispatchMbb}
                     onChange={(v) => updateField('dispatchMbb', v)}
                     onBlur={() => markTouched('dispatchMbb')}
                     error={getFieldError('dispatchMbb')}
                     required={isFieldRequired('dispatchMbb')}
-                    placeholder="HH:MM" 
                   />
-                  <InputField 
+                  <TimeInputField 
                     label="Prepare" 
                     value={formData.prepareTim}
                     onChange={(v) => updateField('prepareTim', v)}
                     onBlur={() => markTouched('prepareTim')}
                     error={getFieldError('prepareTim')}
                     required={isFieldRequired('prepareTim')}
-                    placeholder="HH:MM" 
                   />
-                  <InputField 
+                  <TimeInputField 
                     label="OTW" 
                     value={formData.otwKeLokasi}
                     onChange={(v) => updateField('otwKeLokasi', v)}
                     onBlur={() => markTouched('otwKeLokasi')}
                     error={getFieldError('otwKeLokasi')}
                     required={isFieldRequired('otwKeLokasi')}
-                    placeholder="HH:MM" 
                   />
-                  <InputField 
+                  <TimeInputField 
                     label="Identifikasi" 
                     value={formData.identifikasi}
                     onChange={(v) => updateField('identifikasi', v)}
                     onBlur={() => markTouched('identifikasi')}
                     error={getFieldError('identifikasi')}
                     required={isFieldRequired('identifikasi')}
-                    placeholder="HH:MM" 
                   />
-                  <InputField 
+                  <TimeInputField 
                     label="Break" 
                     value={formData.breakTime}
                     onChange={(v) => updateField('breakTime', v)}
                     onBlur={() => markTouched('breakTime')}
                     error={getFieldError('breakTime')}
                     required={isFieldRequired('breakTime')}
-                    placeholder="HH:MM" 
                   />
-                  <InputField 
-                    label="Splicing" 
+                  <TimeInputField 
+                    label="Progress" 
                     value={formData.splicing}
                     onChange={(v) => updateField('splicing', v)}
                     onBlur={() => markTouched('splicing')}
                     error={getFieldError('splicing')}
                     required={isFieldRequired('splicing')}
-                    placeholder="HH:MM" 
-                  />
-                  <InputField 
-                    label="Closing" 
-                    value={formData.closing}
-                    onChange={(v) => updateField('closing', v)}
-                    onBlur={() => markTouched('closing')}
-                    error={getFieldError('closing')}
-                    required={isFieldRequired('closing')}
-                    placeholder="HH:MM" 
-                  />
-                  <InputField 
-                    label="Total TTR" 
-                    value={formData.totalTtr}
-                    onChange={(v) => updateField('totalTtr', v)}
-                    onBlur={() => markTouched('totalTtr')}
-                    error={getFieldError('totalTtr')}
-                    required={isFieldRequired('totalTtr')}
-                    placeholder="HH:MM" 
                   />
                 </div>
               </CardContent>
@@ -718,7 +809,7 @@ const UpdateTicket = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   <InputField 
                     label="Segmen Terganggu" 
                     value={formData.segmenTerganggu}
@@ -743,14 +834,6 @@ const UpdateTicket = () => {
                     error={getFieldError('perbaikanGangguan')}
                     required={isFieldRequired('perbaikanGangguan')}
                     options={DROPDOWN_OPTIONS.perbaikanGangguan} 
-                  />
-                  <SelectField 
-                    label="Status Alat Berat" 
-                    value={formData.statusAlatBerat}
-                    onValueChange={(v) => { updateField('statusAlatBerat', v); markTouched('statusAlatBerat'); }}
-                    error={getFieldError('statusAlatBerat')}
-                    required={isFieldRequired('statusAlatBerat')}
-                    options={DROPDOWN_OPTIONS.statusAlatBerat} 
                   />
                 </div>
               </CardContent>
@@ -845,7 +928,7 @@ const UpdateTicket = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <SelectField 
                     label="Kendala" 
                     value={formData.kendala}
@@ -853,6 +936,14 @@ const UpdateTicket = () => {
                     error={getFieldError('kendala')}
                     required={isFieldRequired('kendala')}
                     options={DROPDOWN_OPTIONS.kendala} 
+                  />
+                  <SelectField 
+                    label="Status Alat Berat" 
+                    value={formData.statusAlatBerat}
+                    onValueChange={(v) => { updateField('statusAlatBerat', v); markTouched('statusAlatBerat'); }}
+                    error={getFieldError('statusAlatBerat')}
+                    required={isFieldRequired('statusAlatBerat')}
+                    options={DROPDOWN_OPTIONS.statusAlatBerat} 
                   />
                   <InputField 
                     label="ATBT" 
