@@ -336,28 +336,6 @@ const TicketDetail = () => {
     }
   };
 
-  const parseTemplate = (template: string, ticketData: any) => {
-    if (!template) return "";
-
-    const now = new Date();
-    const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-    
-    return template
-      .replace(/{{kategori}}/g, ticketData.kategori || '-')
-      .replace(/{{siteCode}}/g, ticketData.siteCode || '-')
-      .replace(/{{siteName}}/g, ticketData.siteName || '-')
-      .replace(/{{incNumbers}}/g, ticketData.incNumbers?.join(', ') || '-')
-      .replace(/{{lokasiText}}/g, ticketData.lokasiText || '-')
-      .replace(/{{koordinat}}/g, ticketData.latitude && ticketData.longitude ? `${ticketData.latitude}, ${ticketData.longitude}` : '-')
-      .replace(/{{mapsLink}}/g, ticketData.latitude && ticketData.longitude ? generateGoogleMapsLink(ticketData.latitude, ticketData.longitude) : '-')
-      .replace(/{{jarakKmRange}}/g, ticketData.jarakKmRange || '-')
-      .replace(/{{jamOpen}}/g, formatDateWIB(ticketData.jamOpen))
-      .replace(/{{sisaTtr}}/g, formatTTR(ticketData.sisaTtrHours))
-      .replace(/{{status}}/g, ticketData.status)
-      .replace(/{{ticketLink}}/g, window.location.href)
-      .replace(/{{currentTime}}/g, currentTime);
-  };
-
   const handleCopyShareMessage = (type: 'latest' | 'all') => {
     if (!ticket) return;
 
