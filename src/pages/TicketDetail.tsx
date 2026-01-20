@@ -920,7 +920,7 @@ const TicketDetail = () => {
               </motion.div>
             )}
 
-            {(ticket.penyebab || ticket.segmen || ticket.perbaikan) && (
+            {(ticket.segmen || ticket.penyebab || ticket.perbaikan || (ticket.latitude && ticket.longitude) || ticket.kendala || ticket.statusAlatBerat || ticket.atbt || ticket.tiketEksternal) && (
               <motion.div variants={cardVariants}>
                 <Card className="overflow-hidden border-0 shadow-lg shadow-black/5 dark:shadow-black/20">
                   <CardHeader className="pb-3 bg-gradient-to-r from-muted/50 to-transparent">
