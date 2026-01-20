@@ -18,6 +18,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useTicket, useDeleteTicket, useAddProgressUpdate } from '@/hooks/useTickets';
 import { mapDbTicketToTicket } from '@/lib/ticketMappers';
 import { formatDateWIB, generateWhatsAppMessage, generateGoogleMapsLink, formatTTR } from '@/lib/formatters';
@@ -52,7 +58,8 @@ import {
   TowerControl,
   Globe,
   CheckSquare,
-  Users
+  Users,
+  ChevronDown
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -327,12 +334,46 @@ const TicketDetail = () => {
     }
   };
 
-  const handleCopyShareMessage = () => {
-    const message = generateWhatsAppMessage('share', ticket);
-    navigator.clipboard.writeText(message);
+  const handleCopyShareMessage = (type: 'latest' | 'all') => {
+    if (!ticket) return;
+
+    const header = `*STATUS TIKET: ${ticket.status}*\n` +
+      `No: ${ticket.incNumbers.join(', ')}\n` +
+      `Site: ${ticket.siteName} (${ticket.siteCode})\n` +
+      `Lokasi: ${ticket.lokasiText}\n` +
+      `Kategori: ${ticket.kategori}\n` +
+      `Sisa TTR: ${formatTTR(ticket.sisaTtrHours)}\n\n` +
+      `*Timeline Progress:*\n`;
+
+    const sortedUpdates = [...(ticket.progressUpdates || [])].sort((a, b) => 
+      new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    );
+
+    let content = "";
+
+    if (type === 'latest') {
+      const latest = sortedUpdates[0];
+      if (latest) {
+        content = `[${formatDateWIB(latest.timestamp)}] ${latest.message}`;
+      } else {
+        content = "Belum ada update.";
+      }
+    } else {
+      if (sortedUpdates.length > 0) {
+        content = sortedUpdates.map((u, i) => 
+          `${i + 1}. [${formatDateWIB(u.timestamp)}] ${u.message}`
+        ).join('\n');
+      } else {
+        content = "Belum ada update.";
+      }
+    }
+
+    const fullMessage = `${header}${content}`;
+    
+    navigator.clipboard.writeText(fullMessage);
     toast({
-      title: "Pesan WhatsApp Disalin",
-      description: "Pesan share tiket sudah disalin ke clipboard",
+      title: type === 'latest' ? "Update Terbaru Disalin" : "Semua History Disalin",
+      description: "Pesan WhatsApp telah disalin ke clipboard",
     });
   };
 
@@ -480,10 +521,25 @@ const TicketDetail = () => {
             )}
             
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Button variant="whatsapp" size="sm" className="gap-2 rounded-xl" onClick={handleCopyShareMessage}>
-                <Copy className="w-4 h-4" />
-                Copy Pesan WA
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="whatsapp" size="sm" className="gap-2 rounded-xl">
+                    <Copy className="w-4 h-4" />
+                    Copy Pesan WA
+                    <ChevronDown className="w-3 h-3 opacity-50" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-48 rounded-xl">
+                  <DropdownMenuItem onClick={() => handleCopyShareMessage('latest')} className="cursor-pointer">
+                    <Clock className="w-4 h-4 mr-2 text-muted-foreground" />
+                    Update Terbaru
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleCopyShareMessage('all')} className="cursor-pointer">
+                    <FileStack className="w-4 h-4 mr-2 text-muted-foreground" />
+                    Semua Progress
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </motion.div>
             
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
