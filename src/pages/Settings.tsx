@@ -74,21 +74,32 @@ const defaultSettings = {
   whatsappTemplates: {
     shareTemplate: `🎫 *TIKET GANGGUAN RIDAR*
 ━━━━━━━━━━━━━━━━━━
-*[{{pelanggan}}] | {{incNumbers}} - {{siteCode}} - {{siteName}}*
 
-📋 *INC:* {{incNumbers}}
-📍 *Lokasi:* {{lokasiText}}
-🗺️ *Koordinat:* {{koordinat}}
-🔗 *Maps:* {{mapsLink}}
-📏 *Jarak:* {{jarakKmRange}}
+*{{pelanggan}} | {{incNumbers}} - {{siteCode}} - {{siteName}}*
+{{summary}}
 
-⏰ *Jam Open:* {{jamOpen}}
-⏳ *Sisa TTR:* {{sisaTtr}}
-📊 *Status:* {{status}}
+*KATEGORI:* {{kategori}}
+*KOORDINAT:* {{koordinat}}
+*JARAK:* {{jarakKmRange}}
+*HISTORY:* -
 
-━━━━━━━━━━━━━━━━━━
-📝 Mohon TA update progress berkala.
-🔗 Link Tiket: {{ticketLink}}`,
+*TTR COMPLIANCE:* {{compliance}}
+*JAM OPEN:* {{jamOpen}}
+*TTR:* {{ttrTarget}}
+*MAX JAM CLOSE:* {{maxClose}}
+*TTR REAL:* {{ttrReal}}
+*SISA TTR:* {{sisaTtr}}
+*TEKNISI:* {{teknisi}}
+*INC GAMAS:* {{indukGamas}}
+*KJD:* {{kjd}}
+
+*SEGMEN:* {{segmen}}
+*PENYEBAB:* {{penyebab}}
+*STATUS TIKET:* {{status}}
+*PERMANEN:* {{permanen}}
+
+{{ticketLink}}
+━━━━━━━━━━━━━━━━━━`,
     updateTemplate: `📍 *UPDATE PROGRESS*
 ━━━━━━━━━━━━━━━━━━
 🎫 Tiket: {{incNumbers}}
@@ -494,16 +505,28 @@ const Settings = () => {
   };
 
   const templateVariables = [
+    { var: '{{pelanggan}}', desc: 'Jenis Pelanggan (TSEL, DATIN, dll)' },
+    { var: '{{summary}}', desc: 'Ringkasan teks tiket' },
     { var: '{{kategori}}', desc: 'Kategori tiket (CNQ, MINOR, dll)' },
     { var: '{{siteCode}}', desc: 'Kode site (PPN555, SSI278)' },
     { var: '{{siteName}}', desc: 'Nama site' },
     { var: '{{incNumbers}}', desc: 'Nomor INC' },
-    { var: '{{lokasiText}}', desc: 'Lokasi teks' },
+    { var: '{{indukGamas}}', desc: 'Nomor Tiket Induk Gamas' },
+    { var: '{{lokasiText}}', desc: 'Nama site gangguan' },
     { var: '{{koordinat}}', desc: 'Koordinat lat, lon' },
     { var: '{{mapsLink}}', desc: 'Link Google Maps' },
     { var: '{{jarakKmRange}}', desc: 'Range jarak (0-40km, dll)' },
+    { var: '{{segmen}}', desc: 'Segmen gangguan' },
+    { var: '{{penyebab}}', desc: 'Penyebab gangguan' },
+    { var: '{{permanen}}', desc: 'Sifat perbaikan (PERMANEN/TEMPORARY)' },
+    { var: '{{kjd}}', desc: 'Kode KJD' },
+    { var: '{{teknisi}}', desc: 'List nama teknisi' },
     { var: '{{jamOpen}}', desc: 'Jam open tiket' },
+    { var: '{{maxClose}}', desc: 'Batas waktu close' },
+    { var: '{{ttrTarget}}', desc: 'Target durasi TTR (jam)' },
     { var: '{{sisaTtr}}', desc: 'Sisa TTR' },
+    { var: '{{ttrReal}}', desc: 'Realisasi TTR' },
+    { var: '{{compliance}}', desc: 'Status TTR (COMPLY/NOT COMPLY)' },
     { var: '{{status}}', desc: 'Status tiket' },
     { var: '{{ticketLink}}', desc: 'Link ke halaman tiket' },
     { var: '{{currentTime}}', desc: 'Waktu saat ini (WIB)' },

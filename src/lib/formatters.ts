@@ -102,21 +102,32 @@ export const generateGoogleMapsLink = (lat?: number, lon?: number): string => {
 
 const defaultShareTemplate = `🎫 *TIKET GANGGUAN RIDAR*
 ━━━━━━━━━━━━━━━━━━
-*[{{pelanggan}}] | {{incNumbers}} - {{siteCode}} - {{siteName}}*
 
-📋 *INC:* {{incNumbers}}
-📍 *Lokasi:* {{lokasiText}}
-🗺️ *Koordinat:* {{koordinat}}
-🔗 *Maps:* {{mapsLink}}
-📏 *Jarak:* {{jarakKmRange}}
+*{{pelanggan}} | {{incNumbers}} - {{siteCode}} - {{siteName}}*
+{{summary}}
 
-⏰ *Jam Open:* {{jamOpen}}
-⏳ *Sisa TTR:* {{sisaTtr}}
-📊 *Status:* {{status}}
+*KATEGORI:* {{kategori}}
+*KOORDINAT:* {{koordinat}}
+*JARAK:* {{jarakKmRange}}
+*HISTORY:* -
 
-━━━━━━━━━━━━━━━━━━
-📝 Mohon TA update progress berkala.
-🔗 Link Tiket: {{ticketLink}}`;
+*TTR COMPLIANCE:* {{compliance}}
+*JAM OPEN:* {{jamOpen}}
+*TTR:* {{ttrTarget}}
+*MAX JAM CLOSE:* {{maxClose}}
+*TTR REAL:* {{ttrReal}}
+*SISA TTR:* {{sisaTtr}}
+*TEKNISI:* {{teknisi}}
+*INC GAMAS:* {{indukGamas}}
+*KJD:* {{kjd}}
+
+*SEGMEN:* {{segmen}}
+*PENYEBAB:* {{penyebab}}
+*STATUS TIKET:* {{status}}
+*PERMANEN:* {{permanen}}
+
+{{ticketLink}}
+━━━━━━━━━━━━━━━━━━`;
 
 const defaultUpdateTemplate = `📍 *UPDATE PROGRESS*
 ━━━━━━━━━━━━━━━━━━
@@ -158,6 +169,18 @@ export const generateWhatsAppMessage = (
     jamOpen: Date;
     sisaTtrHours: number;
     status: TicketStatus;
+    provider: string;
+    rawTicketText?: string;
+    ttrCompliance: TTRCompliance;
+    ttrTargetHours: number;
+    maxJamClose: Date | string;
+    ttrRealHours?: number | null;
+    teknisiList?: string[] | null;
+    incGamas?: string | null;
+    kjd?: string | null;
+    segmen?: string | null;
+    penyebab?: string | null;
+    isPermanent?: boolean | null;
   }
 ): string => {
   const settings = getSettings();
@@ -168,7 +191,31 @@ export const generateWhatsAppMessage = (
     ? `${ticket.latitude}, ${ticket.longitude}` 
     : '-';
 
+  const maxCloseDate = typeof ticket.maxJamClose === 'string' 
+    ? new Date(ticket.maxJamClose) 
+    : ticket.maxJamClose;
+
+  const finalSisaTtr = (ticket.ttrRealHours !== null && ticket.ttrRealHours !== undefined)
+    ? ticket.ttrTargetHours - ticket.ttrRealHours
+    : ticket.sisaTtrHours;
+
+  let statusPerbaikan = '-';
+  if (ticket.isPermanent === true) statusPerbaikan = 'PERMANEN';
+  if (ticket.isPermanent === false) statusPerbaikan = 'TEMPORARY';
+
   const variables: Record<string, string> = {
+    pelanggan: ticket.provider,
+    summary: ticket.rawTicketText || '-',
+    compliance: ticket.ttrCompliance || '-',
+    maxClose: formatDateWIB(maxCloseDate),
+    ttrTarget: `${ticket.ttrTargetHours} jam`,
+    ttrReal: ticket.ttrRealHours ? formatTTR(ticket.ttrRealHours) : '-',
+    teknisi: ticket.teknisiList && ticket.teknisiList.length > 0 ? ticket.teknisiList.join(', ') : '-',
+    indukGamas: ticket.incGamas || '-',
+    kjd: ticket.kjd || '-',
+    segmen: ticket.segmen || '-',
+    penyebab: ticket.penyebab || '-',
+    permanen: statusPerbaikan,
     kategori: ticket.kategori,
     siteCode: ticket.siteCode,
     siteName: ticket.siteName,
@@ -178,9 +225,9 @@ export const generateWhatsAppMessage = (
     mapsLink: mapsLink,
     jarakKmRange: ticket.jarakKmRange || '-',
     jamOpen: formatDateWIB(ticket.jamOpen),
-    sisaTtr: formatTTR(ticket.sisaTtrHours),
+    sisaTtr: formatTTR(finalSisaTtr),
     status: getStatusLabel(ticket.status),
-    ticketLink: `[URL_TIKET/${ticket.id}]`,
+    ticketLink: `${window.location.origin}/ticket/${ticket.id}`,
     currentTime: formatTimeOnly(now),
     todayDate: new Intl.DateTimeFormat('id-ID', { 
       weekday: 'long', 

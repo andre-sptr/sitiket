@@ -537,13 +537,6 @@ const TicketDetail = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             </motion.div>
-            
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Button variant="outline" size="sm" className="gap-2 rounded-xl" onClick={handleCopyUpdateTemplate}>
-                <FileText className="w-4 h-4" />
-                Template Update
-              </Button>
-            </motion.div>
           </motion.div>
         )}
 
