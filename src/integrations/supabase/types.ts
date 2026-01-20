@@ -229,6 +229,7 @@ export type Database = {
           status: Database["public"]["Enums"]["ticket_status"]
           teknisi_list: string[] | null
           ttr_compliance: Database["public"]["Enums"]["ttr_compliance"]
+          penyebab_not_comply: string | null
           ttr_real_hours: number | null
           ttr_target_hours: number
           updated_at: string
@@ -276,6 +277,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["ticket_status"]
           teknisi_list?: string[] | null
           ttr_compliance?: Database["public"]["Enums"]["ttr_compliance"]
+          penyebab_not_comply?: string | null
           ttr_real_hours?: number | null
           ttr_target_hours?: number
           updated_at?: string
@@ -323,6 +325,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["ticket_status"]
           teknisi_list?: string[] | null
           ttr_compliance?: Database["public"]["Enums"]["ttr_compliance"]
+          penyebab_not_comply?: string | null
           ttr_real_hours?: number | null
           ttr_target_hours?: number
           updated_at?: string

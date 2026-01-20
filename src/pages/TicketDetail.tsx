@@ -532,6 +532,25 @@ const TicketDetail = () => {
                       </span>
                     </div>
                   )}
+
+                  <div className="flex flex-col gap-3 p-3 rounded-xl bg-muted/30 border border-border/50">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Status Compliance</span>
+                      <ComplianceBadge compliance={ticket.ttrCompliance} />
+                    </div>
+                    
+                    {ticket.ttrCompliance === 'NOT COMPLY' && (
+                      <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/20 mt-3">
+                        <p className="text-xs text-destructive font-semibold mb-1 flex items-center gap-1">
+                          <AlertTriangle className="w-3 h-3" />
+                          Penyebab Not Comply
+                        </p>
+                        <p className="text-sm font-medium text-destructive">
+                          {ticket.penyebabNotComply || '-'}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             </motion.div>
@@ -774,13 +793,13 @@ const TicketDetail = () => {
                           className="flex items-center justify-between p-3 rounded-xl bg-muted/30 group"
                           whileHover={{ scale: 1.01, backgroundColor: 'hsl(var(--muted) / 0.5)' }}
                         >
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                          <div className="flex items-center gap-3 overflow-hidden">
+                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                               <User className="w-4 h-4 text-primary" />
                             </div>
-                            <span className="text-sm font-medium">{name}</span>
+                            <span className="text-sm font-medium truncate max-w-[110px] sm:max-w-[150px]" title={name}>{name}</span>
                           </div>
-                          <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                          <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="flex-shrink-0">
                             <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full opacity-50 group-hover:opacity-100">
                               <Phone className="w-4 h-4" />
                             </Button>

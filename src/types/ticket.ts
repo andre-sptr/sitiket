@@ -60,6 +60,7 @@ export interface Ticket {
   longitude?: number;
   jarakKmRange?: string;
   ttrCompliance: TTRCompliance;
+  penyebabNotComply?: string;
   jamOpen: Date;
   ttrTargetHours: number;
   maxJamClose: Date;

@@ -104,23 +104,10 @@ const emptyForm: UpdateFormData = {
   tiketEksternal: '',
 };
 
-const REQUIRED_FIELDS: { field: keyof UpdateFormData; label: string }[] = [
-  { field: 'statusTiket', label: 'Status Tiket' },
-];
+const REQUIRED_FIELDS: { field: keyof UpdateFormData; label: string }[] = [];
 
 const getConditionalRequiredFields = (formData: UpdateFormData): { field: keyof UpdateFormData; label: string }[] => {
-  const conditionalFields: { field: keyof UpdateFormData; label: string }[] = [];
-  
-  if (formData.statusTiket === 'CLOSED') {
-    conditionalFields.push({ field: 'closedDate', label: 'Closed Date' });
-    conditionalFields.push({ field: 'compliance', label: 'Compliance' });
-  }
-  
-  if (formData.compliance === 'NOT COMPLY') {
-    conditionalFields.push({ field: 'penyebabNotComply', label: 'Penyebab Not Comply' });
-  }
-  
-  return conditionalFields;
+  return [];
 };
 
 const containerVariants = {
@@ -308,6 +295,7 @@ const UpdateTicket = () => {
       const updates = {
         status: formData.statusTiket as TicketStatus,
         ttr_compliance: formData.compliance as TTRCompliance,
+        penyebab_not_comply: formData.penyebabNotComply,
         sisa_ttr_hours: parseFloat(formData.ttrSisa) || 0,
         penyebab: formData.penyebabGangguan,
         segmen: formData.segmenTerganggu,
@@ -364,13 +352,15 @@ const UpdateTicket = () => {
     field, 
     options,
     placeholder = "Pilih...",
-    icon: Icon
+    icon: Icon,
+    disabled = false
   }: { 
     label: string; 
     field: keyof UpdateFormData; 
     options: string[];
     placeholder?: string;
     icon?: React.ElementType;
+    disabled?: boolean;
   }) => {
     const error = getFieldError(field);
     const required = isFieldRequired(field);
@@ -378,13 +368,14 @@ const UpdateTicket = () => {
     return (
       <motion.div 
         className="space-y-2"
-        whileTap={{ scale: 0.995 }}
+        whileTap={disabled ? undefined : { scale: 0.995 }}
       >
         <Label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
           {Icon && <Icon className="w-3.5 h-3.5" />}
           {label} {required && <span className="text-destructive">*</span>}
         </Label>
         <Select 
+          disabled={disabled}
           value={formData[field]} 
           onValueChange={(v) => {
             updateField(field, v);
@@ -395,7 +386,8 @@ const UpdateTicket = () => {
             className={`h-10 bg-muted/30 border-border/50 transition-all duration-200 
               hover:border-primary/30 hover:bg-muted/50
               focus:ring-2 focus:ring-primary/20 focus:border-primary/50
-              ${error ? 'border-destructive ring-1 ring-destructive/20' : ''}`}
+              ${error ? 'border-destructive ring-1 ring-destructive/20' : ''}
+              ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             <SelectValue placeholder={placeholder} />
           </SelectTrigger>
@@ -525,7 +517,7 @@ const UpdateTicket = () => {
               Update Tiket
             </motion.h1>
             <p className="text-muted-foreground text-sm mt-1.5">
-              Update progress dan status tiket dengan informasi terbaru
+              Update progress tiket dengan informasi terbaru
             </p>
           </div>
           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
@@ -615,31 +607,27 @@ const UpdateTicket = () => {
 
         {/* Form Sections */}
         <motion.div className="grid gap-5" variants={containerVariants}>
-          {/* Status & TTR */}
+          {/* Timeline */}
           <motion.div variants={cardVariants}>
             <Card className="glass-card card-hover overflow-hidden group">
               <CardHeader className="pb-4">
                 <CardTitle className="text-base font-semibold flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                    <Clock className="w-4 h-4 text-primary" />
+                  <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center group-hover:bg-indigo-500/20 transition-colors">
+                    <Timer className="w-4 h-4 text-indigo-500" />
                   </div>
-                  Status & TTR
+                  Timeline Penanganan (MBB)
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                  <SelectField 
-                    label="Compliance" 
-                    field="compliance" 
-                    options={DROPDOWN_OPTIONS.compliance}
-                    icon={CheckCircle}
-                  />
-                  <InputField 
-                    label="Penyebab Not Comply" 
-                    field="penyebabNotComply" 
-                    placeholder="Jika NOT COMPLY"
-                    icon={AlertTriangle}
-                  />
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+                  <InputField label="Dispatch" field="dispatchMbb" placeholder="HH:MM" />
+                  <InputField label="Prepare" field="prepareTim" placeholder="HH:MM" />
+                  <InputField label="OTW" field="otwKeLokasi" placeholder="HH:MM" />
+                  <InputField label="Identifikasi" field="identifikasi" placeholder="HH:MM" />
+                  <InputField label="Break" field="breakTime" placeholder="HH:MM" />
+                  <InputField label="Splicing" field="splicing" placeholder="HH:MM" />
+                  <InputField label="Closing" field="closing" placeholder="HH:MM" />
+                  <InputField label="Total TTR" field="totalTtr" placeholder="HH:MM" />
                 </div>
               </CardContent>
             </Card>
@@ -683,67 +671,6 @@ const UpdateTicket = () => {
             </Card>
           </motion.div>
 
-          {/* Tim Teknisi */}
-          <motion.div variants={cardVariants}>
-            <Card className="glass-card card-hover overflow-hidden group">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-base font-semibold flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-violet-500/10 flex items-center justify-center group-hover:bg-violet-500/20 transition-colors">
-                    <Users className="w-4 h-4 text-violet-500" />
-                  </div>
-                  Tim Teknisi
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {(['teknisi1', 'teknisi2', 'teknisi3', 'teknisi4'] as const).map((field, idx) => (
-                    <motion.div 
-                      key={field} 
-                      className="space-y-2"
-                      whileHover={{ scale: 1.01 }}
-                    >
-                      <Label className="text-xs font-medium text-muted-foreground">
-                        Teknisi {idx + 1}
-                      </Label>
-                      <Select 
-                        value={formData[field] || "__none__"} 
-                        onValueChange={(v) => updateField(field, v === "__none__" ? "" : v)}
-                      >
-                        <SelectTrigger className="h-10 bg-muted/30 border-border/50 transition-all duration-200 hover:border-primary/30">
-                          <SelectValue placeholder="Pilih Teknisi" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-popover/95 backdrop-blur-xl border-border/60 shadow-xl z-50">
-                          <SelectItem value="__none__">- Kosong -</SelectItem>
-                          {activeTeknisi.map(teknisi => (
-                            <SelectItem key={teknisi.id} value={teknisi.name}>
-                              <div className="flex items-center gap-2">
-                                <span>{teknisi.name}</span>
-                                <span className="text-xs text-muted-foreground">({teknisi.area})</span>
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <AnimatePresence>
-                        {formData[field] && (
-                          <motion.div 
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            exit={{ opacity: 0, height: 0 }}
-                            className="flex items-center gap-2 text-xs text-muted-foreground px-1"
-                          >
-                            <Phone className="w-3 h-3" />
-                            {activeTeknisi.find(t => t.name === formData[field])?.phone || '-'}
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </motion.div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
           {/* Status Perbaikan */}
           <motion.div variants={cardVariants}>
             <Card className="glass-card card-hover overflow-hidden group">
@@ -773,27 +700,34 @@ const UpdateTicket = () => {
             </Card>
           </motion.div>
 
-          {/* Timeline */}
+          {/* Status & TTR */}
           <motion.div variants={cardVariants}>
             <Card className="glass-card card-hover overflow-hidden group">
               <CardHeader className="pb-4">
                 <CardTitle className="text-base font-semibold flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center group-hover:bg-indigo-500/20 transition-colors">
-                    <Timer className="w-4 h-4 text-indigo-500" />
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                    <Clock className="w-4 h-4 text-primary" />
                   </div>
-                  Timeline Penanganan (MBB)
+                  Status Compliance
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
-                  <InputField label="Dispatch" field="dispatchMbb" placeholder="HH:MM" />
-                  <InputField label="Prepare" field="prepareTim" placeholder="HH:MM" />
-                  <InputField label="OTW" field="otwKeLokasi" placeholder="HH:MM" />
-                  <InputField label="Identifikasi" field="identifikasi" placeholder="HH:MM" />
-                  <InputField label="Break" field="breakTime" placeholder="HH:MM" />
-                  <InputField label="Splicing" field="splicing" placeholder="HH:MM" />
-                  <InputField label="Closing" field="closing" placeholder="HH:MM" />
-                  <InputField label="Total TTR" field="totalTtr" placeholder="HH:MM" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                  <SelectField 
+                    label="Compliance" 
+                    field="compliance" 
+                    options={DROPDOWN_OPTIONS.compliance}
+                    icon={CheckCircle}
+                    disabled={true}
+                  />
+                  <div className={formData.compliance !== 'NOT COMPLY' ? 'opacity-50 pointer-events-none grayscale' : ''}>
+                    <InputField 
+                      label="Penyebab Not Comply" 
+                      field="penyebabNotComply" 
+                      placeholder="Jika NOT COMPLY"
+                      icon={AlertTriangle}
+                    />
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -819,6 +753,67 @@ const UpdateTicket = () => {
                   />
                   <InputField label="ATBT" field="atbt" placeholder="Alat Berat yang digunakan" />
                   <InputField label="Tiket Eksternal" field="tiketEksternal" placeholder="Tiket dari sistem lain" />
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Tim Teknisi */}
+          <motion.div variants={cardVariants}>
+            <Card className="glass-card card-hover overflow-hidden group">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-base font-semibold flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-violet-500/10 flex items-center justify-center group-hover:bg-violet-500/20 transition-colors">
+                    <Users className="w-4 h-4 text-violet-500" />
+                  </div>
+                  Tim Teknisi
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {(['teknisi1', 'teknisi2', 'teknisi3', 'teknisi4'] as const).map((field, idx) => (
+                    <motion.div 
+                      key={field} 
+                      className="space-y-2"
+                      whileHover={{ scale: 1.01 }}
+                    >
+                      <Label className="text-xs font-medium text-muted-foreground">
+                        Teknisi {idx + 1}
+                      </Label>
+                      <Select 
+                        value={formData[field] || "__none__"} 
+                        onValueChange={(v) => updateField(field, v === "__none__" ? "" : v)}
+                      >
+                        <SelectTrigger className="h-10 bg-muted/30 border-border/50 transition-all duration-200 hover:border-primary/30 [&>span]:truncate text-left">
+                          <SelectValue placeholder="Pilih Teknisi" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-popover/95 backdrop-blur-xl border-border/60 shadow-xl z-50">
+                          <SelectItem value="__none__">- Kosong -</SelectItem>
+                          {activeTeknisi.map(teknisi => (
+                            <SelectItem key={teknisi.id} value={teknisi.name}>
+                              <div className="flex items-center gap-2">
+                                <span>{teknisi.name}</span>
+                                <span className="text-xs text-muted-foreground">({teknisi.area})</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <AnimatePresence>
+                        {formData[field] && (
+                          <motion.div 
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="flex items-center gap-2 text-xs text-muted-foreground px-1"
+                          >
+                            <Phone className="w-3 h-3" />
+                            {activeTeknisi.find(t => t.name === formData[field])?.phone || '-'}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </motion.div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
