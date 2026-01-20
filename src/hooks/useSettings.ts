@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface AppSettings {
   ttrThresholds: {
@@ -11,6 +12,13 @@ export interface AppSettings {
     shareTemplate: string;
     updateTemplate: string;
   };
+  categoryTtr: {
+    low: number;
+    minor: number;
+    major: number;
+    critical: number;
+    premium: number;
+  };
 }
 
 const defaultSettings: AppSettings = {
@@ -19,6 +27,13 @@ const defaultSettings: AppSettings = {
     criticalHours: 1,
     noUpdateAlertMinutes: 60,
     dueSoonHours: 2,
+  },
+  categoryTtr: {
+    low: 24,
+    minor: 16,
+    major: 8,
+    critical: 4,
+    premium: 2,
   },
   whatsappTemplates: {
     shareTemplate: '',
@@ -30,7 +45,14 @@ export const getSettings = (): AppSettings => {
   try {
     const stored = localStorage.getItem('tiketops_settings');
     if (stored) {
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored);
+      return {
+        ...defaultSettings,
+        ...parsed,
+        ttrThresholds: { ...defaultSettings.ttrThresholds, ...(parsed.ttrThresholds || {}) },
+        categoryTtr: { ...defaultSettings.categoryTtr, ...(parsed.categoryTtr || {}) },
+        whatsappTemplates: { ...defaultSettings.whatsappTemplates, ...(parsed.whatsappTemplates || {}) },
+      };
     }
   } catch (e) {
     console.error('Failed to parse settings', e);
@@ -49,6 +71,36 @@ export const useSettings = () => {
     };
     window.addEventListener('storage', handleStorage);
     return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
+  useEffect(() => {
+    const fetchSettingsFromDb = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('app_settings')
+          .select('*')
+          .single();
+
+        if (data && !error) {
+          const dbSettings = {
+            ttrThresholds: data.ttr_thresholds as any,
+            categoryTtr: data.category_ttr as any,
+            whatsappTemplates: data.whatsapp_templates as any,
+          };
+
+          localStorage.setItem('tiketops_settings', JSON.stringify(dbSettings));
+          
+          setSettings(prev => ({
+            ...prev,
+            ...dbSettings
+          }));
+        }
+      } catch (err) {
+        console.error('Auto-fetch settings failed:', err);
+      }
+    };
+
+    fetchSettingsFromDb();
   }, []);
 
   const refreshSettings = useCallback(() => {

@@ -72,10 +72,9 @@ const defaultSettings = {
     premium: 2,
   },
   whatsappTemplates: {
-    shareTemplate: `🎫 *TIKET HARI INI*
+    shareTemplate: `🎫 *TIKET GANGGUAN RIDAR*
 ━━━━━━━━━━━━━━━━━━
-*[{{kategori}}] - {{siteCode}}*
-*{{siteName}}*
+*[{{pelanggan}}] | {{incNumbers}} - {{siteCode}} - {{siteName}}*
 
 📋 *INC:* {{incNumbers}}
 📍 *Lokasi:* {{lokasiText}}
@@ -297,11 +296,13 @@ const Settings = () => {
         if (settingsError && settingsError.code !== 'PGRST116') { 
            console.error('Error fetching settings:', settingsError);
         } else if (settingsData) {
-          setSettings({
+          const dbSettings = {
             ttrThresholds: settingsData.ttr_thresholds as any,
             categoryTtr: settingsData.category_ttr as any,
             whatsappTemplates: settingsData.whatsapp_templates as any,
-          });
+          };
+          setSettings(dbSettings);
+          localStorage.setItem('tiketops_settings', JSON.stringify(dbSettings));
         }
 
         const { data: dropdownData, error: dropdownError } = await supabase
@@ -387,6 +388,9 @@ const Settings = () => {
         whatsapp_templates: settings.whatsappTemplates,
         updated_at: new Date().toISOString(),
       };
+
+      localStorage.setItem('tiketops_settings', JSON.stringify(settings));
+      window.dispatchEvent(new Event('storage'));
 
       let error;
       if (existing?.id) {
@@ -503,6 +507,7 @@ const Settings = () => {
     { var: '{{status}}', desc: 'Status tiket' },
     { var: '{{ticketLink}}', desc: 'Link ke halaman tiket' },
     { var: '{{currentTime}}', desc: 'Waktu saat ini (WIB)' },
+    { var: '{{todayDate}}', desc: 'Tanggal hari ini' },
   ];
 
   if (user?.role === 'guest' || user?.role === 'hd') {

@@ -100,10 +100,9 @@ export const generateGoogleMapsLink = (lat?: number, lon?: number): string => {
   return `https://www.google.com/maps?q=${lat},${lon}`;
 };
 
-const defaultShareTemplate = `🎫 *TIKET HARI INI*
+const defaultShareTemplate = `🎫 *TIKET GANGGUAN RIDAR*
 ━━━━━━━━━━━━━━━━━━
-*[{{kategori}}] - {{siteCode}}*
-*{{siteName}}*
+*[{{pelanggan}}] | {{incNumbers}} - {{siteCode}} - {{siteName}}*
 
 📋 *INC:* {{incNumbers}}
 📍 *Lokasi:* {{lokasiText}}
@@ -183,13 +182,20 @@ export const generateWhatsAppMessage = (
     status: getStatusLabel(ticket.status),
     ticketLink: `[URL_TIKET/${ticket.id}]`,
     currentTime: formatTimeOnly(now),
+    todayDate: new Intl.DateTimeFormat('id-ID', { 
+      weekday: 'long', 
+      day: 'numeric', 
+      month: 'long', 
+      year: 'numeric',
+      timeZone: 'Asia/Jakarta'
+    }).format(now),
   };
 
   if (type === 'share') {
-    const template = settings.whatsappTemplates.shareTemplate || defaultShareTemplate;
+    const template = settings?.whatsappTemplates?.shareTemplate || defaultShareTemplate;
     return replaceTemplateVariables(template, variables);
   }
-  
-  const template = settings.whatsappTemplates.updateTemplate || defaultUpdateTemplate;
+
+  const template = settings?.whatsappTemplates?.updateTemplate || defaultUpdateTemplate;
   return replaceTemplateVariables(template, variables);
 };

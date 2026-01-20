@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useSettings } from '@/hooks/useSettings';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -233,6 +234,7 @@ const TicketDetail = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { settings } = useSettings();
   const deleteTicket = useDeleteTicket();
   const { data: dbTicket, isLoading } = useTicket(id || '');
   const [updateMessage, setUpdateMessage] = useState('');
@@ -334,37 +336,53 @@ const TicketDetail = () => {
     }
   };
 
+  const parseTemplate = (template: string, ticketData: any) => {
+    if (!template) return "";
+
+    const now = new Date();
+    const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    
+    return template
+      .replace(/{{kategori}}/g, ticketData.kategori || '-')
+      .replace(/{{siteCode}}/g, ticketData.siteCode || '-')
+      .replace(/{{siteName}}/g, ticketData.siteName || '-')
+      .replace(/{{incNumbers}}/g, ticketData.incNumbers?.join(', ') || '-')
+      .replace(/{{lokasiText}}/g, ticketData.lokasiText || '-')
+      .replace(/{{koordinat}}/g, ticketData.latitude && ticketData.longitude ? `${ticketData.latitude}, ${ticketData.longitude}` : '-')
+      .replace(/{{mapsLink}}/g, ticketData.latitude && ticketData.longitude ? generateGoogleMapsLink(ticketData.latitude, ticketData.longitude) : '-')
+      .replace(/{{jarakKmRange}}/g, ticketData.jarakKmRange || '-')
+      .replace(/{{jamOpen}}/g, formatDateWIB(ticketData.jamOpen))
+      .replace(/{{sisaTtr}}/g, formatTTR(ticketData.sisaTtrHours))
+      .replace(/{{status}}/g, ticketData.status)
+      .replace(/{{ticketLink}}/g, window.location.href)
+      .replace(/{{currentTime}}/g, currentTime);
+  };
+
   const handleCopyShareMessage = (type: 'latest' | 'all') => {
     if (!ticket) return;
 
-    const header = `*STATUS TIKET: ${ticket.status}*\n` +
-      `No: ${ticket.incNumbers.join(', ')}\n` +
-      `Site: ${ticket.siteName} (${ticket.siteCode})\n` +
-      `Lokasi: ${ticket.lokasiText}\n` +
-      `Kategori: ${ticket.kategori}\n` +
-      `Sisa TTR: ${formatTTR(ticket.sisaTtrHours)}\n\n` +
-      `*Timeline Progress:*\n`;
-
+    const header = generateWhatsAppMessage('share', ticket);
     const sortedUpdates = [...(ticket.progressUpdates || [])].sort((a, b) => 
       new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
     );
 
     let content = "";
+    content += "\n\n*Timeline Progress:*\n";
 
     if (type === 'latest') {
       const latest = sortedUpdates[0];
       if (latest) {
-        content = `[${formatDateWIB(latest.timestamp)}] ${latest.message}`;
+        content += `[${formatDateWIB(latest.timestamp)}] ${latest.message}`;
       } else {
-        content = "Belum ada update.";
+        content += "Belum ada update.";
       }
     } else {
       if (sortedUpdates.length > 0) {
-        content = sortedUpdates.map((u, i) => 
+        content += sortedUpdates.map((u, i) => 
           `${i + 1}. [${formatDateWIB(u.timestamp)}] ${u.message}`
         ).join('\n');
       } else {
-        content = "Belum ada update.";
+        content += "Belum ada update.";
       }
     }
 
@@ -372,7 +390,7 @@ const TicketDetail = () => {
     
     navigator.clipboard.writeText(fullMessage);
     toast({
-      title: type === 'latest' ? "Update Terbaru Disalin" : "Semua History Disalin",
+      title: type === 'latest' ? "Update Terbaru Disalin" : "Semua Progress Disalin",
       description: "Pesan WhatsApp telah disalin ke clipboard",
     });
   };
