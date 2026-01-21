@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ReportsSkeleton } from '@/components/skeletons';
-import { useTickets, useDashboardStats } from '@/hooks/useTickets';
+import { useTickets } from '@/hooks/useTickets';
 import { FilterCombobox } from '@/components/FilterCombobox';
 import { 
   BarChart3, 
@@ -312,7 +312,8 @@ const Reports = () => {
         name: dateStr,
         fullDate: format(date, 'dd MMM', { locale: id }),
         open: ticketsOnDay.filter(t => t.status === 'OPEN' || t.status === 'ASSIGNED').length,
-        onprogress: ticketsOnDay.filter(t => t.status === 'ONPROGRESS' || t.status === 'PENDING' || t.status.startsWith('WAITING')).length,
+        onprogress: ticketsOnDay.filter(t => t.status === 'ONPROGRESS').length,
+        pending: ticketsOnDay.filter(t => t.status === 'PENDING' || t.status.startsWith('WAITING')).length,
         closed: ticketsOnDay.filter(t => t.status === 'CLOSED').length,
         total: ticketsOnDay.length,
         avgTTR: Math.round(avgTTR * 10) / 10,
@@ -340,8 +341,7 @@ const Reports = () => {
     return [
       { name: 'Open', value: filteredTickets.filter(t => t.status === 'OPEN' || t.status === 'ASSIGNED').length, status: 'open', fill: 'hsl(var(--primary))' },
       { name: 'On Progress', value: filteredTickets.filter(t => t.status === 'ONPROGRESS').length, status: 'onprogress', fill: 'hsl(45 93% 47%)' },
-      { name: 'Waiting', value: filteredTickets.filter(t => t.status.startsWith('WAITING')).length, status: 'waiting', fill: 'hsl(25 95% 53%)' },
-      { name: 'Pending', value: filteredTickets.filter(t => t.status === 'PENDING').length, status: 'pending', fill: 'hsl(262 83% 58%)' },
+      { name: 'Pending', value: filteredTickets.filter(t => t.status === 'PENDING' || t.status.startsWith('WAITING')).length, status: 'pending', fill: 'hsl(262 83% 58%)' },
       { name: 'Closed', value: filteredTickets.filter(t => t.status === 'CLOSED').length, status: 'closed', fill: 'hsl(142 76% 36%)' },
     ].filter(d => d.value > 0);
   }, [filteredTickets]);
@@ -426,7 +426,7 @@ const Reports = () => {
     return Object.entries(counts)
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => b.value - a.value)
-      .slice(0, 10);
+      .slice(0, 5);
   }, [filteredTickets]);
 
   const datekChartConfig: ChartConfig = {
@@ -436,6 +436,7 @@ const Reports = () => {
   const barChartConfig: ChartConfig = {
     open: { label: 'Open', color: 'hsl(var(--primary))' },
     onprogress: { label: 'On Progress', color: 'hsl(45 93% 47%)' },
+    pending: { label: 'Pending', color: 'hsl(262 83% 58%)' },
     closed: { label: 'Closed', color: 'hsl(142 76% 36%)' },
   };
 
@@ -903,7 +904,7 @@ const Reports = () => {
         </motion.div>
 
         
-        <motion.div variants={containerVariants} className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-4">
+        <motion.div variants={containerVariants} className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-4">
           <StatCard 
             title="Total Periode" 
             value={filteredTickets.length} 
@@ -912,16 +913,10 @@ const Reports = () => {
             subtitle={`${format(dateRange.from, 'dd MMM', { locale: id })} - ${format(dateRange.to, 'dd MMM', { locale: id })}`}
           />
           <StatCard 
-            title="Assigned" 
-            value={filteredTickets.filter(t => t.status === 'ASSIGNED').length} 
+            title="Open" 
+            value={filteredTickets.filter(t => t.status === 'OPEN' || t.status === 'ASSIGNED').length} 
             icon={UserCheck} 
             variant="primary"
-          />
-          <StatCard 
-            title="Pending" 
-            value={filteredTickets.filter(t => t.status === 'PENDING').length} 
-            icon={Timer}
-            variant="default"
           />
           <StatCard 
             title="On Progress" 
@@ -930,8 +925,8 @@ const Reports = () => {
             variant="warning"
           />
           <StatCard 
-            title="Waiting" 
-            value={filteredTickets.filter(t => t.status.startsWith('WAITING')).length} 
+            title="Pending" 
+            value={filteredTickets.filter(t => t.status === 'PENDING' || t.status.startsWith('WAITING')).length} 
             icon={PauseCircle}
             variant="default"
           />
@@ -942,11 +937,11 @@ const Reports = () => {
             variant="success"
           />
           <StatCard 
-            title="Compliance Rate" 
+            title="Compliance" 
             value={`${complianceRadialData[0]?.value || 0}%`} 
             icon={Target} 
             variant="success"
-            subtitle="TTR sesuai target"
+            subtitle="TTR sesuai SLA"
           />
         </motion.div>
 
@@ -987,6 +982,10 @@ const Reports = () => {
                         <stop offset="0%" stopColor="hsl(45 93% 47%)" stopOpacity={1} />
                         <stop offset="100%" stopColor="hsl(45 93% 47%)" stopOpacity={0.6} />
                       </linearGradient>
+                      <linearGradient id="pendingGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="hsl(262 83% 58%)" stopOpacity={1} />
+                        <stop offset="100%" stopColor="hsl(262 83% 58%)" stopOpacity={0.6} />
+                      </linearGradient>
                       <linearGradient id="closedGradient" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stopColor="hsl(142 76% 36%)" stopOpacity={1} />
                         <stop offset="100%" stopColor="hsl(142 76% 36%)" stopOpacity={0.6} />
@@ -1008,6 +1007,7 @@ const Reports = () => {
                     <ChartLegend content={<ChartLegendContent />} />
                     <Bar dataKey="open" fill="url(#openGradient)" radius={[6, 6, 0, 0]} />
                     <Bar dataKey="onprogress" fill="url(#progressGradient)" radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="pending" fill="url(#pendingGradient)" radius={[6, 6, 0, 0]} />
                     <Bar dataKey="closed" fill="url(#closedGradient)" radius={[6, 6, 0, 0]} />
                   </BarChart>
                 </ChartContainer>
@@ -1357,7 +1357,7 @@ const Reports = () => {
                 
                 <ChartCard 
                   title="Site Impact" 
-                  description="Distribusi berdasarkan dampak site"
+                  description="Distribusi berdasarkan site terdampak"
                   icon={Globe}
                 >
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-[280px] overflow-y-auto custom-scrollbar pr-2">
@@ -1374,43 +1374,71 @@ const Reports = () => {
               </div>
 
               <motion.div variants={itemVariants}>
-                <ChartCard 
-                  title="Top 10 Datek" 
-                  description="Distribusi tiket berdasarkan Datek terbanyak"
-                  icon={FileSpreadsheet}
-                >
-                  <ChartContainer config={datekChartConfig} className="h-[350px] w-full">
-                    <BarChart
-                      accessibilityLayer
-                      data={datekData}
-                      layout="vertical"
-                      margin={{ left: 0, right: 0, top: 0, bottom: 0 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" horizontal={false} className="stroke-border/50" />
-                      <YAxis
-                        dataKey="name"
-                        type="category"
-                        tickLine={false}
-                        axisLine={false}
-                        width={100}
-                        tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
-                      />
-                      <XAxis type="number" hide />
-                      <ChartTooltip
-                        cursor={false}
-                        content={<ChartTooltipContent indicator="line" />}
-                      />
-                      <Bar
-                        dataKey="value"
+                <Card className="overflow-hidden border-border/50 transition-all duration-300 hover:shadow-lg bg-gradient-to-br from-card to-muted/20">
+                  <CardHeader className="border-b border-border/40 pb-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-blue-500/10 ring-1 ring-blue-500/20 shadow-sm">
+                          <FileSpreadsheet className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <div className="space-y-0.5">
+                          <CardTitle className="text-base font-bold tracking-tight">
+                            Top 5 Datek
+                          </CardTitle>
+                          <CardDescription className="text-xs text-muted-foreground/80">
+                            Distribusi tiket berdasarkan data teknis
+                          </CardDescription>
+                        </div>
+                      </div>
+                      
+                      <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-background/50 border border-border/50 shadow-sm backdrop-blur-sm">
+                        <Activity className="w-3.5 h-3.5 text-primary" />
+                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                          Most Frequent
+                        </span>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-6 pl-2">
+                    <ChartContainer config={datekChartConfig} className="h-[350px] w-full">
+                      <BarChart
+                        accessibilityLayer
+                        data={datekData}
                         layout="vertical"
-                        fill="hsl(var(--primary))"
-                        radius={[0, 4, 4, 0]}
+                        margin={{ left: -35, right: 10, top: 0, bottom: 0 }}
+                        barSize={24}
                       >
-                        <div className="fill-foreground text-xs" />
-                      </Bar>
-                    </BarChart>
-                  </ChartContainer>
-                </ChartCard>
+                        <CartesianGrid strokeDasharray="3 3" horizontal={false} className="stroke-border/30" />
+                        <YAxis
+                          dataKey="name"
+                          type="category"
+                          tickLine={false}
+                          axisLine={false}
+                          width={140}
+                          tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))', fontWeight: 500 }}
+                        />
+                        <XAxis type="number" hide />
+                        <ChartTooltip
+                          cursor={{ fill: 'hsl(var(--muted)/0.4)', radius: 4 }}
+                          content={
+                            <ChartTooltipContent 
+                              indicator="line" 
+                              className="bg-background/95 backdrop-blur-xl border-border/50 shadow-xl"
+                            />
+                          }
+                        />
+                        <Bar
+                          dataKey="value"
+                          layout="vertical"
+                          fill="hsl(var(--primary))"
+                          radius={[0, 6, 6, 0]}
+                        >
+                          <div className="fill-foreground text-xs" />
+                        </Bar>
+                      </BarChart>
+                    </ChartContainer>
+                  </CardContent>
+                </Card>
               </motion.div>
 
               
@@ -1423,7 +1451,8 @@ const Reports = () => {
                   {categoryData.map((cat, index) => {
                     const categoryTickets = filteredTickets.filter(t => t.kategori === cat.category);
                     const closed = categoryTickets.filter(t => t.status === 'CLOSED').length;
-                    const onProgress = categoryTickets.filter(t => t.status === 'ONPROGRESS' || t.status.startsWith('WAITING')).length;
+                    const onProgress = categoryTickets.filter(t => t.status === 'ONPROGRESS').length;
+                    const pending = categoryTickets.filter(t => t.status === 'PENDING' || t.status.startsWith('WAITING')).length;
                     const overdue = categoryTickets.filter(t => t.sisa_ttr_hours < 0 && t.status !== 'CLOSED').length;
                     const percentage = categoryTickets.length > 0 ? Math.round((closed / categoryTickets.length) * 100) : 0;
                     
@@ -1462,14 +1491,18 @@ const Reports = () => {
                             </span>
                           </div>
                           
-                          <div className="flex items-center gap-3 text-xs">
+                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
                             <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
                               <CheckCircle2 className="w-3 h-3" />
                               {closed} (Closed)
                             </span>
                             <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
                               <Clock className="w-3 h-3" />
-                              {onProgress} (On Progress)
+                              {onProgress} (Proses)
+                            </span>
+                            <span className="flex items-center gap-1 text-purple-600 dark:text-purple-400">
+                              <PauseCircle className="w-3 h-3" />
+                              {pending} (Pending)
                             </span>
                             {overdue > 0 && (
                               <span className="flex items-center gap-1 text-destructive">

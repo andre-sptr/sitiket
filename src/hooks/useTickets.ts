@@ -252,7 +252,7 @@ export const useDashboardStats = () => {
     t.status === 'WAITING_MATERIAL' || 
     t.status === 'WAITING_ACCESS' || 
     t.status === 'WAITING_COORDINATION' ||
-    t.status === 'TEMPORARY'
+    t.status === 'PENDING'
   ).length ?? 0;
 
   const stats = {

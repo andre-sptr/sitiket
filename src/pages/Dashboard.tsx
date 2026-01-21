@@ -77,15 +77,6 @@ const Dashboard = () => {
   );
   const unassignedTickets = todayTickets.filter(t => !t.assignedTo && t.status === 'OPEN');
 
-  const handleCopyWhatsApp = (ticket: Ticket) => {
-    const message = generateWhatsAppMessage('share', ticket);
-    navigator.clipboard.writeText(message);
-    toast({
-      title: "Pesan WhatsApp Disalin",
-      description: `Pesan untuk ${ticket.siteCode} sudah disalin ke clipboard`,
-    });
-  };
-
   return (
     <Layout>
       <SEO title="Dashboard" description="Dashboard monitoring tiket gangguan hari ini. Lihat statistik TTR, status tiket aktif, dan performa penanganan secara real-time." />
