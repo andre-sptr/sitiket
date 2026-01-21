@@ -172,7 +172,7 @@ const TeknisiManagement = () => {
   }
 
   const filteredTeknisi = teknisiList.filter(t => {
-    const matchesSearch = t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    const matchesSearch =
       t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       t.area.toLowerCase().includes(searchQuery.toLowerCase()) ||
       t.phone.includes(searchQuery)
@@ -180,7 +180,8 @@ const TeknisiManagement = () => {
     const matchesArea = areaFilter === 'all' ? true : t.area === areaFilter;
 
     return matchesSearch && matchesArea;
-  });
+  })
+  .sort((a, b) => a.name.localeCompare(b.name));
 
   const activeTeknisi = teknisiList.filter((t) => t.isActive);
   const inactiveTeknisi = teknisiList.filter((t) => !t.isActive);

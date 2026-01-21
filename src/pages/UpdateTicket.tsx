@@ -362,6 +362,9 @@ const UpdateTicket = () => {
   const { user } = useAuth();
   const { options: DROPDOWN_OPTIONS } = useDropdownOptions();
   const { activeTeknisi } = useTeknisi();
+  const sortedTeknisi = [...activeTeknisi].sort((a, b) => 
+    a.name.localeCompare(b.name)
+  );
   const { data: ticket, isLoading: isTicketLoading } = useTicket(id || '');
   const updateTicketMutation = useUpdateTicket();
   const addProgressMutation = useAddProgressUpdate();
@@ -999,7 +1002,7 @@ const UpdateTicket = () => {
                         </SelectTrigger>
                         <SelectContent className="bg-popover/95 backdrop-blur-xl border-border/60 shadow-xl z-50">
                           <SelectItem value="__none__">- Kosong -</SelectItem>
-                          {activeTeknisi.map(teknisi => (
+                          {sortedTeknisi.map(teknisi => (
                             <SelectItem key={teknisi.id} value={teknisi.name}>
                               <div className="flex items-center gap-2">
                                 <span>{teknisi.name}</span>

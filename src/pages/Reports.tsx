@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { ReportsSkeleton } from '@/components/skeletons';
 import { useTickets, useDashboardStats } from '@/hooks/useTickets';
+import { FilterCombobox } from '@/components/FilterCombobox';
 import { 
   BarChart3, 
   TrendingUp, 
@@ -13,7 +14,6 @@ import {
   Calendar as CalendarIcon,
   PieChart,
   X,
-  Download,
   Activity,
   Timer,
   Users,
@@ -25,7 +25,8 @@ import {
   LayoutGrid,
   FileText,
   DownloadCloud,
-  ChevronDown
+  ChevronDown,
+  Filter
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -54,7 +55,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { useMemo, useState } from 'react';
-import { format, subDays, isWithinInterval, startOfDay, endOfDay, differenceInHours } from 'date-fns';
+import { format, subDays, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Calendar } from '@/components/ui/calendar';
@@ -214,15 +215,57 @@ const Reports = () => {
     to: new Date(),
   });
 
+  const [filterStatus, setFilterStatus] = useState<string>("ALL");
+  const [filterKategori, setFilterKategori] = useState<string>("ALL");
+  const [filterProvider, setFilterProvider] = useState<string>("ALL");
+  const [filterTeknisi, setFilterTeknisi] = useState<string>("ALL");
+
+  const { statusOptions, kategoriOptions, providerOptions, teknisiOptions } = useMemo(() => {
+    const statusSet = new Set<string>();
+    const kategoriSet = new Set<string>();
+    const providerSet = new Set<string>();
+    const teknisiSet = new Set<string>();
+
+    tickets.forEach(ticket => {
+      if (ticket.status) statusSet.add(ticket.status);
+      if (ticket.kategori) kategoriSet.add(ticket.kategori);
+      if (ticket.provider) providerSet.add(ticket.provider);
+      if (ticket.teknisi_list && Array.isArray(ticket.teknisi_list)) {
+        ticket.teknisi_list.forEach((tech: string) => teknisiSet.add(tech));
+      }
+    });
+
+    return {
+      statusOptions: Array.from(statusSet).sort(),
+      kategoriOptions: Array.from(kategoriSet).sort(),
+      providerOptions: Array.from(providerSet).sort(),
+      teknisiOptions: Array.from(teknisiSet).sort(),
+    };
+  }, [tickets]);
+
   const filteredTickets = useMemo(() => {
     return tickets.filter(ticket => {
       const ticketDate = new Date(ticket.jam_open); 
-      return isWithinInterval(ticketDate, {
+      const isDateMatch = isWithinInterval(ticketDate, {
         start: startOfDay(dateRange.from),
         end: endOfDay(dateRange.to),
       });
+
+      if (!isDateMatch) return false;
+
+      if (filterStatus !== "ALL" && ticket.status !== filterStatus) return false;
+
+      if (filterKategori !== "ALL" && ticket.kategori !== filterKategori) return false;
+
+      if (filterProvider !== "ALL" && ticket.provider !== filterProvider) return false;
+
+      if (filterTeknisi !== "ALL") {
+        if (!ticket.teknisi_list || !ticket.teknisi_list.includes(filterTeknisi)) return false;
+      }
+
+      return true;
     });
-  }, [dateRange, tickets]);
+  }, [dateRange, tickets, filterStatus, filterKategori, filterProvider, filterTeknisi]);
 
   const periodData = useMemo(() => {
     const days = [];
@@ -523,6 +566,10 @@ const Reports = () => {
       from: subDays(new Date(), 6),
       to: new Date(),
     });
+    setFilterStatus("ALL");
+    setFilterKategori("ALL");
+    setFilterProvider("ALL");
+    setFilterTeknisi("ALL");
   };
 
   if (isLoading) {
@@ -606,18 +653,19 @@ const Reports = () => {
           </motion.div>
         </motion.div>
 
-        {/* Date Filter Card */}
+        {/* Filter Data Card */}
         <motion.div variants={itemVariants}>
-          <Card className="p-4 bg-gradient-to-r from-card to-muted/30 border-border/50">
+          <Card className="p-4 bg-gradient-to-r from-card to-muted/30 border-border/50 space-y-4">
+            {/* Row 1: Date Filter */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 min-w-fit">
                 <div className="p-2 rounded-lg bg-primary/10">
                   <CalendarIcon className="w-4 h-4 text-primary" />
                 </div>
-                <span className="font-medium text-sm">Filter Periode:</span>
+                <span className="font-medium text-sm">Periode Laporan:</span>
               </div>
               
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-2 flex-wrap flex-1">
                 <div className="flex items-center gap-1">
                   {[7, 14, 30].map((days) => (
                     <motion.div key={days} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -625,7 +673,7 @@ const Reports = () => {
                         variant="outline"
                         size="sm"
                         onClick={() => handlePresetRange(days)}
-                        className="text-xs transition-all hover:bg-primary hover:text-primary-foreground"
+                        className="text-xs transition-all hover:bg-primary hover:text-primary-foreground h-8"
                       >
                         {days} Hari
                       </Button>
@@ -633,7 +681,7 @@ const Reports = () => {
                   ))}
                 </div>
 
-                <div className="h-6 w-px bg-border hidden sm:block" />
+                <div className="h-6 w-px bg-border hidden sm:block mx-1" />
 
                 <div className="flex items-center gap-2">
                   <Popover>
@@ -642,7 +690,7 @@ const Reports = () => {
                         variant="outline"
                         size="sm"
                         className={cn(
-                          "justify-start text-left font-normal text-xs min-w-[120px] transition-all",
+                          "justify-start text-left font-normal text-xs min-w-[120px] transition-all h-8",
                           !dateRange.from && "text-muted-foreground"
                         )}
                       >
@@ -670,7 +718,7 @@ const Reports = () => {
                         variant="outline"
                         size="sm"
                         className={cn(
-                          "justify-start text-left font-normal text-xs min-w-[120px] transition-all",
+                          "justify-start text-left font-normal text-xs min-w-[120px] transition-all h-8",
                           !dateRange.to && "text-muted-foreground"
                         )}
                       >
@@ -689,31 +737,72 @@ const Reports = () => {
                       />
                     </PopoverContent>
                   </Popover>
-
-                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleResetFilter}
-                      className="text-xs text-muted-foreground hover:text-foreground"
-                    >
-                      <X className="w-3 h-3 mr-1" />
-                      Reset
-                    </Button>
-                  </motion.div>
                 </div>
               </div>
+            </div>
 
-              <motion.div 
-                className="ml-auto"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                key={filteredTickets.length}
-              >
-                <span className="text-xs bg-primary/10 text-primary px-3 py-1.5 rounded-full font-medium">
-                  {filteredTickets.length} tiket ditemukan
-                </span>
-              </motion.div>
+            {/* Row 2: Detailed Filters */}
+            <div className="flex flex-col md:flex-row gap-4 items-start md:items-center pt-2 border-t border-border/50">
+              <div className="flex items-center gap-2 min-w-fit">
+                 <div className="p-2 rounded-lg bg-blue-500/10">
+                   <Filter className="w-4 h-4 text-blue-500" />
+                 </div>
+                 <span className="font-medium text-sm">Filter Detail:</span>
+              </div>
+              
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 w-full">
+                <FilterCombobox
+                  value={filterStatus}
+                  onValueChange={setFilterStatus}
+                  options={statusOptions}
+                  placeholder="Semua Status"
+                  className="h-8 text-xs w-full"
+                />
+                <FilterCombobox
+                  value={filterKategori}
+                  onValueChange={setFilterKategori}
+                  options={kategoriOptions}
+                  placeholder="Semua Kategori"
+                  className="h-8 text-xs w-full"
+                />
+                <FilterCombobox
+                  value={filterProvider}
+                  onValueChange={setFilterProvider}
+                  options={providerOptions}
+                  placeholder="Semua Pelanggan"
+                  className="h-8 text-xs w-full"
+                />
+                 <FilterCombobox
+                  value={filterTeknisi}
+                  onValueChange={setFilterTeknisi}
+                  options={teknisiOptions}
+                  placeholder="Semua Teknisi"
+                  className="h-8 text-xs w-full"
+                />
+              </div>
+              
+              <div className="flex items-center gap-2 min-w-fit ml-auto">
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleResetFilter}
+                    className="text-xs text-muted-foreground hover:text-foreground h-8"
+                  >
+                    <X className="w-3 h-3 mr-1" />
+                    Reset
+                  </Button>
+                </motion.div>
+                 <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  key={filteredTickets.length}
+                >
+                  <span className="text-xs bg-primary/10 text-primary px-3 py-1.5 rounded-full font-medium whitespace-nowrap">
+                    {filteredTickets.length} tiket
+                  </span>
+                </motion.div>
+              </div>
             </div>
           </Card>
         </motion.div>

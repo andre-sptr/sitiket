@@ -166,13 +166,30 @@ const UserManagement = () => {
   const isAdmin = currentUser?.role === 'admin';
 
   const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    const matchesSearch = 
+      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.area?.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesRole = roleFilter === 'all' ? true : user.role === roleFilter;
 
     return matchesSearch && matchesRole;
+  })
+  .sort((a, b) => {
+    const rolePriority: Record<string, number> = { 
+      admin: 1, 
+      hd: 2, 
+      guest: 3 
+    };
+
+    const priorityA = rolePriority[a.role] || 4;
+    const priorityB = rolePriority[b.role] || 4;
+
+    if (priorityA !== priorityB) {
+      return priorityA - priorityB;
+    }
+
+    return a.name.localeCompare(b.name);
   });
 
   const usersByRole = {
