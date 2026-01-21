@@ -193,8 +193,8 @@ const StatCard = ({ title, value, icon: Icon, trend, variant = 'default', subtit
 };
 
 const ChartCard = ({ children, title, description, icon: Icon, className }: { children: React.ReactNode; title: string; description?: string; icon?: React.ElementType; className?: string }) => (
-  <motion.div variants={chartCardVariants}>
-    <Card className={cn("overflow-hidden transition-all duration-300 hover:shadow-lg", className)}>
+  <motion.div variants={chartCardVariants} className="h-full">
+    <Card className={cn("overflow-hidden transition-all duration-300 hover:shadow-lg h-full flex flex-col", className)}>
       <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center gap-2">
           {Icon && <Icon className="w-5 h-5 text-primary" />}
@@ -202,7 +202,7 @@ const ChartCard = ({ children, title, description, icon: Icon, className }: { ch
         </CardTitle>
         {description && <CardDescription>{description}</CardDescription>}
       </CardHeader>
-      <CardContent>{children}</CardContent>
+      <CardContent className="flex-1">{children}</CardContent>
     </Card>
   </motion.div>
 );
@@ -287,7 +287,7 @@ const Reports = () => {
 
       return true;
     });
-  }, [dateRange, tickets, filterStatus, filterKategori, filterProvider, filterTeknisi, filterDatek, filterId]); // [TAMBAHAN] Dependencies updated
+  }, [dateRange, tickets, filterStatus, filterKategori, filterProvider, filterTeknisi, filterDatek, filterId]); 
 
   const periodData = useMemo(() => {
     const days = [];
@@ -1211,26 +1211,43 @@ const Reports = () => {
                   description="Distribusi tiket berdasarkan severity"
                   icon={PieChart}
                 >
-                  <ChartContainer config={pieChartConfig} className="h-[320px] w-full">
-                    <RechartsPieChart>
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <Pie
-                        data={categoryData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={70}
-                        outerRadius={110}
-                        paddingAngle={3}
-                        dataKey="value"
-                        nameKey="name"
-                      >
-                        {categoryData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <ChartLegend content={<ChartLegendContent nameKey="name" />} />
-                    </RechartsPieChart>
-                  </ChartContainer>
+                  <div className="flex flex-col items-center">
+                    <ChartContainer config={pieChartConfig} className="h-[320px] w-full">
+                      <RechartsPieChart>
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Pie
+                          data={categoryData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={70}
+                          outerRadius={110}
+                          paddingAngle={3}
+                          dataKey="value"
+                          nameKey="name"
+                        >
+                          {categoryData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]} />
+                          ))}
+                        </Pie>
+                        {/* ChartLegend bawaan dihapus agar tinggi konsisten dengan card sebelah */}
+                      </RechartsPieChart>
+                    </ChartContainer>
+
+                    {/* Custom Legend di bawah (Sama seperti Tiket per Status) */}
+                    <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mt-2">
+                      {categoryData.map((item, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <div 
+                            className="w-3 h-3 rounded-full ring-1 ring-border" 
+                            style={{ backgroundColor: CATEGORY_COLORS[index % CATEGORY_COLORS.length] }} 
+                          />
+                          <span className="text-sm font-medium text-muted-foreground">
+                            {item.name} <span className="text-xs opacity-70">({item.value})</span>
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </ChartCard>
 
                 {/* Status Pie Chart */}
@@ -1239,57 +1256,87 @@ const Reports = () => {
                   description="Distribusi tiket berdasarkan status penanganan"
                   icon={TrendingUp}
                 >
-                  <ChartContainer config={statusChartConfig} className="h-[320px] w-full">
-                    <RechartsPieChart>
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <Pie
-                        data={statusData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={70}
-                        outerRadius={110}
-                        paddingAngle={3}
-                        dataKey="value"
-                        nameKey="name"
-                      >
-                        {statusData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={STATUS_COLORS[index % STATUS_COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <ChartLegend content={<ChartLegendContent nameKey="name" />} />
-                    </RechartsPieChart>
-                  </ChartContainer>
+                  <div className="flex flex-col items-center">
+                    <ChartContainer config={statusChartConfig} className="h-[320px] w-full">
+                      <RechartsPieChart>
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Pie
+                          data={statusData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={70}
+                          outerRadius={110}
+                          paddingAngle={3}
+                          dataKey="value"
+                          nameKey="name"
+                        >
+                          {statusData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                          ))}
+                        </Pie>
+                      </RechartsPieChart>
+                    </ChartContainer>
+
+                    <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mt-2">
+                      {statusData.map((item, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <div 
+                            className="w-3 h-3 rounded-full ring-1 ring-border" 
+                            style={{ backgroundColor: item.fill }} 
+                          />
+                          <span className="text-sm font-medium text-muted-foreground">
+                            {item.name} <span className="text-xs opacity-70">({item.value})</span>
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </ChartCard>
               </div>
               
               {/* New Charts: Sifat Perbaikan & Site Impact */}
               <div className="grid lg:grid-cols-2 gap-6">
                  {/* Sifat Perbaikan Chart */}
-                 <ChartCard 
+                <ChartCard 
                   title="Sifat Perbaikan" 
                   description="Permanen vs Temporary"
                   icon={Wrench}
                 >
-                  <ChartContainer config={{}} className="h-[280px] w-full">
-                    <RechartsPieChart>
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <Pie
-                        data={sifatPerbaikanData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={90}
-                        paddingAngle={5}
-                        dataKey="value"
-                        nameKey="name"
-                      >
-                        {sifatPerbaikanData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.fill} />
-                        ))}
-                      </Pie>
-                      <ChartLegend content={<ChartLegendContent nameKey="name" />} />
-                    </RechartsPieChart>
-                  </ChartContainer>
+                  <div className="flex flex-col items-center">
+                    <ChartContainer config={{}} className="h-[250px] w-full">
+                      <RechartsPieChart>
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Pie
+                          data={sifatPerbaikanData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={60}
+                          outerRadius={90}
+                          paddingAngle={5}
+                          dataKey="value"
+                          nameKey="name"
+                        >
+                          {sifatPerbaikanData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                          ))}
+                        </Pie>
+                      </RechartsPieChart>
+                    </ChartContainer>
+
+                    <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mt-2">
+                      {sifatPerbaikanData.map((item, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <div 
+                            className="w-3 h-3 rounded-full ring-1 ring-border" 
+                            style={{ backgroundColor: item.fill }} 
+                          />
+                          <span className="text-sm font-medium text-muted-foreground">
+                            {item.name} <span className="text-xs opacity-70">({item.value})</span>
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </ChartCard>
 
                 {/* Site Impact List */}
@@ -1298,11 +1345,13 @@ const Reports = () => {
                   description="Distribusi berdasarkan dampak site"
                   icon={Globe}
                 >
-                  <div className="space-y-3 max-h-[280px] overflow-y-auto custom-scrollbar pr-2">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-[280px] overflow-y-auto custom-scrollbar pr-2">
                      {impactData.map((item, i) => (
-                        <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
-                           <span className="text-sm font-medium">{item.name}</span>
-                           <span className="text-sm font-bold bg-primary/10 text-primary px-2 py-1 rounded-md">{item.value}</span>
+                        <div key={i} className="flex flex-col items-center justify-center p-3 rounded-lg bg-muted/30 border border-border/50 hover:bg-muted/50 transition-colors text-center">
+                           <span className="text-xl font-bold text-primary mb-1">{item.value}</span>
+                           <span className="text-xs font-medium text-muted-foreground line-clamp-2 leading-tight" title={item.name}>
+                             {item.name}
+                           </span>
                         </div>
                      ))}
                   </div>
