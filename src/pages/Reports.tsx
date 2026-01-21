@@ -26,7 +26,11 @@ import {
   FileText,
   DownloadCloud,
   ChevronDown,
-  Filter
+  Filter,
+  Wrench,
+  Globe,
+  UserCheck,
+  PauseCircle
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -346,6 +350,26 @@ const Reports = () => {
     })).sort((a, b) => b.total - a.total);
   }, [filteredTickets]);
 
+  const sifatPerbaikanData = useMemo(() => {
+    const data = [
+      { name: 'Permanen', value: filteredTickets.filter(t => t.is_permanent === true).length, fill: 'hsl(142 76% 36%)' },
+      { name: 'Temporary', value: filteredTickets.filter(t => t.is_permanent === false).length, fill: 'hsl(25 95% 53%)' },
+      { name: 'Belum Ditentukan', value: filteredTickets.filter(t => t.is_permanent === null).length, fill: 'hsl(var(--muted))' }
+    ].filter(d => d.value > 0);
+    return data;
+  }, [filteredTickets]);
+
+  const impactData = useMemo(() => {
+    const impacts: Record<string, number> = {};
+    filteredTickets.forEach(t => {
+      const imp = t.site_impact || 'Tidak Ada';
+      impacts[imp] = (impacts[imp] || 0) + 1;
+    });
+    return Object.entries(impacts)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
+  }, [filteredTickets]);
+
   const complianceRadialData = useMemo(() => {
     const comply = filteredTickets.filter(t => t.ttr_compliance === 'COMPLY').length;
     const notComply = filteredTickets.filter(t => t.ttr_compliance === 'NOT COMPLY').length;
@@ -425,17 +449,17 @@ const Reports = () => {
     };
 
     const addReportHeader = (title: string) => {
-      worksheet.mergeCells('A1:F1');
+      worksheet.mergeCells('A1:J1');
       const titleCell = worksheet.getCell('A1');
       titleCell.value = `SITIKET - ${title}`;
       titleCell.font = { bold: true, size: 16, color: { argb: 'FF0F172A' } };
       titleCell.alignment = { horizontal: 'center' };
 
-      worksheet.mergeCells('A2:F2');
+      worksheet.mergeCells('A2:J2');
       worksheet.getCell('A2').value = `Periode: ${format(dateRange.from, 'dd MMM yyyy', { locale: id })} - ${format(dateRange.to, 'dd MMM yyyy', { locale: id })}`;
       worksheet.getCell('A2').alignment = { horizontal: 'center' };
 
-      worksheet.mergeCells('A3:F3');
+      worksheet.mergeCells('A3:J3');
       worksheet.getCell('A3').value = `Dicetak pada: ${timestamp}`;
       worksheet.getCell('A3').alignment = { horizontal: 'center' };
       
@@ -447,16 +471,28 @@ const Reports = () => {
 
       worksheet.columns = [
         { header: 'ID Tiket', key: 'id', width: 12 },
-        { header: 'Provider', key: 'provider', width: 12 },
         { header: 'No. INC', key: 'inc', width: 22 },
         { header: 'Site', key: 'site', width: 30 },
+        { header: 'Provider', key: 'provider', width: 15 },
         { header: 'Kategori', key: 'kategori', width: 18 },
         { header: 'Status', key: 'status', width: 15 },
         { header: 'Jam Open', key: 'open', width: 18 },
         { header: 'Jam Close', key: 'close', width: 18 },
-        { header: 'TTR (Jam)', key: 'ttr', width: 12 },
+        { header: 'TTR (Jam)', key: 'ttr', width: 10 },
+        { header: 'KJD', key: 'kjd', width: 15 },
+        { header: 'Gamas', key: 'gamas', width: 15 },
+        { header: 'Sifat', key: 'sifat', width: 15 },
+        { header: 'TACC', key: 'tacc', width: 20 },
+        { header: 'Datek', key: 'datek', width: 15 },
+        { header: 'LOS', key: 'los', width: 10 },
+        { header: 'Impact', key: 'impact', width: 15 },
+        { header: 'Class', key: 'class', width: 10 },
+        { header: 'Segmen', key: 'segmen', width: 20 },
+        { header: 'Penyebab', key: 'penyebab', width: 30 },
+        { header: 'Perbaikan', key: 'perbaikan', width: 30 },
+        { header: 'Kendala', key: 'kendala', width: 25 },
         { header: 'Teknisi', key: 'teknisi', width: 25 },
-        { header: 'Penyebab', key: 'penyebab', width: 35 },
+        { header: 'Koordinat', key: 'koordinat', width: 25 },
       ];
 
       const headerRow = worksheet.getRow(5);
@@ -465,9 +501,9 @@ const Reports = () => {
       filteredTickets.forEach(ticket => {
         const row = worksheet.addRow({
           id: ticket.id.substring(0, 8).toUpperCase(),
-          provider: ticket.provider,
           inc: Array.isArray(ticket.inc_numbers) ? ticket.inc_numbers.join(', ') : '',
           site: `${ticket.site_code} - ${ticket.site_name}`,
+          provider: ticket.provider,
           kategori: ticket.kategori,
           status: ticket.status,
           open: ticket.jam_open ? format(new Date(ticket.jam_open), 'dd/MM/yy HH:mm') : '-',
@@ -475,8 +511,20 @@ const Reports = () => {
             ? format(new Date(new Date(ticket.jam_open).getTime() + ticket.ttr_real_hours * 3600 * 1000), 'dd/MM/yy HH:mm') 
             : '-',
           ttr: ticket.ttr_real_hours ? ticket.ttr_real_hours.toFixed(1) : '-',
+          kjd: ticket.kjd || '-',
+          gamas: ticket.inc_gamas || '-',
+          sifat: ticket.is_permanent === true ? 'PERMANEN' : ticket.is_permanent === false ? 'TEMPORARY' : '-',
+          tacc: ticket.tacc || '-',
+          datek: ticket.datek || '-',
+          los: ticket.los_non_los || '-',
+          impact: ticket.site_impact || '-',
+          class: ticket.class_site || '-',
+          segmen: ticket.segmen || '-',
+          penyebab: ticket.penyebab || '-',
+          perbaikan: ticket.perbaikan || '-',
+          kendala: ticket.kendala || '-',
           teknisi: Array.isArray(ticket.teknisi_list) ? ticket.teknisi_list.join(', ') : '',
-          penyebab: ticket.penyebab || '-'
+          koordinat: (ticket.latitude && ticket.longitude) ? `${ticket.latitude}, ${ticket.longitude}` : '-'
         });
 
         row.eachCell((cell) => { cell.style = cellStyle; });
@@ -808,7 +856,7 @@ const Reports = () => {
         </motion.div>
 
         {/* Stats Cards Row */}
-        <motion.div variants={containerVariants} className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-4">
+        <motion.div variants={containerVariants} className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-4">
           <StatCard 
             title="Total Periode" 
             value={filteredTickets.length} 
@@ -817,9 +865,27 @@ const Reports = () => {
             subtitle={`${format(dateRange.from, 'dd MMM', { locale: id })} - ${format(dateRange.to, 'dd MMM', { locale: id })}`}
           />
           <StatCard 
-            title="Total Hari Ini" 
-            value={stats.totalToday} 
-            icon={Activity} 
+            title="Assigned" 
+            value={filteredTickets.filter(t => t.status === 'ASSIGNED').length} 
+            icon={UserCheck} 
+            variant="primary"
+          />
+          <StatCard 
+            title="Pending" 
+            value={filteredTickets.filter(t => t.status === 'PENDING').length} 
+            icon={Timer}
+            variant="default"
+          />
+          <StatCard 
+            title="On Progress" 
+            value={filteredTickets.filter(t => t.status === 'ONPROGRESS').length} 
+            icon={Activity}
+            variant="warning"
+          />
+          <StatCard 
+            title="Waiting" 
+            value={filteredTickets.filter(t => t.status === 'WAITING_MATERIAL' || t.status === 'WAITING_ACCESS' || t.status === 'WAITING_COORDINATION').length} 
+            icon={PauseCircle}
             variant="default"
           />
           <StatCard 
@@ -829,20 +895,8 @@ const Reports = () => {
             variant="success"
           />
           <StatCard 
-            title="On Progress" 
-            value={filteredTickets.filter(t => t.status === 'ONPROGRESS').length} 
-            icon={Clock} 
-            variant="warning"
-          />
-          <StatCard 
-            title="Overdue" 
-            value={filteredTickets.filter(t => t.sisa_ttr_hours < 0 && t.status !== 'CLOSED').length} 
-            icon={AlertTriangle} 
-            variant="danger"
-          />
-          <StatCard 
             title="Compliance Rate" 
-            value={`${stats.complianceRate}%`} 
+            value={`${complianceRadialData[0]?.value || 0}%`} 
             icon={Target} 
             variant="success"
             subtitle="TTR sesuai target"
@@ -1173,6 +1227,53 @@ const Reports = () => {
                       <ChartLegend content={<ChartLegendContent nameKey="name" />} />
                     </RechartsPieChart>
                   </ChartContainer>
+                </ChartCard>
+              </div>
+              
+              {/* New Charts: Sifat Perbaikan & Site Impact */}
+              <div className="grid lg:grid-cols-2 gap-6">
+                 {/* Sifat Perbaikan Chart */}
+                 <ChartCard 
+                  title="Sifat Perbaikan" 
+                  description="Permanen vs Temporary"
+                  icon={Wrench}
+                >
+                  <ChartContainer config={{}} className="h-[280px] w-full">
+                    <RechartsPieChart>
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <Pie
+                        data={sifatPerbaikanData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={90}
+                        paddingAngle={5}
+                        dataKey="value"
+                        nameKey="name"
+                      >
+                        {sifatPerbaikanData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.fill} />
+                        ))}
+                      </Pie>
+                      <ChartLegend content={<ChartLegendContent nameKey="name" />} />
+                    </RechartsPieChart>
+                  </ChartContainer>
+                </ChartCard>
+
+                {/* Site Impact List */}
+                <ChartCard 
+                  title="Site Impact" 
+                  description="Distribusi berdasarkan dampak site"
+                  icon={Globe}
+                >
+                  <div className="space-y-3 max-h-[280px] overflow-y-auto custom-scrollbar pr-2">
+                     {impactData.map((item, i) => (
+                        <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
+                           <span className="text-sm font-medium">{item.name}</span>
+                           <span className="text-sm font-bold bg-primary/10 text-primary px-2 py-1 rounded-md">{item.value}</span>
+                        </div>
+                     ))}
+                  </div>
                 </ChartCard>
               </div>
 
