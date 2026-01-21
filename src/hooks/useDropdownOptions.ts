@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface DropdownOptions {
   hsa: string[];
@@ -91,6 +92,40 @@ export const saveDropdownOptions = (options: DropdownOptions): void => {
 
 export const useDropdownOptions = () => {
   const [options, setOptions] = useState<DropdownOptions>(getDropdownOptions);
+
+  useEffect(() => {
+    const fetchFromSupabase = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('dropdown_options')
+          .select('*');
+
+        if (error) {
+          console.error('Error fetching dropdowns:', error);
+          return;
+        }
+
+        if (data && data.length > 0) {
+          setOptions(prevOptions => {
+            const mergedOptions = { ...prevOptions };
+
+            data.forEach((item: any) => {
+              if (item.option_key && item.field_values) {
+                (mergedOptions as any)[item.option_key] = item.field_values;
+              }
+            });
+
+            saveDropdownOptions(mergedOptions);
+            return mergedOptions;
+          });
+        }
+      } catch (err) {
+        console.error('Unexpected error fetching dropdowns:', err);
+      }
+    };
+
+    fetchFromSupabase();
+  }, []);
 
   useEffect(() => {
     const handleUpdate = () => {
