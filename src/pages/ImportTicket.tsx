@@ -135,8 +135,8 @@ const cardVariants = {
 };
 
 const TEAM_CONFIG: Record<string, string[]> = {
-  'SQUAT-A': ['teknisi1', 'hsa', 'sto', 'odc', 'stakeHolder', 'jenisPelanggan', 'kategori', 'tiket', 'tiketTacc', 'indukGamas', 'kjd', 'reportDate', 'ttrTarget', 'summary','idPelanggan', 'namaPelanggan', 'datek', 'losNonLos', 'siteImpact', 'classSite', 'koordinat' ],
-  'SQUAT-B': ['teknisi1', 'idPelanggan', 'namaPelanggan', 'datek', 'losNonLos', 'siteImpact', 'classSite', 'koordinat' ],
+  'SQUAT-A': ['teknisi1', 'hsa', 'sto', 'odc', 'stakeHolder', 'jenisPelanggan', 'kategori', 'tiket', 'tiketTacc', 'indukGamas', 'kjd', 'reportDate', 'ttrTarget', 'summary','idPelanggan', 'namaPelanggan', 'datek', 'losNonLos', 'siteImpact', 'classSite' ],
+  'SQUAT-B': ['teknisi1', 'idPelanggan', 'namaPelanggan', 'datek', 'losNonLos', 'siteImpact', 'classSite'],
 };
 
 const getVisibleFields = (tim: string) => {
@@ -1054,23 +1054,6 @@ const ImportTicket = () => {
                       )}
                       {showField('classSite') && (
                         <SelectField label="Class Site" field="classSite" options={DROPDOWN_OPTIONS.classSite} />
-                      )}
-                      {showField('koordinat') && (
-                        <div className="space-y-2">
-                          <Label className="text-xs font-medium text-muted-foreground">
-                            Koordinat
-                          </Label>
-                          <div className="relative">
-                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            <Input
-                              value={formData.koordinat}
-                              onChange={(e) => updateField('koordinat', e.target.value)}
-                              onBlur={() => markTouched('koordinat')}
-                              placeholder="-0.123456, 101.123456"
-                              className="h-10 pl-10 font-mono text-sm bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200"
-                            />
-                          </div>
-                        </div>
                       )}
                     </div>
                   </CardContent>

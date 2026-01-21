@@ -710,7 +710,7 @@ const TicketDetail = () => {
                     <div className="p-3 rounded-xl bg-muted/30">
                       <div className="flex items-center gap-2 mb-1">
                         <Hash className="w-3 h-3 text-muted-foreground" />
-                        <p className="text-xs text-muted-foreground">ID Pelanggan</p>
+                        <p className="text-xs text-muted-foreground">ID Pelanggan / Site</p>
                       </div>
                       <p className="font-mono text-sm font-medium">{ticket.idPelanggan || '-'}</p>
                     </div>
@@ -718,7 +718,7 @@ const TicketDetail = () => {
                     <div className="p-3 rounded-xl bg-muted/30">
                       <div className="flex items-center gap-2 mb-1">
                         <User className="w-3 h-3 text-muted-foreground" />
-                        <p className="text-xs text-muted-foreground">Nama Pelanggan</p>
+                        <p className="text-xs text-muted-foreground">Nama Pelanggan / Site</p>
                       </div>
                       <p className="text-sm font-medium">{ticket.namaPelanggan || '-'}</p>
                     </div>
@@ -771,7 +771,7 @@ const TicketDetail = () => {
                 <CardHeader className="pb-3 bg-gradient-to-r from-muted/50 to-transparent">
                   <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                     <MapPin className="w-4 h-4" />
-                    Lokasi
+                    Lokasi & Tipus
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
