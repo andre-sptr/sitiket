@@ -50,11 +50,9 @@ import {
 } from "@/components/ui/pagination";
 
 const statusOptions: TicketStatus[] = [
-  'OPEN',
   'ASSIGNED',
   'ONPROGRESS',
   'PENDING',
-  'TEMPORARY',
   'WAITING_MATERIAL',
   'WAITING_ACCESS',
   'WAITING_COORDINATION',
@@ -629,7 +627,7 @@ const AllTickets = () => {
               value={kategoriFilter}
               onValueChange={setKategoriFilter}
               options={filterOptions.kategoris}
-              placeholder="Saverity"
+              placeholder="Severity"
               className="w-[150px]"
             />
 

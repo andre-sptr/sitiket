@@ -1,6 +1,7 @@
 import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { ReportsSkeleton } from '@/components/skeletons';
 import { useTickets, useDashboardStats } from '@/hooks/useTickets';
 import { FilterCombobox } from '@/components/FilterCombobox';
@@ -223,6 +224,8 @@ const Reports = () => {
   const [filterKategori, setFilterKategori] = useState<string>("ALL");
   const [filterProvider, setFilterProvider] = useState<string>("ALL");
   const [filterTeknisi, setFilterTeknisi] = useState<string>("ALL");
+  const [filterDatek, setFilterDatek] = useState<string>("");
+  const [filterId, setFilterId] = useState<string>("");
 
   const { statusOptions, kategoriOptions, providerOptions, teknisiOptions } = useMemo(() => {
     const statusSet = new Set<string>();
@@ -267,9 +270,24 @@ const Reports = () => {
         if (!ticket.teknisi_list || !ticket.teknisi_list.includes(filterTeknisi)) return false;
       }
 
+      if (filterDatek && !ticket.datek?.toLowerCase().includes(filterDatek.toLowerCase())) {
+        return false;
+      }
+
+      if (filterId) {
+        const searchLower = filterId.toLowerCase();
+        const matchesId = ticket.id_pelanggan?.toLowerCase().includes(searchLower);
+        const matchesSiteCode = ticket.site_code?.toLowerCase().includes(searchLower);
+        const matchesSiteName = ticket.site_name?.toLowerCase().includes(searchLower);
+        
+        if (!matchesId && !matchesSiteCode && !matchesSiteName) {
+          return false;
+        }
+      }
+
       return true;
     });
-  }, [dateRange, tickets, filterStatus, filterKategori, filterProvider, filterTeknisi]);
+  }, [dateRange, tickets, filterStatus, filterKategori, filterProvider, filterTeknisi, filterDatek, filterId]); // [TAMBAHAN] Dependencies updated
 
   const periodData = useMemo(() => {
     const days = [];
@@ -294,10 +312,9 @@ const Reports = () => {
       days.push({
         name: dateStr,
         fullDate: format(date, 'dd MMM', { locale: id }),
-        open: ticketsOnDay.filter(t => t.status === 'OPEN').length,
-        onprogress: ticketsOnDay.filter(t => t.status === 'ONPROGRESS').length,
+        open: ticketsOnDay.filter(t => t.status === 'OPEN' || t.status === 'ASSIGNED').length,
+        onprogress: ticketsOnDay.filter(t => t.status === 'ONPROGRESS' || t.status === 'PENDING' || t.status.startsWith('WAITING')).length,
         closed: ticketsOnDay.filter(t => t.status === 'CLOSED').length,
-        waiting: ticketsOnDay.filter(t => t.status.startsWith('WAITING')).length,
         total: ticketsOnDay.length,
         avgTTR: Math.round(avgTTR * 10) / 10,
         compliance: ticketsOnDay.filter(t => t.ttr_compliance === 'COMPLY').length,
@@ -322,10 +339,10 @@ const Reports = () => {
 
   const statusData = useMemo(() => {
     return [
-      { name: 'Open', value: filteredTickets.filter(t => t.status === 'OPEN').length, status: 'open', fill: 'hsl(var(--primary))' },
+      { name: 'Open', value: filteredTickets.filter(t => t.status === 'OPEN' || t.status === 'ASSIGNED').length, status: 'open', fill: 'hsl(var(--primary))' },
       { name: 'On Progress', value: filteredTickets.filter(t => t.status === 'ONPROGRESS').length, status: 'onprogress', fill: 'hsl(45 93% 47%)' },
       { name: 'Waiting', value: filteredTickets.filter(t => t.status.startsWith('WAITING')).length, status: 'waiting', fill: 'hsl(25 95% 53%)' },
-      { name: 'Temporary', value: filteredTickets.filter(t => t.status === 'TEMPORARY').length, status: 'temporary', fill: 'hsl(262 83% 58%)' },
+      { name: 'Pending', value: filteredTickets.filter(t => t.status === 'PENDING').length, status: 'pending', fill: 'hsl(262 83% 58%)' },
       { name: 'Closed', value: filteredTickets.filter(t => t.status === 'CLOSED').length, status: 'closed', fill: 'hsl(142 76% 36%)' },
     ].filter(d => d.value > 0);
   }, [filteredTickets]);
@@ -422,7 +439,7 @@ const Reports = () => {
     open: { label: 'Open', color: 'hsl(var(--primary))' },
     onprogress: { label: 'On Progress', color: 'hsl(45 93% 47%)' },
     waiting: { label: 'Waiting', color: 'hsl(25 95% 53%)' },
-    temporary: { label: 'Temporary', color: 'hsl(262 83% 58%)' },
+    pending: { label: 'Pending', color: 'hsl(262 83% 58%)' },
     closed: { label: 'Closed', color: 'hsl(142 76% 36%)' },
   };
 
@@ -618,6 +635,8 @@ const Reports = () => {
     setFilterKategori("ALL");
     setFilterProvider("ALL");
     setFilterTeknisi("ALL");
+    setFilterDatek("");
+    setFilterId("");
   };
 
   if (isLoading) {
@@ -798,7 +817,8 @@ const Reports = () => {
                  <span className="font-medium text-sm">Filter Detail:</span>
               </div>
               
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 w-full">
+              {/* [UBAH] Grid layout disesuaikan untuk 6 item (4 dropdown + 2 input) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 w-full">
                 <FilterCombobox
                   value={filterStatus}
                   onValueChange={setFilterStatus}
@@ -826,6 +846,18 @@ const Reports = () => {
                   options={teknisiOptions}
                   placeholder="Semua Teknisi"
                   className="h-8 text-xs w-full"
+                />
+                <Input 
+                  placeholder="Datek..." 
+                  value={filterDatek} 
+                  onChange={(e) => setFilterDatek(e.target.value)}
+                  className="h-8 text-xs w-full bg-background"
+                />
+                <Input 
+                  placeholder="ID Pelanggan / Site..." 
+                  value={filterId} 
+                  onChange={(e) => setFilterId(e.target.value)}
+                  className="h-8 text-xs w-full bg-background"
                 />
               </div>
               
@@ -884,7 +916,7 @@ const Reports = () => {
           />
           <StatCard 
             title="Waiting" 
-            value={filteredTickets.filter(t => t.status === 'WAITING_MATERIAL' || t.status === 'WAITING_ACCESS' || t.status === 'WAITING_COORDINATION').length} 
+            value={filteredTickets.filter(t => t.status.startsWith('WAITING')).length} 
             icon={PauseCircle}
             variant="default"
           />
@@ -1287,7 +1319,7 @@ const Reports = () => {
                   {categoryData.map((cat, index) => {
                     const categoryTickets = filteredTickets.filter(t => t.kategori === cat.category);
                     const closed = categoryTickets.filter(t => t.status === 'CLOSED').length;
-                    const onProgress = categoryTickets.filter(t => t.status === 'ONPROGRESS').length;
+                    const onProgress = categoryTickets.filter(t => t.status === 'ONPROGRESS' || t.status.startsWith('WAITING')).length;
                     const overdue = categoryTickets.filter(t => t.sisa_ttr_hours < 0 && t.status !== 'CLOSED').length;
                     const percentage = categoryTickets.length > 0 ? Math.round((closed / categoryTickets.length) * 100) : 0;
                     
@@ -1329,16 +1361,16 @@ const Reports = () => {
                           <div className="flex items-center gap-3 text-xs">
                             <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
                               <CheckCircle2 className="w-3 h-3" />
-                              {closed}
+                              {closed} (Closed)
                             </span>
                             <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
                               <Clock className="w-3 h-3" />
-                              {onProgress}
+                              {onProgress} (On Progress)
                             </span>
                             {overdue > 0 && (
                               <span className="flex items-center gap-1 text-destructive">
                                 <AlertTriangle className="w-3 h-3" />
-                                {overdue}
+                                {overdue} (Overdue)
                               </span>
                             )}
                           </div>

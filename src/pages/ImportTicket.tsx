@@ -111,7 +111,7 @@ const emptyForm: TicketFormData = {
 const REQUIRED_FIELDS: { field: keyof TicketFormData; label: string }[] = [
   { field: 'teknisi1', label: 'Teknisi' },
   { field: 'tiket', label: 'No. Tiket (INC)' },
-  { field: 'kategori', label: 'Saverity' },
+  { field: 'kategori', label: 'Severity' },
   { field: 'hsa', label: 'HSA' },
   { field: 'sto', label: 'STO' },
   { field: 'odc', label: 'ODC' },
@@ -759,7 +759,7 @@ const ImportTicket = () => {
                       )}
                       {showField('kategori') && (
                         <ComboboxField 
-                          label="Saverity" 
+                          label="Severity" 
                           value={formData.kategori}
                           options={DROPDOWN_OPTIONS.kategori}
                           onChange={(val) => updateField('kategori', val)}

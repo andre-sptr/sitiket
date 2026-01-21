@@ -163,7 +163,7 @@ export const dropdownLabels: Record<keyof DropdownOptions, string> = {
   odc: 'ODC',
   stakeHolder: 'Stake Holder',
   jenisPelanggan: 'Jenis Pelanggan',
-  kategori: 'Saverity',
+  kategori: 'Severity',
   losNonLos: 'LOS / Non LOS',
   classSite: 'Class Site',
   tim: 'Tim',
