@@ -846,7 +846,7 @@ const Reports = () => {
                   value={filterKategori}
                   onValueChange={setFilterKategori}
                   options={kategoriOptions}
-                  placeholder="Semua Kategori"
+                  placeholder="Semua Severity"
                   className="h-8 text-xs w-full"
                 />
                 <FilterCombobox

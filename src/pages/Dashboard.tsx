@@ -8,9 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useTodayTickets, useDashboardStats } from '@/hooks/useTickets';
 import { mapDbTicketToTicket } from '@/lib/ticketMappers';
-import { generateWhatsAppMessage } from '@/lib/formatters';
 import { getSettings, isDueSoon as checkIsDueSoon } from '@/hooks/useSettings';
-import { Ticket } from '@/types/ticket';
 import { 
   Ticket as TicketIcon, 
   Clock, 
@@ -35,19 +33,23 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { useTeknisi } from '@/hooks/useTeknisi';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Input } from '@/components/ui/input';
+import { Search } from 'lucide-react';
 
 const Dashboard = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const settings = getSettings();
-  
   const { data: dbTickets, isLoading, refetch } = useTodayTickets();
   const stats = useDashboardStats();
   const [isRefreshing, setIsRefreshing] = useState(false);
-
+  const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
-
   const todayTickets = dbTickets?.map(mapDbTicketToTicket) || [];
 
   useEffect(() => {
@@ -76,6 +78,34 @@ const Dashboard = () => {
     checkIsDueSoon(t.sisaTtrHours, settings.ttrThresholds) && t.status !== 'CLOSED'
   );
   const unassignedTickets = todayTickets.filter(t => !t.assignedTo && t.status === 'OPEN');
+
+  const { activeTeknisi } = useTeknisi();
+  const allBusyTechs = todayTickets
+    .filter((t) => t.status !== 'CLOSED')
+    .flatMap((t) => {
+      const techs = [];
+      if (t.assignedTo) techs.push(t.assignedTo);
+      if (t.teknisiList && Array.isArray(t.teknisiList)) {
+        techs.push(...t.teknisiList);
+      }
+      return techs;
+    });
+
+  const uniqueBusyTechs = [...new Set(allBusyTechs)];
+
+  const idleTechnicians = activeTeknisi
+    .filter((tek) => !uniqueBusyTechs.includes(tek.name))
+    .filter((tek) => tek.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .substring(0, 2)
+      .toUpperCase();
+  };
 
   return (
     <Layout>
@@ -180,6 +210,77 @@ const Dashboard = () => {
             </>
           )}
         </div>
+
+        <Card className="col-span-full shadow-sm border-border/60">
+          <CardHeader className="pb-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <CardTitle className="text-base font-medium flex items-center justify-between sm:justify-start gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                  </span>
+                  Teknisi Standby
+                </div>
+                <div className="h-4 w-px bg-border mx-1" /> 
+                <span className="text-xs text-muted-foreground font-normal">
+                  <strong className="text-foreground font-semibold">{idleTechnicians.length}</strong>
+                  <span className="mx-1">dari</span>
+                  {activeTeknisi.length} tersedia
+                </span>
+              </CardTitle>
+              
+              <div className="relative w-full sm:w-64">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Cari teknisi..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9 h-9 text-sm"
+                />
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {idleTechnicians.length > 0 ? (
+              <ScrollArea className="h-[200px] w-full pr-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {idleTechnicians.map((tech) => (
+                    <div 
+                      key={tech.id} 
+                      className="flex items-center gap-3 p-2 rounded-lg border bg-card/50 hover:bg-accent/50 transition-colors"
+                    >
+                      <Avatar className="h-8 w-8 border">
+                        <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
+                          {getInitials(tech.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col overflow-hidden">
+                        <span className="text-sm font-medium truncate" title={tech.name}>
+                          {tech.name}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground truncate">
+                          {tech.area}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-8 text-muted-foreground text-sm border border-dashed rounded-lg bg-muted/30">
+                {searchQuery ? (
+                  <>
+                    <Search className="w-8 h-8 mb-2 opacity-20" />
+                    <p>Tidak ditemukan teknisi dengan nama "{searchQuery}"</p>
+                  </>
+                ) : (
+                  <p>Semua teknisi sedang menangani tiket.</p>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {(overdueTickets.length > 0 || dueSoonTickets.length > 0 || unassignedTickets.length > 0) && (
           <motion.div 
