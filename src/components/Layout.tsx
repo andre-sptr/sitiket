@@ -46,7 +46,7 @@ const adminNavItems = [
 const hdNavItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/tickets', label: 'Semua Tiket', icon: Ticket },
-  { path: '/import', label: 'Import Tiket', icon: FileUp },
+  { path: '/import', label: 'Input Tiket', icon: FileUp },
   { path: '/reports', label: 'Laporan', icon: BarChart3 },
   { path: '/users', label: 'Pengguna', icon: Users },
   { path: '/teknisi', label: 'Teknisi', icon: Wrench },

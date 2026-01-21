@@ -60,7 +60,8 @@ import {
   Globe,
   CheckSquare,
   Users,
-  ChevronDown
+  ChevronDown,
+  Loader2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -243,6 +244,14 @@ const TicketDetail = () => {
   const isGuest = user?.role === 'guest';
   const isAdmin = user?.role === 'admin';
   const ticket = dbTicket ? mapDbTicketToTicket(dbTicket) : null;
+
+  const finalSisaTtr = useMemo(() => {
+    if (!ticket) return 0;
+
+    return (ticket.ttrRealHours !== null && ticket.ttrRealHours !== undefined)
+      ? ticket.ttrTargetHours - ticket.ttrRealHours
+      : ticket.sisaTtrHours;
+  }, [ticket]);
 
   const displayStatus = useMemo(() => {
     if (!ticket) return 'OPEN';
@@ -569,11 +578,20 @@ const TicketDetail = () => {
                     <span className="font-bold text-primary">{ticket.ttrTargetHours} jam</span>
                   </div>
 
-                  {ticket.ttrRealHours !== undefined && (
-                    <div className="flex items-center justify-between p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
+                  {ticket.status === 'CLOSED' && ticket.ttrRealHours !== undefined && (
+                    <div className="flex items-center justify-between p-3 rounded-xl bg-blue-500/5 border-blue-500/10">
                       <span className="text-sm text-muted-foreground">Real TTR</span>
-                      <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                      <span className="font-bold text-blue-600 dark:text-blue-400">
                         {formatTTR(ticket.ttrRealHours)}
+                      </span>
+                    </div>
+                  )}
+
+                  {ticket.status === 'CLOSED' && ticket.ttrRealHours !== undefined && (
+                    <div className="flex items-center justify-between p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
+                      <span className="text-sm text-muted-foreground">Sisa TTR</span>
+                      <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                        {finalSisaTtr > 0 ? '+' : ''}{formatTTR(finalSisaTtr)}
                       </span>
                     </div>
                   )}
@@ -898,14 +916,27 @@ const TicketDetail = () => {
                     />
                     
                     <div className="flex justify-end gap-2">
-                      <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                      <motion.div 
+                        whileHover={{ scale: addProgressUpdate.isPending ? 1 : 1.02 }} 
+                        whileTap={{ scale: addProgressUpdate.isPending ? 1 : 0.98 }}
+                      >
                         <Button 
                           size="sm" 
                           onClick={handleSubmitUpdate} 
+                          disabled={addProgressUpdate.isPending}
                           className="rounded-xl shadow-lg shadow-primary/20"
                         >
-                          <Send className="w-4 h-4 mr-2" />
-                          Kirim Update
+                          {addProgressUpdate.isPending ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Mengirim...
+                            </>
+                          ) : (
+                            <>
+                              <Send className="w-4 h-4 mr-2" />
+                              Kirim Update
+                            </>
+                          )}
                         </Button>
                       </motion.div>
                     </div>
