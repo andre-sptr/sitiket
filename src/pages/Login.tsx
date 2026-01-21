@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowRight, Mail, Lock, Loader2, Activity, Clock, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowRight, Mail, Lock, Loader2, Activity, Clock, ShieldCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -117,7 +117,7 @@ const Login = () => {
         description="Portal Login SiTiket - Sistem Manajemen Tiket Gangguan Terpadu Telkom Infra. Monitoring TTR, status perbaikan, dan manajemen teknisi secara real-time."
       />
       
-      {/* Animated Background Effects */}
+      
       <motion.div 
         className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-primary/20 rounded-full blur-3xl"
         variants={floatingVariants}
@@ -135,7 +135,7 @@ const Login = () => {
         animate="animate"
       />
       
-      {/* Sparkle particles */}
+      
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(6)].map((_, i) => (
           <motion.div
@@ -164,7 +164,7 @@ const Login = () => {
         initial="hidden"
         animate="visible"
       >
-        {/* Logo and Title */}
+        
         <motion.div variants={itemVariants} className="text-center mb-4">
           <motion.div
             className="relative inline-block"
@@ -200,10 +200,10 @@ const Login = () => {
           </motion.p>
         </motion.div>
 
-        {/* Login Card */}
+        
         <motion.div variants={itemVariants}>
           <Card className="glass-card border-border/50 shadow-2xl overflow-hidden">
-            {/* Gradient border effect */}
+            
             <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-violet-500/10 pointer-events-none" />
             
             <form onSubmit={handleLogin}>
@@ -313,7 +313,7 @@ const Login = () => {
           </Card>
         </motion.div>
         
-        {/* Footer */}
+        
         <motion.div 
           variants={itemVariants}
           className="mt-4 text-center space-y-2 opacity-60 hover:opacity-100 transition-opacity duration-300"

@@ -6,7 +6,6 @@
 
 @layer base {
   :root {
-    /* Clean, minimal color palette */
     --background: 0 0% 98%;
     --foreground: 240 10% 10%;
 
@@ -16,7 +15,6 @@
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 10%;
 
-    /* Soft indigo primary */
     --primary: 238 65% 60%;
     --primary-foreground: 0 0% 100%;
 
@@ -38,7 +36,6 @@
 
     --radius: 0.625rem;
 
-    /* Status colors - muted, sophisticated */
     --status-open: 238 65% 60%;
     --status-assigned: 262 60% 55%;
     --status-onprogress: 38 92% 50%;
@@ -48,7 +45,6 @@
     --status-closed: 152 60% 42%;
     --status-overdue: 0 84% 60%;
 
-    /* Custom design tokens */
     --gradient-primary: linear-gradient(135deg, hsl(238 65% 60%), hsl(262 60% 55%));
     --gradient-success: linear-gradient(135deg, hsl(152 60% 42%), hsl(162 55% 48%));
     --gradient-warning: linear-gradient(135deg, hsl(38 92% 50%), hsl(45 93% 55%));
@@ -115,7 +111,6 @@
     @apply border-border;
   }
 
-  /* View Transitions API - Theme Toggle Animation */
   ::view-transition-old(root),
   ::view-transition-new(root) {
     animation: none;
@@ -130,13 +125,11 @@
     z-index: 9999;
   }
 
-  /* Dark mode transition: new theme reveals with circular clip */
   .dark::view-transition-new(root) {
     clip-path: circle(0% at var(--theme-toggle-x, 50%) var(--theme-toggle-y, 50%));
     animation: theme-reveal 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   }
 
-  /* Light mode transition: old theme shrinks away */
   .dark::view-transition-old(root) {
     animation: none;
   }
@@ -155,14 +148,12 @@
     }
   }
 
-  /* Disable transitions during view transition */
   html:has(::view-transition) *,
   html:has(::view-transition) *::before,
   html:has(::view-transition) *::after {
     transition: none !important;
   }
 
-  /* Disable transitions on page load */
   html.no-transitions *,
   html.no-transitions *::before,
   html.no-transitions *::after {
@@ -213,17 +204,14 @@
     @apply text-emerald-600 dark:text-emerald-400 font-mono;
   }
 
-  /* Modern input styling */
   .input-modern {
     @apply bg-muted/50 border-transparent focus:border-primary/30 focus:bg-card transition-colors duration-200;
   }
 
-  /* Subtle hover states */
   .hover-lift {
     @apply transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md;
   }
 
-  /* Gradient text */
   .text-gradient {
     background: var(--gradient-primary);
     -webkit-background-clip: text;
@@ -255,7 +243,6 @@
   }
 }
 
-/* Animations */
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
@@ -373,7 +360,6 @@
   animation: glow-pulse 2s ease-in-out infinite;
 }
 
-/* Staggered animation delays */
 .stagger-1 { animation-delay: 0.05s; }
 .stagger-2 { animation-delay: 0.1s; }
 .stagger-3 { animation-delay: 0.15s; }
@@ -383,7 +369,6 @@
 .stagger-7 { animation-delay: 0.35s; }
 .stagger-8 { animation-delay: 0.4s; }
 
-/* Interactive hover effects */
 .hover-scale {
   @apply transition-transform duration-200;
 }
@@ -412,7 +397,6 @@
   transform: rotate(5deg);
 }
 
-/* Button ripple effect base */
 .btn-ripple {
   @apply relative overflow-hidden;
 }
@@ -432,7 +416,6 @@
   transition: 0s;
 }
 
-/* Icon hover effects */
 .icon-hover-bounce:hover svg {
   animation: scale-bounce 0.4s ease-in-out;
 }
@@ -445,7 +428,6 @@
   animation: wiggle 0.4s ease-in-out;
 }
 
-/* Card interaction styles */
 .card-interactive {
   @apply transition-all duration-300 cursor-pointer;
 }
@@ -459,13 +441,11 @@
   @apply scale-[0.99];
 }
 
-/* Focus ring animation */
 .focus-ring-animated:focus-visible {
   @apply ring-2 ring-primary ring-offset-2;
   animation: glow-pulse 1.5s ease-in-out infinite;
 }
 
-/* Text gradient animation */
 @keyframes gradient-shift {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -480,7 +460,6 @@
   animation: gradient-shift 3s linear infinite;
 }
 
-/* Skeleton loading enhancement */
 @keyframes skeleton-wave {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }

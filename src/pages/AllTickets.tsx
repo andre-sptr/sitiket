@@ -889,7 +889,7 @@ const AllTickets = () => {
             </motion.div>
           ) : (
             <>
-              {/* LIST TIKET YANG SUDAH DI-PAGINASI */}
+              
               <motion.div
                 variants={containerVariants}
                 initial="hidden"
@@ -906,7 +906,7 @@ const AllTickets = () => {
                 </AnimatePresence>
               </motion.div>
 
-              {/* KONTROL PAGINATION */}
+              
               {totalPages > 1 && (
                 <div className="flex justify-center mt-6 pt-2">
                   <Pagination>

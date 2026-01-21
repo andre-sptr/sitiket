@@ -577,7 +577,7 @@ const Settings = () => {
     <Layout>
       <SEO title="Pengaturan" description="Konfigurasi sistem SiTiket - atur threshold TTR, template WhatsApp, dan opsi dropdown untuk manajemen tiket." noIndex={true} />
       
-      {/* Background Effects */}
+      
       <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
         <div className="absolute top-20 right-20 w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl" />
         <div className="absolute bottom-20 left-20 w-[400px] h-[400px] bg-accent/5 rounded-full blur-3xl" />
@@ -589,7 +589,7 @@ const Settings = () => {
         initial="hidden"
         animate="visible"
       >
-        {/* Header */}
+        
         <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-start gap-4">
             <motion.div 
@@ -637,7 +637,7 @@ const Settings = () => {
               </TabsTrigger>
             </TabsList>
 
-            {/* Dropdown Options Tab */}
+            
             <TabsContent value="dropdown" className="space-y-6">
               <motion.div 
                 variants={itemVariants}
@@ -753,7 +753,7 @@ const Settings = () => {
               </motion.div>
             </TabsContent>
 
-            {/* TTR Tab */}
+            
             <TabsContent value="ttr" className="space-y-6">
               <motion.div 
                 variants={itemVariants}
@@ -858,7 +858,7 @@ const Settings = () => {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-6 pt-6">
-                    {/* Warning Hours */}
+                    
                     <motion.div className="space-y-2" whileHover={{ x: 4 }} transition={{ duration: 0.2 }}>
                       <Label htmlFor="warningHours" className="flex items-center gap-2 text-foreground">
                         <div className="w-3 h-3 rounded-full bg-yellow-500" />
@@ -881,7 +881,7 @@ const Settings = () => {
                       </div>
                     </motion.div>
 
-                    {/* Critical Hours */}
+                    
                     <motion.div className="space-y-2" whileHover={{ x: 4 }} transition={{ duration: 0.2 }}>
                       <Label htmlFor="criticalHours" className="flex items-center gap-2 text-foreground">
                         <div className="w-3 h-3 rounded-full bg-red-500" />
@@ -904,7 +904,7 @@ const Settings = () => {
                       </div>
                     </motion.div>
 
-                    {/* Due Soon Hours */}
+                    
                     <motion.div className="space-y-2" whileHover={{ x: 4 }} transition={{ duration: 0.2 }}>
                       <Label htmlFor="dueSoonHours" className="flex items-center gap-2 text-foreground">
                         <AlertTriangle className="w-4 h-4 text-yellow-500" />
@@ -927,7 +927,7 @@ const Settings = () => {
                       </div>
                     </motion.div>
 
-                    {/* No Update Alert */}
+                    
                     <motion.div className="space-y-2" whileHover={{ x: 4 }} transition={{ duration: 0.2 }}>
                       <Label htmlFor="noUpdateAlertMinutes" className="flex items-center gap-2 text-foreground">
                         <Clock className="w-4 h-4 text-orange-500" />
@@ -953,7 +953,7 @@ const Settings = () => {
                 </Card>
               </motion.div>
 
-              {/* Preview Card */}
+              
               <motion.div variants={cardVariants} whileHover="hover">
                 <Card className="bg-card/50 backdrop-blur-sm border-dashed border-border/50 overflow-hidden">
                   <CardHeader className="border-b border-border/30 bg-muted/20">
@@ -998,7 +998,7 @@ const Settings = () => {
               </motion.div>
             </TabsContent>
 
-            {/* WhatsApp Tab */}
+            
             <TabsContent value="whatsapp" className="space-y-6">
               <motion.div 
                 variants={itemVariants}
@@ -1043,7 +1043,7 @@ const Settings = () => {
                 </motion.div>
               </motion.div>
 
-              {/* Variables Card */}
+              
               <motion.div variants={cardVariants} whileHover="hover">
                 <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-lg shadow-primary/5 overflow-hidden">
                   <CardHeader className="border-b border-border/50 bg-muted/30">
@@ -1086,7 +1086,7 @@ const Settings = () => {
                 </Card>
               </motion.div>
 
-              {/* Share Template */}
+              
               <motion.div variants={cardVariants} whileHover="hover">
                 <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-lg shadow-primary/5 overflow-hidden">
                   <CardHeader className="border-b border-border/50 bg-muted/30">
@@ -1126,7 +1126,7 @@ const Settings = () => {
                 </Card>
               </motion.div>
 
-              {/* Update Template */}
+              
               <motion.div variants={cardVariants} whileHover="hover">
                 <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-lg shadow-primary/5 overflow-hidden">
                   <CardHeader className="border-b border-border/50 bg-muted/30">

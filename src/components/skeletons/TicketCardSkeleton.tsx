@@ -10,48 +10,48 @@ export const TicketCardSkeleton = ({ count = 1 }: TicketCardSkeletonProps) => {
     <>
       {Array.from({ length: count }).map((_, index) => (
         <Card key={index} className="relative overflow-hidden border bg-card">
-          {/* Strip indikator status di kiri */}
+          
           <div className="absolute left-0 top-0 bottom-0 w-1 bg-muted" />
 
           <div className="pl-4 pr-3 py-3">
-            {/* Baris 1: Header (ID, Waktu, Status) */}
+            
             <div className="flex items-center justify-between gap-2 mb-2">
               <div className="flex items-center gap-2">
-                <Skeleton className="h-4 w-20 rounded" /> {/* ID */}
-                <Skeleton className="h-3 w-24" /> {/* Date */}
+                <Skeleton className="h-4 w-20 rounded" /> 
+                <Skeleton className="h-3 w-24" /> 
               </div>
-              <Skeleton className="h-5 w-16 rounded-full" /> {/* Status Badge */}
+              <Skeleton className="h-5 w-16 rounded-full" /> 
             </div>
 
-            {/* Baris 2: Judul Utama (Site) & Lokasi */}
+            
             <div className="flex items-start justify-between gap-3 mb-2">
               <div className="flex-1 min-w-0 space-y-1.5">
                 <div className="flex items-center gap-2">
-                  <Skeleton className="h-5 w-3/4 sm:w-1/2" /> {/* Site Name */}
-                  <Skeleton className="h-4 w-12 hidden sm:block" /> {/* Site Code */}
+                  <Skeleton className="h-5 w-3/4 sm:w-1/2" /> 
+                  <Skeleton className="h-4 w-12 hidden sm:block" /> 
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Skeleton className="h-3 w-3 rounded-full" /> {/* Icon MapPin */}
-                  <Skeleton className="h-3 w-40" /> {/* Location Text */}
+                  <Skeleton className="h-3 w-3 rounded-full" /> 
+                  <Skeleton className="h-3 w-40" /> 
                 </div>
               </div>
-              <Skeleton className="h-4 w-4 rounded mt-1" /> {/* Chevron */}
+              <Skeleton className="h-4 w-4 rounded mt-1" /> 
             </div>
 
-            {/* Baris 3: Footer Compact (Badges & Teknisi) */}
+            
             <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/40 mt-2">
               <div className="flex items-center gap-2">
-                <Skeleton className="h-5 w-14 rounded-full" /> {/* TTR Badge */}
-                <Skeleton className="h-5 w-20 rounded-full" /> {/* Compliance Badge */}
+                <Skeleton className="h-5 w-14 rounded-full" /> 
+                <Skeleton className="h-5 w-20 rounded-full" /> 
               </div>
 
-              {/* Teknisi Stack Skeleton */}
+              
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-1.5">
                   <Skeleton className="h-5 w-5 rounded-full ring-1 ring-background" />
                   <Skeleton className="h-5 w-5 rounded-full ring-1 ring-background" />
                 </div>
-                <Skeleton className="h-3 w-16 hidden sm:block" /> {/* Nama Teknisi */}
+                <Skeleton className="h-3 w-16 hidden sm:block" /> 
               </div>
             </div>
           </div>

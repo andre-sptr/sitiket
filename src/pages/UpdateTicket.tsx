@@ -619,7 +619,7 @@ const UpdateTicket = () => {
         initial="hidden"
         animate="visible"
       >
-        {/* Header */}
+        
         <motion.div variants={itemVariants} className="flex items-start gap-4">
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Button 
@@ -663,7 +663,7 @@ const UpdateTicket = () => {
           </motion.div>
         </motion.div>
 
-        {/* Ticket Summary Card */}
+        
         <motion.div variants={cardVariants}>
           <Card className="glass-card border-primary/10 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
@@ -700,7 +700,7 @@ const UpdateTicket = () => {
           </Card>
         </motion.div>
 
-        {/* Error Summary */}
+        
         <AnimatePresence>
           {hasErrors && Object.keys(touched).length > 0 && (
             <motion.div
@@ -732,9 +732,9 @@ const UpdateTicket = () => {
           )}
         </AnimatePresence>
 
-        {/* Form Sections */}
+        
         <motion.div className="grid gap-5" variants={containerVariants}>
-          {/* Timeline */}
+          
           <motion.div variants={cardVariants}>
             <Card className="glass-card card-hover overflow-hidden group">
               <CardHeader className="pb-4">
@@ -800,7 +800,7 @@ const UpdateTicket = () => {
             </Card>
           </motion.div>
 
-          {/* Gangguan & Perbaikan */}
+          
           <motion.div variants={cardVariants}>
             <Card className="glass-card card-hover overflow-hidden group">
               <CardHeader className="pb-4">
@@ -843,7 +843,7 @@ const UpdateTicket = () => {
             </Card>
           </motion.div>
 
-          {/* Status Perbaikan */}
+          
           <motion.div variants={cardVariants}>
             <Card className="glass-card card-hover overflow-hidden group">
               <CardHeader className="pb-4">
@@ -879,7 +879,7 @@ const UpdateTicket = () => {
             </Card>
           </motion.div>
 
-          {/* Status & TTR */}
+          
           <motion.div variants={cardVariants}>
             <Card className="glass-card card-hover overflow-hidden group">
               <CardHeader className="pb-4">
@@ -919,7 +919,7 @@ const UpdateTicket = () => {
             </Card>
           </motion.div>
 
-          {/* Kendala */}
+          
           <motion.div variants={cardVariants}>
             <Card className="glass-card card-hover overflow-hidden group">
               <CardHeader className="pb-4">
@@ -971,7 +971,7 @@ const UpdateTicket = () => {
             </Card>
           </motion.div>
 
-          {/* Tim Teknisi */}
+          
           <motion.div variants={cardVariants}>
             <Card className="glass-card card-hover overflow-hidden group">
               <CardHeader className="pb-4">
@@ -1033,7 +1033,7 @@ const UpdateTicket = () => {
           </motion.div>
         </motion.div>
 
-        {/* Footer Actions */}
+        
         <motion.div 
           variants={itemVariants}
           className="flex justify-end gap-3 pt-2"

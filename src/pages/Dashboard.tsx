@@ -248,7 +248,7 @@ const Dashboard = () => {
               </div>
             ) : (
               <>
-                {/* Menggunakan paginatedTickets, bukan sortedTickets */}
+                
                 {paginatedTickets.map((ticket) => (
                   <TicketCard 
                     key={ticket.id}
@@ -256,7 +256,7 @@ const Dashboard = () => {
                   />
                 ))}
 
-                {/* Kontrol Pagination */}
+                
                 {totalPages > 1 && (
                   <div className="flex justify-center mt-6 pt-2">
                     <Pagination>

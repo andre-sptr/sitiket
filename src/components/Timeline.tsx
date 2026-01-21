@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { ProgressUpdate } from '@/types/ticket';
-import { formatDateShort, formatTimeOnly } from '@/lib/formatters';
+import { formatDateShort } from '@/lib/formatters';
 import { StatusBadge } from '@/components/StatusBadge';
 import { User, Bot, Settings, Image as ImageIcon, MessageCircle } from 'lucide-react';
 

@@ -147,7 +147,7 @@ const userCardVariants = {
 
 const UserManagement = () => {
   const { user: currentUser } = useAuth();
-  const { users, isLoaded, addUser, updateUser, deleteUser, toggleUserActive } = useUsers();
+  const { users, isLoaded, addUser, updateUser, deleteUser } = useUsers();
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -326,7 +326,7 @@ const UserManagement = () => {
     <Layout>
       <SEO title="Manajemen Pengguna" description="Kelola pengguna sistem - admin, help desk, dan guest. Atur role dan akses pengguna." noIndex={true} />
       <div className="space-y-6 max-w-6xl mx-auto pb-8">
-        {/* Header Section */}
+        
         <motion.div 
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -359,7 +359,7 @@ const UserManagement = () => {
           )}
         </motion.div>
 
-        {/* Search */}
+        
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -392,7 +392,7 @@ const UserManagement = () => {
           </Select>
         </motion.div>
 
-        {/* Stats Cards */}
+        
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {Object.entries(usersByRole).map(([role, roleUsers], index) => {
             const Icon = roleIcons[role as keyof typeof roleIcons];
@@ -442,7 +442,7 @@ const UserManagement = () => {
           </motion.div>
         </div>
 
-        {/* User List Card */}
+        
         <motion.div
           custom={4}
           initial="hidden"
@@ -507,7 +507,7 @@ const UserManagement = () => {
                               : "border-border/50 opacity-75 hover:opacity-100"
                           )}
                         >
-                          {/* CARD BODY */}
+                          
                           <div className="p-5 flex-1">
                             <div className="flex items-start justify-between mb-4">
                               <motion.div 
@@ -566,7 +566,7 @@ const UserManagement = () => {
                             </div>
                           </div>
 
-                          {/* CARD FOOTER / ACTIONS */}
+                          
                           <div className="p-3 bg-muted/30 border-t flex items-center justify-between gap-2">
                             <div className="flex gap-2">
                               {user.phone && (
@@ -701,7 +701,7 @@ const UserManagement = () => {
         </motion.div>
       </div>
 
-      {/* Add/Edit Dialog */}
+      
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-md glass-card">
           <DialogHeader>
@@ -861,7 +861,7 @@ const UserManagement = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
+      
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent className="glass-card">
           <AlertDialogHeader>

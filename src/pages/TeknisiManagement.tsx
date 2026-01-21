@@ -343,7 +343,7 @@ const TeknisiManagement = () => {
     <Layout>
       <SEO title="Kelola Teknisi" description="Manajemen data teknisi lapangan - tambah, edit, dan kelola status teknisi untuk penugasan tiket." noIndex={true} />
       <div className="space-y-6 max-w-6xl mx-auto pb-8">
-        {/* Header Section */}
+        
         <motion.div 
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -399,7 +399,7 @@ const TeknisiManagement = () => {
           )}
         </motion.div>
 
-        {/* Search & Stats */}
+        
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -433,7 +433,7 @@ const TeknisiManagement = () => {
           </Select>
         </motion.div>
 
-        {/* Stats Cards */}
+        
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           <motion.div custom={0} initial="hidden" animate="visible" variants={cardVariants}>
             <Card className="glass-card card-hover p-4">
@@ -478,7 +478,7 @@ const TeknisiManagement = () => {
           </motion.div>
         </div>
 
-        {/* Teknisi List Card */}
+        
         <motion.div
           custom={3}
           initial="hidden"
@@ -539,7 +539,7 @@ const TeknisiManagement = () => {
                               : "border-border/50 opacity-75 hover:opacity-100"
                           )}
                         >
-                          {/* CARD BODY */}
+                          
                           <div className="p-5 flex-1">
                             <div className="flex items-start justify-between mb-4">
                               <motion.div 
@@ -588,7 +588,7 @@ const TeknisiManagement = () => {
                             </div>
                           </div>
 
-                          {/* CARD FOOTER / ACTIONS */}
+                          
                           <div className="p-3 bg-muted/30 border-t flex items-center justify-between gap-2">
                             <div className="flex gap-2">
                               <Button 
@@ -752,7 +752,7 @@ const TeknisiManagement = () => {
         </motion.div>
       </div>
 
-      {/* Add Dialog */}
+      
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent className="sm:max-w-md glass-card">
           <DialogHeader>
@@ -836,7 +836,7 @@ const TeknisiManagement = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Edit Dialog */}
+      
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-md glass-card">
           <DialogHeader>
@@ -920,7 +920,7 @@ const TeknisiManagement = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
+      
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent className="glass-card">
           <AlertDialogHeader>
@@ -945,7 +945,7 @@ const TeknisiManagement = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Reset Confirmation Dialog */}
+      
       <AlertDialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
         <AlertDialogContent className="glass-card">
           <AlertDialogHeader>

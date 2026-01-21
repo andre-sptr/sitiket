@@ -63,7 +63,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
         className="group relative overflow-hidden border hover:border-primary/40 hover:shadow-md transition-all duration-200 cursor-pointer bg-card"
         onClick={() => navigate(`/ticket/${ticket.id}`)}
       >
-        {/* Strip indikator status di kiri */}
+        
         <div className={`absolute left-0 top-0 bottom-0 w-1 ${
           ticket.status === 'OPEN' ? 'bg-red-500' :
           ticket.status === 'CLOSED' ? 'bg-slate-300 dark:bg-slate-700' :
@@ -71,7 +71,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
         }`} />
 
         <div className="pl-4 pr-3 py-3">
-          {/* Baris 1: Header (ID, Waktu, Status) */}
+          
           <div className="flex items-center justify-between gap-2 mb-2">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span className="font-mono font-medium text-foreground bg-muted px-1.5 py-0.5 rounded">
@@ -86,7 +86,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
             <StatusBadge status={displayStatus} />
           </div>
 
-          {/* Baris 2: Judul Utama (Site) */}
+          
           <div className="flex items-start justify-between gap-3 mb-2">
             <div className="min-w-0">
               <h3 className="font-bold text-sm sm:text-base truncate group-hover:text-primary transition-colors flex items-center gap-2">
@@ -103,28 +103,28 @@ export const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
               </div>
             </div>
             
-            {/* Tombol panah kecil di kanan untuk indikasi klik */}
+            
             <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0 mt-1" />
           </div>
 
-          {/* Baris 3: Footer Compact (Badges & Teknisi) */}
+          
           <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/40 mt-2">
             <div className="flex items-center gap-2 flex-wrap">
               <TTRBadge targetDate={ticket.maxJamClose} status={ticket.status} size="sm" />
               <ComplianceBadge compliance={currentCompliance} size="sm" />
             </div>
 
-            {/* Teknisi Stack + Nama */}
+            
             <div className="flex items-center gap-2 shrink-0 max-w-[40%] justify-end">
-              {/* Stake Holder */}
+              
               <Badge variant="outline" className="h-5 px-1.5 text-[10px] font-normal shrink-0 bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800">
                 {ticket.stakeHolder}
               </Badge>
-              {/* Jenis Pelanggan */}
+              
               <Badge variant="outline" className="h-5 px-1.5 text-[10px] font-normal shrink-0 bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800">
                 {ticket.provider}
               </Badge>
-              {/* Kategori */}
+              
               <Badge variant="outline" className="h-5 px-1.5 text-[10px] font-normal shrink-0">
                 {ticket.kategori}
               </Badge>
@@ -149,7 +149,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
                       </div>
                     )}
                   </div>
-                  {/* Nama Teknisi Ditambahkan di Sini */}
+                  
                   <span className="text-xs text-muted-foreground truncate hidden sm:block" title={ticket.teknisiList.join(', ')}>
                     {ticket.teknisiList[0]}
                     {ticket.teknisiList.length > 1 && ` +${ticket.teknisiList.length - 1}`}

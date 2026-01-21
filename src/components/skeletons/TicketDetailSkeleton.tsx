@@ -4,17 +4,17 @@ import { Skeleton } from '@/components/ui/skeleton';
 export const TicketDetailSkeleton = () => {
   return (
     <div className="space-y-6">
-      {/* Header Section */}
+      
       <div className="flex items-start gap-4">
-        <Skeleton className="h-10 w-10 rounded-xl" /> {/* Back Button */}
+        <Skeleton className="h-10 w-10 rounded-xl" /> 
         
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap mb-2">
-            <Skeleton className="h-6 w-24 rounded-md" /> {/* Ticket No */}
-            <Skeleton className="h-6 w-20 rounded-full" /> {/* Status Badge */}
+            <Skeleton className="h-6 w-24 rounded-md" /> 
+            <Skeleton className="h-6 w-20 rounded-full" /> 
           </div>
           
-          <Skeleton className="h-8 md:h-9 w-3/4 sm:w-1/2 rounded-lg mb-3" /> {/* Title */}
+          <Skeleton className="h-8 md:h-9 w-3/4 sm:w-1/2 rounded-lg mb-3" /> 
           
           <div className="flex items-center gap-2 flex-wrap">
             <Skeleton className="h-6 w-20 rounded-full" />
@@ -23,36 +23,36 @@ export const TicketDetailSkeleton = () => {
         </div>
       </div>
 
-      {/* Action Buttons */}
+      
       <div className="flex flex-wrap gap-2">
         {[1, 2, 3, 4].map((i) => (
           <Skeleton key={i} className="h-9 w-32 rounded-xl" />
         ))}
       </div>
 
-      {/* Main Content Grid */}
+      
       <div className="grid lg:grid-cols-3 gap-6">
-        {/* Left Column (Info Cards) */}
+        
         <div className="lg:col-span-1 space-y-4">
           
-          {/* Status TTR Card */}
+          
           <Card className="border-0 shadow-sm">
             <CardHeader className="pb-3">
               <Skeleton className="h-4 w-24" />
             </CardHeader>
             <CardContent className="space-y-4">
-              <Skeleton className="h-[72px] w-full rounded-xl" /> {/* Countdown Box */}
+              <Skeleton className="h-[72px] w-full rounded-xl" /> 
               
               <div className="grid grid-cols-2 gap-3">
                 <Skeleton className="h-12 w-full rounded-xl" />
                 <Skeleton className="h-12 w-full rounded-xl" />
               </div>
               
-              <Skeleton className="h-10 w-full rounded-xl" /> {/* Target TTR */}
+              <Skeleton className="h-10 w-full rounded-xl" /> 
             </CardContent>
           </Card>
 
-          {/* Location Card */}
+          
           <Card className="border-0 shadow-sm">
             <CardHeader className="pb-3">
               <Skeleton className="h-4 w-20" />
@@ -61,14 +61,14 @@ export const TicketDetailSkeleton = () => {
               <Skeleton className="h-4 w-full" />
               <Skeleton className="h-4 w-3/4" />
               
-              <Skeleton className="h-8 w-40 rounded-lg" /> {/* LatLong */}
-              <Skeleton className="h-9 w-full rounded-xl" /> {/* Maps Button */}
+              <Skeleton className="h-8 w-40 rounded-lg" /> 
+              <Skeleton className="h-9 w-full rounded-xl" /> 
               
-              <Skeleton className="h-11 w-full rounded-xl" /> {/* Distance */}
+              <Skeleton className="h-11 w-full rounded-xl" /> 
             </CardContent>
           </Card>
 
-          {/* Teknisi Card */}
+          
           <Card className="border-0 shadow-sm">
             <CardHeader className="pb-3">
               <Skeleton className="h-4 w-20" />
@@ -87,17 +87,17 @@ export const TicketDetailSkeleton = () => {
           </Card>
         </div>
 
-        {/* Right Column (Updates & Timeline) */}
+        
         <div className="lg:col-span-2 space-y-4">
           
-          {/* Input Update Card */}
+          
           <Card className="border-0 shadow-sm">
             <CardHeader className="pb-3">
               <Skeleton className="h-5 w-32" />
             </CardHeader>
             <CardContent className="space-y-4">
-              <Skeleton className="h-10 w-full rounded-xl" /> {/* Select */}
-              <Skeleton className="h-32 w-full rounded-xl" /> {/* Textarea */}
+              <Skeleton className="h-10 w-full rounded-xl" /> 
+              <Skeleton className="h-32 w-full rounded-xl" /> 
               
               <div className="flex justify-end gap-2">
                 <Skeleton className="h-9 w-32 rounded-xl" />
@@ -106,7 +106,7 @@ export const TicketDetailSkeleton = () => {
             </CardContent>
           </Card>
 
-          {/* Timeline Card */}
+          
           <Card className="border-0 shadow-sm">
             <CardHeader className="pb-3">
               <Skeleton className="h-5 w-40" />

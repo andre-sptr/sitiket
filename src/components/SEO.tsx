@@ -95,11 +95,9 @@ export default function SEO({
       <meta name="robots" content={noIndex ? "noindex, nofollow" : "index, follow"} />
       <link rel="canonical" href={canonicalUrl} />
       
-      {/* Language */}
       <meta httpEquiv="content-language" content="id" />
       <meta name="language" content="Indonesian" />
 
-      {/* Open Graph / Facebook */}
       <meta property="og:type" content={type} />
       <meta property="og:url" content={canonicalUrl} />
       <meta property="og:title" content={fullTitle} />
@@ -110,7 +108,6 @@ export default function SEO({
       <meta property="og:site_name" content={name} />
       <meta property="og:locale" content="id_ID" />
 
-      {/* Twitter */}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:url" content={canonicalUrl} />
       <meta name="twitter:title" content={fullTitle} />
@@ -118,14 +115,12 @@ export default function SEO({
       <meta name="twitter:image" content={image} />
       <meta name="twitter:creator" content="@telkominfra" />
 
-      {/* Additional Meta */}
       <meta name="theme-color" content="#6366f1" />
       <meta name="msapplication-TileColor" content="#6366f1" />
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       <meta name="apple-mobile-web-app-title" content={name} />
 
-      {/* JSON-LD Structured Data */}
       <script type="application/ld+json">
         {JSON.stringify(organizationJsonLd)}
       </script>

@@ -397,15 +397,6 @@ const TicketDetail = () => {
     });
   };
 
-  const handleCopyUpdateTemplate = () => {
-    const message = generateWhatsAppMessage('update', ticket);
-    navigator.clipboard.writeText(message);
-    toast({
-      title: "Template Update Disalin",
-      description: "Template update progress sudah disalin ke clipboard",
-    });
-  };
-
   const handleSubmitUpdate = async () => {
     if (!updateMessage.trim()) {
       toast({
@@ -642,9 +633,9 @@ const TicketDetail = () => {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   
-                  {/* Stakeholder & Provider Grid */}
+                  
                   <div className="grid grid-cols-2 gap-3">
-                    {/* Stakeholder */}
+                    
                     <div className="p-3 rounded-xl bg-muted/30">
                       <div className="flex items-center gap-2 mb-1">
                         <Flag className="w-3 h-3 text-muted-foreground" />
@@ -653,7 +644,7 @@ const TicketDetail = () => {
                       <p className="text-sm font-medium">{ticket.stakeHolder || '-'}</p>
                     </div>
 
-                    {/* Provider (Jenis Pelanggan) */}
+                    
                     <div className="p-3 rounded-xl bg-muted/30">
                       <div className="flex items-center gap-2 mb-1">
                         <Building2 className="w-3 h-3 text-muted-foreground" />
@@ -663,7 +654,7 @@ const TicketDetail = () => {
                     </div>
                   </div>
 
-                  {/* KJD & Gamas Grid */}
+                  
                   <div className="grid grid-cols-2 gap-3">
                     <div className="p-3 rounded-xl bg-muted/30">
                       <div className="flex items-center gap-2 mb-1">
@@ -685,7 +676,7 @@ const TicketDetail = () => {
                     </div>
                   </div>
 
-                  {/* Sifat Perbaikan */}
+                  
                   <div className="p-3 rounded-xl bg-muted/30 flex items-center justify-between">
                      <div className="flex items-center gap-2">
                         <Wrench className="w-3 h-3 text-muted-foreground" />
@@ -705,7 +696,7 @@ const TicketDetail = () => {
                      )}
                   </div>
 
-                  {/* TACC Field */}
+                  
                   <div className="p-3 rounded-xl bg-muted/30">
                      <div className="flex items-center gap-2 mb-1">
                         <CheckSquare className="w-3 h-3 text-muted-foreground" />
@@ -714,7 +705,7 @@ const TicketDetail = () => {
                      <p className="text-sm font-medium">{ticket.tacc || '-'}</p>
                   </div>
 
-                  {/* Summary / Laporan Awal */}
+                  
                   {ticket.rawTicketText && (
                     <div className="p-3 rounded-xl bg-muted/30">
                       <p className="text-xs text-muted-foreground mb-2">Summary</p>
@@ -737,7 +728,7 @@ const TicketDetail = () => {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   
-                  {/* ID Pelanggan & Nama Pelanggan */}
+                  
                   <div className="grid grid-cols-1 gap-3">
                     <div className="p-3 rounded-xl bg-muted/30">
                       <div className="flex items-center gap-2 mb-1">
@@ -756,7 +747,7 @@ const TicketDetail = () => {
                     </div>
                   </div>
 
-                  {/* Datek */}
+                  
                   <div className="p-3 rounded-xl bg-muted/30">
                     <div className="flex items-center gap-2 mb-1">
                       <Database className="w-3 h-3 text-muted-foreground" />
@@ -765,7 +756,7 @@ const TicketDetail = () => {
                     <p className="text-sm font-medium">{ticket.datek || '-'}</p>
                   </div>
 
-                  {/* LOS & Site Impact */}
+                  
                   <div className="grid grid-cols-2 gap-3">
                     <div className="p-3 rounded-xl bg-muted/30">
                       <div className="flex items-center gap-2 mb-1">
@@ -784,7 +775,7 @@ const TicketDetail = () => {
                     </div>
                   </div>
 
-                  {/* Class Site */}
+                  
                   <div className="p-3 rounded-xl bg-muted/30">
                     <div className="flex items-center gap-2 mb-1">
                       <TowerControl className="w-3 h-3 text-muted-foreground" />

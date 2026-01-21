@@ -126,8 +126,7 @@ const defaultShareTemplate = `🎫 *TIKET GANGGUAN RIDAR*
 *STATUS TIKET:* {{status}}
 *PERMANEN:* {{permanen}}
 
-{{ticketLink}}
-━━━━━━━━━━━━━━━━━━`;
+{{ticketLink}}`;
 
 const defaultUpdateTemplate = `📍 *UPDATE PROGRESS*
 ━━━━━━━━━━━━━━━━━━

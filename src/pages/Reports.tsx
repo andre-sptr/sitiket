@@ -210,7 +210,6 @@ const ChartCard = ({ children, title, description, icon: Icon, className }: { ch
 const Reports = () => {
   const { toast } = useToast();
   const { data: tickets = [], isLoading } = useTickets();
-  const stats = useDashboardStats();
 
   const [dateRange, setDateRange] = useState<{
     from: Date;
@@ -417,6 +416,22 @@ const Reports = () => {
     const total = closedTickets.reduce((acc, t) => acc + (t.ttr_real_hours || 0), 0);
     return Math.round((total / closedTickets.length) * 10) / 10;
   }, [filteredTickets]);
+
+  const datekData = useMemo(() => {
+    const counts: Record<string, number> = {};
+    filteredTickets.forEach(t => {
+      const d = t.datek ? t.datek.trim() : 'Tanpa Datek';
+      counts[d] = (counts[d] || 0) + 1;
+    });
+    return Object.entries(counts)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 10);
+  }, [filteredTickets]);
+
+  const datekChartConfig: ChartConfig = {
+    value: { label: 'Jumlah Tiket', color: 'hsl(var(--primary))' },
+  };
 
   const barChartConfig: ChartConfig = {
     open: { label: 'Open', color: 'hsl(var(--primary))' },
@@ -656,7 +671,7 @@ const Reports = () => {
         initial="hidden"
         animate="visible"
       >
-        {/* Header */}
+        
         <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
@@ -720,10 +735,10 @@ const Reports = () => {
           </motion.div>
         </motion.div>
 
-        {/* Filter Data Card */}
+        
         <motion.div variants={itemVariants}>
           <Card className="p-4 bg-gradient-to-r from-card to-muted/30 border-border/50 space-y-4">
-            {/* Row 1: Date Filter */}
+            
             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
               <div className="flex items-center gap-2 min-w-fit">
                 <div className="p-2 rounded-lg bg-primary/10">
@@ -808,7 +823,7 @@ const Reports = () => {
               </div>
             </div>
 
-            {/* Row 2: Detailed Filters */}
+            
             <div className="flex flex-col md:flex-row gap-4 items-start md:items-center pt-2 border-t border-border/50">
               <div className="flex items-center gap-2 min-w-fit">
                  <div className="p-2 rounded-lg bg-blue-500/10">
@@ -817,7 +832,7 @@ const Reports = () => {
                  <span className="font-medium text-sm">Filter Detail:</span>
               </div>
               
-              {/* [UBAH] Grid layout disesuaikan untuk 6 item (4 dropdown + 2 input) */}
+              
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 w-full">
                 <FilterCombobox
                   value={filterStatus}
@@ -887,7 +902,7 @@ const Reports = () => {
           </Card>
         </motion.div>
 
-        {/* Stats Cards Row */}
+        
         <motion.div variants={containerVariants} className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-4">
           <StatCard 
             title="Total Periode" 
@@ -935,7 +950,7 @@ const Reports = () => {
           />
         </motion.div>
 
-        {/* Main Charts Section with Tabs */}
+        
         <motion.div variants={itemVariants}>
           <Tabs defaultValue="overview" className="w-full">
             <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-grid mb-4">
@@ -953,9 +968,9 @@ const Reports = () => {
               </TabsTrigger>
             </TabsList>
 
-            {/* Overview Tab */}
+            
             <TabsContent value="overview" className="space-y-6">
-              {/* Bar Chart */}
+              
               <ChartCard 
                 title={`Tiket per Periode (${format(dateRange.from, "dd MMM", { locale: id })} - ${format(dateRange.to, "dd MMM yyyy", { locale: id })})`}
                 description="Jumlah tiket berdasarkan status per hari"
@@ -998,9 +1013,9 @@ const Reports = () => {
                 </ChartContainer>
               </ChartCard>
 
-              {/* Two Column Layout */}
+              
               <div className="grid lg:grid-cols-2 gap-6">
-                {/* Provider Performance */}
+                
                 <ChartCard 
                   title="Performa per Pelanggan" 
                   description="Distribusi dan compliance rate per pelanggan"
@@ -1037,7 +1052,7 @@ const Reports = () => {
                   </div>
                 </ChartCard>
 
-                {/* Compliance Gauge */}
+                
                 <ChartCard 
                   title="TTR Compliance" 
                   description="Persentase tiket yang sesuai target TTR"
@@ -1082,9 +1097,9 @@ const Reports = () => {
               </div>
             </TabsContent>
 
-            {/* Trends Tab */}
+            
             <TabsContent value="trends" className="space-y-6">
-              {/* Area Chart - Total vs Closed */}
+              
               <ChartCard 
                 title="Trend Tiket" 
                 description="Perbandingan total tiket masuk dan closed per hari"
@@ -1134,7 +1149,7 @@ const Reports = () => {
                 </ChartContainer>
               </ChartCard>
 
-              {/* Average TTR Line Chart */}
+              
               <div className="grid lg:grid-cols-2 gap-6">
                 <ChartCard 
                   title="Rata-rata TTR per Hari" 
@@ -1168,7 +1183,7 @@ const Reports = () => {
                   </ChartContainer>
                 </ChartCard>
 
-                {/* Hourly Distribution */}
+                
                 <ChartCard 
                   title="Distribusi per Jam" 
                   description="Jumlah tiket berdasarkan jam pembuatan"
@@ -1202,10 +1217,10 @@ const Reports = () => {
               </div>
             </TabsContent>
 
-            {/* Distribution Tab */}
+            
             <TabsContent value="distribution" className="space-y-6">
               <div className="grid lg:grid-cols-2 gap-6">
-                {/* Category Pie Chart */}
+                
                 <ChartCard 
                   title="Tiket per Severity" 
                   description="Distribusi tiket berdasarkan severity"
@@ -1229,11 +1244,11 @@ const Reports = () => {
                             <Cell key={`cell-${index}`} fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]} />
                           ))}
                         </Pie>
-                        {/* ChartLegend bawaan dihapus agar tinggi konsisten dengan card sebelah */}
+                        
                       </RechartsPieChart>
                     </ChartContainer>
 
-                    {/* Custom Legend di bawah (Sama seperti Tiket per Status) */}
+                    
                     <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mt-2">
                       {categoryData.map((item, index) => (
                         <div key={index} className="flex items-center gap-2">
@@ -1250,7 +1265,7 @@ const Reports = () => {
                   </div>
                 </ChartCard>
 
-                {/* Status Pie Chart */}
+                
                 <ChartCard 
                   title="Tiket per Status" 
                   description="Distribusi tiket berdasarkan status penanganan"
@@ -1294,9 +1309,9 @@ const Reports = () => {
                 </ChartCard>
               </div>
               
-              {/* New Charts: Sifat Perbaikan & Site Impact */}
+              
               <div className="grid lg:grid-cols-2 gap-6">
-                 {/* Sifat Perbaikan Chart */}
+                 
                 <ChartCard 
                   title="Sifat Perbaikan" 
                   description="Permanen vs Temporary"
@@ -1339,7 +1354,7 @@ const Reports = () => {
                   </div>
                 </ChartCard>
 
-                {/* Site Impact List */}
+                
                 <ChartCard 
                   title="Site Impact" 
                   description="Distribusi berdasarkan dampak site"
@@ -1358,7 +1373,47 @@ const Reports = () => {
                 </ChartCard>
               </div>
 
-              {/* Category Breakdown Detail */}
+              <motion.div variants={itemVariants}>
+                <ChartCard 
+                  title="Top 10 Datek" 
+                  description="Distribusi tiket berdasarkan Datek terbanyak"
+                  icon={FileSpreadsheet}
+                >
+                  <ChartContainer config={datekChartConfig} className="h-[350px] w-full">
+                    <BarChart
+                      accessibilityLayer
+                      data={datekData}
+                      layout="vertical"
+                      margin={{ left: 0, right: 0, top: 0, bottom: 0 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" horizontal={false} className="stroke-border/50" />
+                      <YAxis
+                        dataKey="name"
+                        type="category"
+                        tickLine={false}
+                        axisLine={false}
+                        width={100}
+                        tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                      />
+                      <XAxis type="number" hide />
+                      <ChartTooltip
+                        cursor={false}
+                        content={<ChartTooltipContent indicator="line" />}
+                      />
+                      <Bar
+                        dataKey="value"
+                        layout="vertical"
+                        fill="hsl(var(--primary))"
+                        radius={[0, 4, 4, 0]}
+                      >
+                        <div className="fill-foreground text-xs" />
+                      </Bar>
+                    </BarChart>
+                  </ChartContainer>
+                </ChartCard>
+              </motion.div>
+
+              
               <ChartCard 
                 title="Detail per Severity" 
                 description="Breakdown tiket berdasarkan severity dan status penyelesaian"
@@ -1433,7 +1488,7 @@ const Reports = () => {
           </Tabs>
         </motion.div>
 
-        {/* Summary Stats Row */}
+        
         <motion.div variants={itemVariants}>
           <Card className="p-6 bg-gradient-to-r from-primary/5 via-card to-primary/5 border-primary/10">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
