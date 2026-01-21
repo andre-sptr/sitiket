@@ -223,19 +223,28 @@ const Reports = () => {
   const [filterKategori, setFilterKategori] = useState<string>("ALL");
   const [filterProvider, setFilterProvider] = useState<string>("ALL");
   const [filterTeknisi, setFilterTeknisi] = useState<string>("ALL");
+  const [filterSegmen, setFilterSegmen] = useState<string>("ALL");
+  const [filterSTO, setFilterSTO] = useState<string>("ALL");
+  const [filterPenyebab, setFilterPenyebab] = useState<string>("ALL");
   const [filterDatek, setFilterDatek] = useState<string>("");
   const [filterId, setFilterId] = useState<string>("");
 
-  const { statusOptions, kategoriOptions, providerOptions, teknisiOptions } = useMemo(() => {
+  const { statusOptions, kategoriOptions, providerOptions, teknisiOptions, segmenOptions, penyebabOptions, stoOptions } = useMemo(() => {
     const statusSet = new Set<string>();
     const kategoriSet = new Set<string>();
     const providerSet = new Set<string>();
     const teknisiSet = new Set<string>();
+    const segmenSet = new Set<string>();
+    const penyebabSet = new Set<string>();
+    const stoSet = new Set<string>();
 
     tickets.forEach(ticket => {
       if (ticket.status) statusSet.add(ticket.status);
       if (ticket.kategori) kategoriSet.add(ticket.kategori);
       if (ticket.provider) providerSet.add(ticket.provider);
+      if (ticket.segmen) segmenSet.add(ticket.segmen);
+      if (ticket.penyebab) penyebabSet.add(ticket.penyebab);
+      if (ticket.sto) stoSet.add(ticket.sto);
       if (ticket.teknisi_list && Array.isArray(ticket.teknisi_list)) {
         ticket.teknisi_list.forEach((tech: string) => teknisiSet.add(tech));
       }
@@ -246,6 +255,9 @@ const Reports = () => {
       kategoriOptions: Array.from(kategoriSet).sort(),
       providerOptions: Array.from(providerSet).sort(),
       teknisiOptions: Array.from(teknisiSet).sort(),
+      segmenOptions: Array.from(segmenSet).sort(),
+      penyebabOptions: Array.from(penyebabSet).sort(),
+      stoOptions: Array.from(stoSet).sort(),
     };
   }, [tickets]);
 
@@ -258,27 +270,23 @@ const Reports = () => {
       });
 
       if (!isDateMatch) return false;
-
       if (filterStatus !== "ALL" && ticket.status !== filterStatus) return false;
-
       if (filterKategori !== "ALL" && ticket.kategori !== filterKategori) return false;
-
       if (filterProvider !== "ALL" && ticket.provider !== filterProvider) return false;
-
+      if (filterSegmen !== "ALL" && ticket.segmen !== filterSegmen) return false;
+      if (filterPenyebab !== "ALL" && ticket.penyebab !== filterPenyebab) return false;
+      if (filterSTO !== "ALL" && ticket.sto !== filterSTO) return false;
       if (filterTeknisi !== "ALL") {
         if (!ticket.teknisi_list || !ticket.teknisi_list.includes(filterTeknisi)) return false;
       }
-
       if (filterDatek && !ticket.datek?.toLowerCase().includes(filterDatek.toLowerCase())) {
         return false;
       }
-
       if (filterId) {
         const searchLower = filterId.toLowerCase();
         const matchesId = ticket.id_pelanggan?.toLowerCase().includes(searchLower);
         const matchesSiteCode = ticket.site_code?.toLowerCase().includes(searchLower);
         const matchesSiteName = ticket.site_name?.toLowerCase().includes(searchLower);
-        
         if (!matchesId && !matchesSiteCode && !matchesSiteName) {
           return false;
         }
@@ -286,7 +294,7 @@ const Reports = () => {
 
       return true;
     });
-  }, [dateRange, tickets, filterStatus, filterKategori, filterProvider, filterTeknisi, filterDatek, filterId]); 
+  }, [dateRange, tickets, filterStatus, filterKategori, filterProvider, filterTeknisi, filterDatek, filterId, filterSegmen, filterPenyebab, filterSTO]); 
 
   const periodData = useMemo(() => {
     const days = [];
@@ -651,6 +659,9 @@ const Reports = () => {
     setFilterKategori("ALL");
     setFilterProvider("ALL");
     setFilterTeknisi("ALL");
+    setFilterSegmen("ALL");
+    setFilterPenyebab("ALL");
+    setFilterSTO("ALL");
     setFilterDatek("");
     setFilterId("");
   };
@@ -843,6 +854,13 @@ const Reports = () => {
                   className="h-8 text-xs w-full"
                 />
                 <FilterCombobox
+                  value={filterSTO}
+                  onValueChange={setFilterSTO}
+                  options={stoOptions}
+                  placeholder="Semua STO"
+                  className="h-8 text-xs w-full"
+                />
+                <FilterCombobox
                   value={filterKategori}
                   onValueChange={setFilterKategori}
                   options={kategoriOptions}
@@ -856,7 +874,21 @@ const Reports = () => {
                   placeholder="Semua Pelanggan"
                   className="h-8 text-xs w-full"
                 />
-                 <FilterCombobox
+                <FilterCombobox
+                  value={filterSegmen}
+                  onValueChange={setFilterSegmen}
+                  options={segmenOptions}
+                  placeholder="Semua Segmen"
+                  className="h-8 text-xs w-full"
+                />
+                <FilterCombobox
+                  value={filterPenyebab}
+                  onValueChange={setFilterPenyebab}
+                  options={penyebabOptions}
+                  placeholder="Semua Penyebab"
+                  className="h-8 text-xs w-full"
+                />
+                <FilterCombobox
                   value={filterTeknisi}
                   onValueChange={setFilterTeknisi}
                   options={teknisiOptions}
