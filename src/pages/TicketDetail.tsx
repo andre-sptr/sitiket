@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useSettings } from '@/hooks/useSettings';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -28,7 +27,7 @@ import {
 import { useTicket, useDeleteTicket, useAddProgressUpdate } from '@/hooks/useTickets';
 import { mapDbTicketToTicket } from '@/lib/ticketMappers';
 import { formatDateWIB, generateWhatsAppMessage, generateGoogleMapsLink, formatTTR } from '@/lib/formatters';
-import { TicketStatus } from '@/types/ticket';
+import { TicketStatus, TTRCompliance } from '@/types/ticket';
 import { 
   ArrowLeft, 
   MapPin, 
@@ -235,7 +234,6 @@ const TicketDetail = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
-  const { settings } = useSettings();
   const deleteTicket = useDeleteTicket();
   const { data: dbTicket, isLoading } = useTicket(id || '');
   const [updateMessage, setUpdateMessage] = useState('');
@@ -244,6 +242,23 @@ const TicketDetail = () => {
   const isGuest = user?.role === 'guest';
   const isAdmin = user?.role === 'admin';
   const ticket = dbTicket ? mapDbTicketToTicket(dbTicket) : null;
+
+  const currentCompliance = useMemo((): TTRCompliance => {
+    if (!ticket) return 'COMPLY';
+
+    if (ticket.status === 'CLOSED') {
+      return ticket.ttrCompliance;
+    }
+
+    const now = new Date();
+    const target = new Date(ticket.maxJamClose);
+
+    if (now > target) {
+      return 'NOT COMPLY';
+    }
+
+    return ticket.ttrCompliance;
+  }, [ticket]);
 
   const finalSisaTtr = useMemo(() => {
     if (!ticket) return 0;
@@ -475,7 +490,6 @@ const TicketDetail = () => {
               <Badge variant="outline" className="rounded-full px-3">
                 {ticket.kategori}
               </Badge>
-              <ComplianceBadge compliance={ticket.ttrCompliance} />
             </div>
           </div>
         </motion.div>
@@ -525,7 +539,7 @@ const TicketDetail = () => {
               </AlertDialog>
             )}
             
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="ml-auto">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="whatsapp" size="sm" className="gap-2 rounded-xl">
@@ -599,7 +613,7 @@ const TicketDetail = () => {
                   <div className="flex flex-col gap-3 p-3 rounded-xl bg-muted/30 border border-border/50">
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-muted-foreground">Status Compliance</span>
-                      <ComplianceBadge compliance={ticket.ttrCompliance} />
+                      <ComplianceBadge compliance={currentCompliance} />
                     </div>
                     
                     {ticket.ttrCompliance === 'NOT COMPLY' && (

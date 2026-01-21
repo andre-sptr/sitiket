@@ -1,12 +1,10 @@
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { formatDistanceToNow } from 'date-fns';
-import { id as idLocale } from 'date-fns/locale';
-import { MapPin, Calendar, Signal, ChevronRight, User } from 'lucide-react';
+import { MapPin, Calendar, ChevronRight } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { StatusBadge, ComplianceBadge, TTRBadge } from '@/components/StatusBadge';
-import { Ticket } from '@/types/ticket';
+import { Ticket, TTRCompliance } from '@/types/ticket';
 import { formatDateWIB } from '@/lib/formatters';
 import { Badge } from "@/components/ui/badge";
 
@@ -38,6 +36,21 @@ export const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
     }
     return (ticket.teknisiList && ticket.teknisiList.length > 0) ? 'ASSIGNED' : 'OPEN';
   }, [ticket]);
+
+  const currentCompliance = useMemo((): TTRCompliance => {
+    if (ticket.status === 'CLOSED') {
+      return ticket.ttrCompliance;
+    }
+
+    const now = new Date();
+    const target = new Date(ticket.maxJamClose);
+
+    if (now > target) {
+      return 'NOT COMPLY';
+    }
+
+    return ticket.ttrCompliance;
+  }, [ticket.status, ticket.maxJamClose, ticket.ttrCompliance]);
 
   return (
     <motion.div
@@ -98,7 +111,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
           <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/40 mt-2">
             <div className="flex items-center gap-2 flex-wrap">
               <TTRBadge targetDate={ticket.maxJamClose} status={ticket.status} size="sm" />
-              <ComplianceBadge compliance={ticket.ttrCompliance} size="sm" />
+              <ComplianceBadge compliance={currentCompliance} size="sm" />
             </div>
 
             {/* Teknisi Stack + Nama */}
