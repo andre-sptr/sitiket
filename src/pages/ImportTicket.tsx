@@ -319,7 +319,7 @@ const ImportTicket = () => {
     try {
       const jamOpen = new Date(formData.reportDate);
       const initialStatus = formData.teknisi1 ? 'ASSIGNED' : 'OPEN';
-      const ttrHours = parseInt(formData.ttrTarget) || 24;
+      const ttrHours = parseInt(formData.ttrTarget) || 8760;
       const maxJamClose = new Date(jamOpen.getTime() + (ttrHours * 60 * 60 * 1000));
       let lat = null;
       let lon = null;

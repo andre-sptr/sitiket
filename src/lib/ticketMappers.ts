@@ -111,7 +111,7 @@ export const mapTicketToDbInsert = (ticket: Partial<Ticket>, userId?: string) =>
   ttr_compliance: ticket.ttrCompliance || 'COMPLY',
   penyebab_not_comply: ticket.penyebabNotComply,
   jam_open: ticket.jamOpen?.toISOString() || new Date().toISOString(),
-  ttr_target_hours: ticket.ttrTargetHours || 24,
+  ttr_target_hours: ticket.ttrTargetHours || 8760,
   max_jam_close: ticket.maxJamClose?.toISOString() || new Date().toISOString(),
   ttr_real_hours: ticket.ttrRealHours,
   sisa_ttr_hours: ticket.sisaTtrHours || 0,
