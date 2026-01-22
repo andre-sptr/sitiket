@@ -43,7 +43,7 @@ export const defaultDropdownOptions: DropdownOptions = {
     'PREVENTIVE', 'INVENTORY', 'MS SDWAN', 'PSB SDWAN'],
 
   losNonLos: ['LOS', 'NON LOS', 'UNSPEC'],
-  classSite: ['Platinum'],
+  classSite: ['Platinum', 'Diamond', 'Gold', 'Silver', 'Bronze', 'Premium'],
   tim: ['SQUAT-A', 'SQUAT-B'],
   
   statusTiket: ['OPEN', 'ASSIGNED', 'ONPROGRESS', 'PENDING', 'WAITING_MATERIAL', 'WAITING_ACCESS', 'WAITING_COORDINATION', 'CLOSED', 'GAMAS'],
