@@ -211,6 +211,26 @@ const Reports = () => {
   const { toast } = useToast();
   const { data: tickets = [], isLoading } = useTickets();
 
+  const getRealTimeStatus = (ticket: any) => {
+    if (ticket.status === 'CLOSED') {
+      return {
+        isComply: ticket.ttr_compliance === 'COMPLY',
+        isOverdue: false
+      };
+    }
+
+    const jamOpen = new Date(ticket.jam_open).getTime();
+    const targetMs = (ticket.ttr_target_hours || 0) * 3600 * 1000;
+    const deadline = jamOpen + targetMs;
+    const now = Date.now();
+    const isOverdue = now > deadline;
+    
+    return {
+      isComply: !isOverdue,
+      isOverdue: isOverdue
+    };
+  };
+
   const [dateRange, setDateRange] = useState<{
     from: Date;
     to: Date;
@@ -325,7 +345,7 @@ const Reports = () => {
         closed: ticketsOnDay.filter(t => t.status === 'CLOSED').length,
         total: ticketsOnDay.length,
         avgTTR: Math.round(avgTTR * 10) / 10,
-        compliance: ticketsOnDay.filter(t => t.ttr_compliance === 'COMPLY').length,
+        compliance: ticketsOnDay.filter(t => getRealTimeStatus(t).isComply).length,
       });
     }
     
@@ -363,7 +383,9 @@ const Reports = () => {
       }
       providers[provider].total++;
       if (t.status === 'CLOSED') providers[provider].closed++;
-      if (t.ttr_compliance === 'COMPLY') providers[provider].comply++;
+      if (getRealTimeStatus(t).isComply) {
+        providers[provider].comply++;
+      }
     });
     return Object.entries(providers).map(([name, data]) => ({
       name,
@@ -395,9 +417,8 @@ const Reports = () => {
   }, [filteredTickets]);
 
   const complianceRadialData = useMemo(() => {
-    const comply = filteredTickets.filter(t => t.ttr_compliance === 'COMPLY').length;
-    const notComply = filteredTickets.filter(t => t.ttr_compliance === 'NOT COMPLY').length;
-    const total = comply + notComply;
+    const comply = filteredTickets.filter(t => getRealTimeStatus(t).isComply).length;
+    const total = filteredTickets.length;
     return [
       { name: 'Comply', value: total > 0 ? Math.round((comply / total) * 100) : 0, fill: 'hsl(142 76% 36%)' },
     ];
@@ -468,7 +489,6 @@ const Reports = () => {
   };
 
   const CATEGORY_COLORS = ['hsl(var(--primary))', 'hsl(45 93% 47%)', 'hsl(262 83% 58%)', 'hsl(174 72% 40%)', 'hsl(340 75% 55%)'];
-  const STATUS_COLORS = ['hsl(var(--primary))', 'hsl(45 93% 47%)', 'hsl(25 95% 53%)', 'hsl(262 83% 58%)', 'hsl(142 76% 36%)'];
 
   const exportToExcel = async (exportType: 'full' | 'summary') => {
     const workbook = new ExcelJS.Workbook();
@@ -1117,11 +1137,11 @@ const Reports = () => {
                     <div className="flex items-center gap-4 mt-4">
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                        <span className="text-sm">Comply: {filteredTickets.filter(t => t.ttr_compliance === 'COMPLY').length}</span>
+                        <span className="text-sm">Comply: {filteredTickets.filter(t => getRealTimeStatus(t).isComply).length}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full bg-destructive" />
-                        <span className="text-sm">Not Comply: {filteredTickets.filter(t => t.ttr_compliance === 'NOT COMPLY').length}</span>
+                        <span className="text-sm">Not Comply: {filteredTickets.filter(t => !getRealTimeStatus(t).isComply).length}</span>
                       </div>
                     </div>
                   </div>
@@ -1432,7 +1452,7 @@ const Reports = () => {
                     </div>
                   </CardHeader>
                   <CardContent className="pt-6 pl-2">
-                    <ChartContainer config={datekChartConfig} className="h-[350px] w-full">
+                    <ChartContainer config={datekChartConfig} className="h-[250px] w-full">
                       <BarChart
                         accessibilityLayer
                         data={datekData}
@@ -1485,7 +1505,7 @@ const Reports = () => {
                     const closed = categoryTickets.filter(t => t.status === 'CLOSED').length;
                     const onProgress = categoryTickets.filter(t => t.status === 'ONPROGRESS').length;
                     const pending = categoryTickets.filter(t => t.status === 'PENDING' || t.status.startsWith('WAITING')).length;
-                    const overdue = categoryTickets.filter(t => t.sisa_ttr_hours < 0 && t.status !== 'CLOSED').length;
+                    const overdue = categoryTickets.filter(t => getRealTimeStatus(t).isOverdue).length;
                     const percentage = categoryTickets.length > 0 ? Math.round((closed / categoryTickets.length) * 100) : 0;
                     
                     return (
@@ -1524,24 +1544,24 @@ const Reports = () => {
                           </div>
                           
                           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-                            <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
-                              <CheckCircle2 className="w-3 h-3" />
-                              {closed} (Closed)
-                            </span>
-                            <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
-                              <Clock className="w-3 h-3" />
-                              {onProgress} (Proses)
-                            </span>
-                            <span className="flex items-center gap-1 text-purple-600 dark:text-purple-400">
-                              <PauseCircle className="w-3 h-3" />
-                              {pending} (Pending)
-                            </span>
                             {overdue > 0 && (
                               <span className="flex items-center gap-1 text-destructive">
                                 <AlertTriangle className="w-3 h-3" />
-                                {overdue} (Overdue)
+                                {overdue}
                               </span>
                             )}
+                            <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
+                              <Activity className="w-3 h-3" />
+                              {onProgress}
+                            </span>
+                            <span className="flex items-center gap-1 text-muted-foreground">
+                              <PauseCircle className="w-3 h-3" />
+                              {pending}
+                            </span>
+                            <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                              <CheckCircle2 className="w-3 h-3" />
+                              {closed}
+                            </span>
                           </div>
                         </div>
                       </motion.div>

@@ -6,7 +6,7 @@ import { TicketCard } from '@/components/TicketCard';
 import { StatsCardSkeleton, TicketCardSkeleton } from '@/components/skeletons';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useTodayTickets, useDashboardStats } from '@/hooks/useTickets';
+import { useTodayTickets, useDashboardStats, useActiveTickets } from '@/hooks/useTickets';
 import { mapDbTicketToTicket } from '@/lib/ticketMappers';
 import { getSettings, isDueSoon as checkIsDueSoon } from '@/hooks/useSettings';
 import { 
@@ -45,12 +45,17 @@ const Dashboard = () => {
   const { toast } = useToast();
   const settings = getSettings();
   const { data: dbTickets, isLoading, refetch } = useTodayTickets();
+  const { data: activeTicketsRaw } = useActiveTickets();
   const stats = useDashboardStats();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const todayTickets = dbTickets?.map(mapDbTicketToTicket) || [];
+
+  const realTimeComplianceRate = todayTickets.length > 0
+    ? Math.round((todayTickets.filter(t => t.ttrCompliance === 'COMPLY').length / todayTickets.length) * 100)
+    : 0;
 
   useEffect(() => {
     setCurrentPage(1);
@@ -80,18 +85,17 @@ const Dashboard = () => {
   const unassignedTickets = todayTickets.filter(t => !t.assignedTo && t.status === 'OPEN');
 
   const { activeTeknisi } = useTeknisi();
-  const allBusyTechs = todayTickets
-    .filter((t) => t.status !== 'CLOSED')
+  const allBusyTechs = (activeTicketsRaw || [])
     .flatMap((t) => {
-      const techs = [];
-      if (t.assignedTo) techs.push(t.assignedTo);
-      if (t.teknisiList && Array.isArray(t.teknisiList)) {
-        techs.push(...t.teknisiList);
+      const techs: string[] = [];
+      if (t.assigned_to) techs.push(t.assigned_to);
+      if (t.teknisi_list && Array.isArray(t.teknisi_list)) {
+        techs.push(...(t.teknisi_list as string[]));
       }
       return techs;
     });
 
-  const uniqueBusyTechs = [...new Set(allBusyTechs)];
+  const uniqueBusyTechs = [...new Set(allBusyTechs)]; 
 
   const idleTechnicians = activeTeknisi
     .filter((tek) => !uniqueBusyTechs.includes(tek.name))
@@ -133,7 +137,7 @@ const Dashboard = () => {
               <Link to="/import">
                 <Button size="sm" className="gap-2 h-9">
                   <Plus className="w-4 h-4" />
-                  <span className="hidden sm:inline">Import Tiket</span>
+                  <span className="hidden sm:inline">Input Tiket</span>
                 </Button>
               </Link>
             )}
@@ -167,7 +171,7 @@ const Dashboard = () => {
               />
               <StatsCard
                 title="Overdue"
-                value={stats.overdueTickets}
+                value={overdueTickets.length}
                 icon={AlertTriangle}
                 variant="danger"
                 index={2}
@@ -201,10 +205,10 @@ const Dashboard = () => {
               />
               <StatsCard
                 title="Compliance Rate"
-                value={`${stats.complianceRate}%`}
+                value={`${realTimeComplianceRate}%`}
                 subtitle="Target: 90%"
                 icon={Percent}
-                variant={stats.complianceRate >= 90 ? 'success' : stats.complianceRate >= 70 ? 'warning' : 'danger'}
+                variant={realTimeComplianceRate >= 90 ? 'success' : realTimeComplianceRate >= 70 ? 'warning' : 'danger'}
                 index={5}
               />
             </>

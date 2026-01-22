@@ -120,6 +120,46 @@ export const useTodayTickets = () => {
   return query;
 };
 
+export const useActiveTickets = () => {
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
+    queryKey: ['tickets', 'active'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('tickets')
+        .select(`
+          assigned_to,
+          teknisi_list,
+          status
+        `)
+        .neq('status', 'CLOSED');
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('active-tickets-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'tickets' },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['tickets', 'active'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
+  return query;
+};
+
 export const useCreateTicket = () => {
   const queryClient = useQueryClient();
 

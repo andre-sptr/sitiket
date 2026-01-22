@@ -698,7 +698,7 @@ const Settings = () => {
                         <Zap className="w-5 h-5 text-primary" />
                       </div>
                       <div>
-                        <CardTitle className="text-base text-foreground">Form Import Tiket</CardTitle>
+                        <CardTitle className="text-base text-foreground">Form Input Tiket</CardTitle>
                         <CardDescription>
                           Opsi dropdown yang digunakan saat membuat tiket baru
                         </CardDescription>
