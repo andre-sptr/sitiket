@@ -112,15 +112,18 @@ const emptyForm: TicketFormData = {
 
 const REQUIRED_FIELDS: { field: keyof TicketFormData; label: string }[] = [
   { field: 'teknisi1', label: 'Teknisi' },
-  { field: 'tiket', label: 'No. Tiket (INC)' },
-  { field: 'kategori', label: 'Severity' },
   { field: 'hsa', label: 'HSA' },
   { field: 'sto', label: 'STO' },
   { field: 'odc', label: 'ODC' },
+  { field: 'kategori', label: 'Severity' },
+  { field: 'tiket', label: 'No. Tiket (INC)' },
+  { field: 'jenisGangguan', label: 'Jenis Gangguan' },
   { field: 'reportDate', label: 'Report Date' },
+  { field: 'summary', label: 'Summary' },
   { field: 'idPelanggan', label: 'ID Pelanggan / Site' },
   { field: 'namaPelanggan', label: 'Nama Pelanggan / Site' },
   { field: 'datek', label: 'DATEK' },
+  { field: 'losNonLos', label: 'LOS / Non LOS' },
 ];
 
 const cardVariants = {
@@ -143,7 +146,15 @@ const TEAM_CONFIG: Record<string, string[]> = {
 };
 
 const getVisibleFields = (tim: string) => {
-  return TEAM_CONFIG[tim] || []; 
+  if (TEAM_CONFIG[tim]) {
+    return TEAM_CONFIG[tim];
+  }
+  
+  if (tim) {
+    return TEAM_CONFIG['SQUAT-A'];
+  }
+
+  return []; 
 };
 
 const ImportTicket = () => {
@@ -259,6 +270,10 @@ const ImportTicket = () => {
       }
     });
 
+    if (formData.tim === 'MTC' && (!formData.indukGamas || formData.indukGamas.trim() === '')) {
+      newErrors.indukGamas = 'Induk GAMAS wajib diisi';
+    }
+
     if (activeFields.includes('tiket') && formData.tiket && !formData.tiket.toUpperCase().startsWith('INC')) {
       newErrors.tiket = 'Format tiket harus dimulai dengan INC (contoh: INC12345678)';
     }
@@ -269,6 +284,11 @@ const ImportTicket = () => {
     fieldsToValidate.forEach(({ field }) => {
       touchedFields[field] = true;
     });
+
+    if (formData.tim === 'MTC') {
+      touchedFields.indukGamas = true;
+    }
+    
     setTouched(prev => ({ ...prev, ...touchedFields }));
 
     return Object.keys(newErrors).length === 0;
@@ -358,6 +378,9 @@ const ImportTicket = () => {
   };
 
   const isFieldRequired = (field: keyof TicketFormData): boolean => {
+    if (field === 'indukGamas' && formData.tim === 'MTC') {
+      return true;
+    }
     return REQUIRED_FIELDS.some(f => f.field === field);
   };
 
@@ -370,11 +393,13 @@ const ImportTicket = () => {
     field, 
     options,
     placeholder = "Pilih...",
+    onAfterChange,
   }: { 
     label: string; 
     field: keyof TicketFormData; 
     options: string[];
     placeholder?: string;
+    onAfterChange?: (value: string) => void;
   }) => {
     const error = getFieldError(field);
     const required = isFieldRequired(field);
@@ -389,6 +414,7 @@ const ImportTicket = () => {
           onValueChange={(v) => {
             updateField(field, v);
             markTouched(field);
+            if (onAfterChange) onAfterChange(v);
           }}
         >
           <SelectTrigger 
@@ -604,7 +630,18 @@ const ImportTicket = () => {
               </CardHeader>
               <CardContent className="pt-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <SelectField label="Unit" field="tim" options={DROPDOWN_OPTIONS.tim} />
+                  <SelectField 
+                    label="Unit" 
+                    field="tim" 
+                    options={DROPDOWN_OPTIONS.tim} 
+                    onAfterChange={(val) => {
+                      if (val === 'MTC') {
+                        updateField('jenisPelanggan', 'GAMAS');
+                      } else {
+                        updateField('jenisPelanggan', 'TSEL');
+                      }
+                    }}
+                  />
                   {showField('teknisi1') && (
                     <div className="space-y-2">
                       <Label className={cn(
@@ -793,7 +830,10 @@ const ImportTicket = () => {
                     </div>
                   </CardHeader>
                   <CardContent className="pt-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className={cn(
+                      "grid grid-cols-1 md:grid-cols-2 gap-4",
+                      formData.tim === 'MTC' ? "lg:grid-cols-3" : "lg:grid-cols-4"
+                    )}>
                       {showField('tiket') && (
                         <div className="space-y-2">
                           <Label className="text-xs font-medium text-muted-foreground">
@@ -841,32 +881,34 @@ const ImportTicket = () => {
                           />
                         </div>
                       )}
-                      {showField('jenisGangguan') && (
-                        <div className="space-y-2">
-                          <Label className="text-xs font-medium text-muted-foreground">
-                            Jenis Gangguan
-                          </Label>
-                          <Input
-                            value={formData.jenisGangguan}
-                            onChange={(e) => updateField('jenisGangguan', e.target.value)}
-                            onBlur={() => markTouched('jenisGangguan')}
-                            placeholder="Jenis gangguan..."
-                            className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200"
-                          />
-                        </div>
-                      )}
                       {showField('indukGamas') && (
                         <div className="space-y-2">
                           <Label className="text-xs font-medium text-muted-foreground">
-                            Induk GAMAS
+                            Induk GAMAS {isFieldRequired('indukGamas') && <span className="text-destructive">*</span>}
                           </Label>
                           <Input
                             value={formData.indukGamas}
                             onChange={(e) => updateField('indukGamas', e.target.value)}
                             onBlur={() => markTouched('indukGamas')}
-                            placeholder="Optional"
-                            className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200"
+                            placeholder={formData.tim === 'MTC' ? "INC12345678" : "Optional"}
+                            className={cn(
+                              "h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200",
+                              errors.indukGamas && touched.indukGamas && "border-destructive ring-2 ring-destructive/20 bg-destructive/5"
+                            )}
                           />
+                          <AnimatePresence>
+                            {errors.indukGamas && touched.indukGamas && (
+                              <motion.p 
+                                initial={{ opacity: 0, y: -5 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -5 }}
+                                className="text-xs text-destructive flex items-center gap-1"
+                              >
+                                <AlertCircle className="w-3 h-3" />
+                                {errors.indukGamas}
+                              </motion.p>
+                            )}
+                          </AnimatePresence>
                         </div>
                       )}
                       {showField('kjd') && (
@@ -881,6 +923,36 @@ const ImportTicket = () => {
                             placeholder="Optional"
                             className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200"
                           />
+                        </div>
+                      )}
+                      {showField('jenisGangguan') && (
+                        <div className="space-y-2">
+                          <Label className="text-xs font-medium text-muted-foreground">
+                            Jenis Gangguan <span className="text-destructive">*</span>
+                          </Label>
+                          <Input
+                            value={formData.jenisGangguan}
+                            onChange={(e) => updateField('jenisGangguan', e.target.value)}
+                            onBlur={() => markTouched('jenisGangguan')}
+                            placeholder="ODP LOSS"
+                            className={cn(
+                              "h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200",
+                              errors.jenisGangguan && touched.jenisGangguan && "border-destructive ring-2 ring-destructive/20 bg-destructive/5"
+                            )}
+                          />
+                          <AnimatePresence>
+                            {errors.jenisGangguan && touched.jenisGangguan && (
+                              <motion.p 
+                                initial={{ opacity: 0, y: -5 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -5 }}
+                                className="text-xs text-destructive flex items-center gap-1"
+                              >
+                                <AlertCircle className="w-3 h-3" />
+                                {errors.jenisGangguan}
+                              </motion.p>
+                            )}
+                          </AnimatePresence>
                         </div>
                       )}
                     </div>
@@ -932,14 +1004,33 @@ const ImportTicket = () => {
                       )}
                     </div>
                     {showField('summary') && (
-                      <div className="mt-4">
-                        <Label className="text-xs font-medium text-muted-foreground">Summary</Label>
+                      <div className="space-y-2 mt-4">
+                        <Label className="text-xs font-medium text-muted-foreground">
+                          Summary <span className="text-destructive">*</span>
+                        </Label>
                         <Textarea
                           value={formData.summary}
                           onChange={(e) => updateField('summary', e.target.value)}
+                          onBlur={() => markTouched('summary')}
                           placeholder="TSEL_METRO_PBR178_PEKANBARU..."
-                          className="mt-2 min-h-[80px] bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200 resize-none"
+                          className={cn(
+                            "min-h-[80px] bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200 resize-none",
+                            errors.summary && touched.summary && "border-destructive ring-2 ring-destructive/20 bg-destructive/5"
+                          )}
                         />
+                        <AnimatePresence>
+                          {errors.summary && touched.summary && (
+                            <motion.p 
+                              initial={{ opacity: 0, y: -5 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -5 }}
+                              className="text-xs text-destructive flex items-center gap-1"
+                            >
+                              <AlertCircle className="w-3 h-3" />
+                              {errors.summary}
+                            </motion.p>
+                          )}
+                        </AnimatePresence>
                       </div>
                     )}
                   </CardContent>
@@ -962,7 +1053,10 @@ const ImportTicket = () => {
                     </div>
                   </CardHeader>
                   <CardContent className="pt-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className={cn(
+                      "grid grid-cols-1 md:grid-cols-2 gap-4",
+                      formData.tim === 'MTC' ? "lg:grid-cols-1" : "lg:grid-cols-4"
+                    )}>
                       {showField('idPelanggan') && (
                         <div className="space-y-2">
                           <Label className="text-xs font-medium text-muted-foreground">
@@ -1056,6 +1150,8 @@ const ImportTicket = () => {
                       {showField('losNonLos') && (
                         <SelectField label="LOS / Non LOS" field="losNonLos" options={DROPDOWN_OPTIONS.losNonLos} />
                       )}
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                       {showField('siteImpact') && (
                         <div className="space-y-2">
                           <Label className="text-xs font-medium text-muted-foreground">

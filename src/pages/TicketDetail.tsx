@@ -76,6 +76,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import SEO from '@/components/SEO';
+import { useTeknisi } from '@/hooks/useTeknisi';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -241,6 +242,7 @@ const MTCDetailRow = ({ label, value, icon: Icon }: { label: string, value: stri
 
 const TicketDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const { teknisiList: allTeknisi } = useTeknisi();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -253,6 +255,15 @@ const TicketDetail = () => {
   const isAdmin = user?.role === 'admin';
   const ticket = dbTicket ? mapDbTicketToTicket(dbTicket) : null;
   const isMTC = ticket?.tim === 'MTC';
+
+  const handleWhatsApp = (phone: string) => {
+    const formatted = phone.replace(/\D/g, '').replace(/^0/, '62');
+    window.open(`https://wa.me/${formatted}`, '_blank');
+  };
+
+  const handleCall = (phone: string) => {
+    window.location.href = `tel:${phone}`;
+  };
 
   const currentCompliance = useMemo((): TTRCompliance => {
     if (!ticket) return 'COMPLY';
@@ -887,25 +898,63 @@ const TicketDetail = () => {
                       
                       {ticket.teknisiList && ticket.teknisiList.length > 0 ? (
                         <div className="space-y-2">
-                          {ticket.teknisiList.map((name, i) => (
-                            <motion.div 
-                              key={i} 
-                              className="flex items-center justify-between p-3 rounded-xl bg-muted/30 group"
-                              whileHover={{ scale: 1.01, backgroundColor: 'hsl(var(--muted) / 0.5)' }}
-                            >
-                              <div className="flex items-center gap-3 overflow-hidden">
-                                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                  <User className="w-4 h-4 text-primary" />
+                          {ticket.teknisiList.map((name, i) => {
+                            const teknisiData = allTeknisi.find(t => t.name === name);
+                            const phoneNumber = teknisiData?.phone;
+
+                            return (
+                              <motion.div 
+                                key={i} 
+                                className="flex items-center justify-between p-3 rounded-xl bg-muted/30 group"
+                                whileHover={{ scale: 1.01, backgroundColor: 'hsl(var(--muted) / 0.5)' }}
+                              >
+                                <div className="flex items-center gap-3 overflow-hidden">
+                                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                    <User className="w-4 h-4 text-primary" />
+                                  </div>
+                                  <div className="min-w-0">
+                                    <p className="text-sm font-medium truncate max-w-[110px] sm:max-w-[150px]" title={name}>
+                                      {name}
+                                    </p>
+                                    {phoneNumber && (
+                                      <p className="text-[10px] text-muted-foreground">{phoneNumber}</p>
+                                    )}
+                                  </div>
                                 </div>
-                                <span className="text-sm font-medium truncate max-w-[110px] sm:max-w-[150px]" title={name}>{name}</span>
-                              </div>
-                              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="flex-shrink-0">
-                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full opacity-50 group-hover:opacity-100">
-                                  <Phone className="w-4 h-4" />
-                                </Button>
+                                
+                                <div className="flex items-center gap-1 flex-shrink-0">
+                                  {phoneNumber && (
+                                    <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                                      <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        className="h-8 w-8 rounded-full text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+                                        onClick={() => handleWhatsApp(phoneNumber)}
+                                        title="Chat WhatsApp"
+                                      >
+                                        <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.008-.57-.008-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                                        </svg>
+                                      </Button>
+                                    </motion.div>
+                                  )}
+
+                                  <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="icon" 
+                                      className={`h-8 w-8 rounded-full ${phoneNumber ? 'opacity-100 hover:bg-primary/10 hover:text-primary' : 'opacity-30 cursor-not-allowed'}`}
+                                      onClick={() => phoneNumber && handleCall(phoneNumber)}
+                                      disabled={!phoneNumber}
+                                      title="Panggilan Telepon"
+                                    >
+                                      <Phone className="w-4 h-4" />
+                                    </Button>
+                                  </motion.div>
+                                </div>
                               </motion.div>
-                            </motion.div>
-                          ))}
+                            );
+                          })}
                         </div>
                       ) : (
                         <div className="text-center py-6">

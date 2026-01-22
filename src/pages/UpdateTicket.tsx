@@ -417,6 +417,34 @@ const UpdateTicket = () => {
     }
   }, [formData.statusTiket]);
 
+  useEffect(() => {
+    if (!ticket?.max_jam_close) return;
+
+    const checkCompliance = () => {
+      const now = new Date();
+      const maxClose = new Date(ticket.max_jam_close);
+      const isOverdue = now > maxClose;
+      const realtimeStatus = isOverdue ? 'NOT COMPLY' : 'COMPLY';
+
+      setFormData(prev => {
+        if (prev.compliance !== realtimeStatus) {
+          return {
+            ...prev,
+            compliance: realtimeStatus,
+            penyebabNotComply: realtimeStatus === 'COMPLY' ? '' : prev.penyebabNotComply
+          };
+        }
+        return prev;
+      });
+    };
+
+    checkCompliance();
+
+    const interval = setInterval(checkCompliance, 10000);
+
+    return () => clearInterval(interval);
+  }, [ticket?.max_jam_close]);
+
   const updateField = (field: keyof UpdateFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
@@ -670,15 +698,21 @@ const UpdateTicket = () => {
             <CardContent className="pt-5 pb-5 relative">
               <div className="flex flex-wrap items-center gap-6">
                 <motion.div whileHover={{ scale: 1.02 }} className="group">
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">No. Tiket</p>
-                  <p className="font-mono font-bold text-lg group-hover:text-primary transition-colors">
-                    {Array.isArray(ticket.inc_numbers) ? ticket.inc_numbers.join(', ') : ticket.inc_numbers}
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">{ticket.tim === 'MTC' ? 'Gamas' : 'No. Tiket'}</p>
+                  <p className="font-medium">
+                    {ticket.tim === 'MTC' 
+                      ? (ticket.inc_gamas || '-') 
+                      : (Array.isArray(ticket.inc_numbers) ? ticket.inc_numbers.join(', ') : ticket.inc_numbers)
+                    }
                   </p>
                 </motion.div>
                 <div className="h-10 w-px bg-border/50 hidden md:block" />
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">Site</p>
-                  <p className="font-medium">{ticket.site_name} - {ticket.site_code}</p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">{ticket.tim === 'MTC' ? 'Datek' : 'Site'}</p>
+                  <p className="font-medium">{ticket.tim === 'MTC' 
+                    ? (ticket.datek || '-') 
+                    : `${ticket.site_code} - ${ticket.site_name}`
+                  }</p>
                 </div>
                 <div className="h-10 w-px bg-border/50 hidden md:block" />
                 <div>
