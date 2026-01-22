@@ -61,6 +61,7 @@ import {
   Users,
   ChevronDown,
   Loader2,
+  Pencil,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -255,6 +256,10 @@ const TicketDetail = () => {
   const isAdmin = user?.role === 'admin';
   const ticket = dbTicket ? mapDbTicketToTicket(dbTicket) : null;
   const isMTC = ticket?.tim === 'MTC';
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [id]);
 
   const handleWhatsApp = (phone: string) => {
     const formatted = phone.replace(/\D/g, '').replace(/^0/, '62');
@@ -510,16 +515,28 @@ const TicketDetail = () => {
         {!isGuest && (
           <motion.div variants={itemVariants} className="flex flex-wrap gap-2">
             {!isAdmin && (
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Button 
-                  size="sm" 
-                  className="gap-2 rounded-xl shadow-lg shadow-primary/20" 
-                  onClick={() => navigate(`/ticket/${id}/update`)}
-                >
-                  <FileText className="w-4 h-4" />
-                  Update Tiket
-                </Button>
-              </motion.div>
+              <>
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Button 
+                    size="sm" 
+                    className="gap-2 rounded-xl shadow-lg shadow-primary/20" 
+                    onClick={() => navigate(`/ticket/${id}/update`)}
+                  >
+                    <FileText className="w-4 h-4" />
+                    Update Tiket
+                  </Button>
+                </motion.div>
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Button 
+                    size="sm" 
+                    className="gap-2 rounded-xl shadow-lg shadow-primary/20" 
+                    onClick={() => navigate(`/ticket/${id}/edit-data`)}
+                  >
+                    <Pencil className="w-4 h-4" />
+                    Edit Tiket
+                  </Button>
+                </motion.div>
+              </>
             )}
 
             {!isAdmin && (
@@ -536,7 +553,7 @@ const TicketDetail = () => {
                   <AlertDialogHeader>
                     <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      Tindakan ini tidak dapat dibatalkan. Tiket <strong>{ticket?.incNumbers?.[0]}</strong> akan dihapus secara permanen dari database.
+                      Tindakan ini tidak dapat dibatalkan. Tiket <strong>{isMTC ? (ticket.incGamas || '-') : ticket?.incNumbers?.[0]}</strong> akan dihapus secara permanen dari database.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>

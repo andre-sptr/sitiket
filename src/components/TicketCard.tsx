@@ -14,6 +14,7 @@ interface TicketCardProps {
 
 export const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
   const navigate = useNavigate();
+  const isMTC = ticket?.tim === 'MTC';
 
   const displayStatus = useMemo(() => {
     if (!ticket) return 'OPEN';
@@ -75,7 +76,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
           <div className="flex items-center justify-between gap-2 mb-2">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span className="font-mono font-medium text-foreground bg-muted px-1.5 py-0.5 rounded">
-                {ticket.incNumbers[0]}
+                {isMTC ? (ticket.incGamas || '-') :ticket.incNumbers[0]}
               </span>
               <span className="hidden sm:inline">•</span>
               <span className="flex items-center gap-1">
@@ -90,9 +91,9 @@ export const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
           <div className="flex items-start justify-between gap-3 mb-2">
             <div className="min-w-0">
               <h3 className="font-bold text-sm sm:text-base truncate group-hover:text-primary transition-colors flex items-center gap-2">
-                {ticket.siteName}
+                {isMTC ? (ticket.datek || '-') : ticket.siteName}
                 <span className="font-normal text-muted-foreground text-xs border border-border px-1.5 rounded hidden sm:inline-block">
-                  {ticket.siteCode}
+                  {isMTC ? (ticket.odc || '-') : ticket.siteCode}
                 </span>
               </h3>
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5 truncate">

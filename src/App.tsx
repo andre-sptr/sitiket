@@ -59,6 +59,7 @@ const AppRoutes = () => {
         <Route path="/tickets" element={<ProtectedRoute><AllTickets /></ProtectedRoute>} />
         <Route path="/ticket/:id" element={<ProtectedRoute><TicketDetail /></ProtectedRoute>} />
         <Route path="/ticket/:id/update" element={<ProtectedRoute><UpdateTicket /></ProtectedRoute>} />
+        <Route path="/ticket/:id/edit-data" element={<ProtectedRoute><ImportTicket /></ProtectedRoute>} />
         <Route path="/import" element={<ProtectedRoute><ImportTicket /></ProtectedRoute>} />
         <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
         <Route path="/users" element={<ProtectedRoute><UserManagement /></ProtectedRoute>} />

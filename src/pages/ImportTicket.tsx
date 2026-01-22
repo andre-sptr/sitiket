@@ -28,14 +28,15 @@ import {
   Users,
   Building2,
   Ticket as TicketIcon,
-  Sparkles
+  Sparkles,
+  Pencil
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useDropdownOptions, hsaToStoMap } from '@/hooks/useDropdownOptions';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTeknisi } from '@/hooks/useTeknisi';
-import { useCreateTicket } from '@/hooks/useTickets';
+import { useCreateTicket, useTicket, useUpdateTicket } from '@/hooks/useTickets';
 import { cn } from "@/lib/utils";
 import {
   Command,
@@ -158,6 +159,8 @@ const getVisibleFields = (tim: string) => {
 };
 
 const ImportTicket = () => {
+  const { id } = useParams<{ id: string }>();
+  const isEditMode = !!id;
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -174,6 +177,8 @@ const ImportTicket = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const filteredStoOptions = formData.hsa ? hsaToStoMap[formData.hsa] || [] : [];
   const createTicket = useCreateTicket();
+  const updateTicket = useUpdateTicket();
+  const { data: ticketData, isLoading: isLoadingTicket } = useTicket(id || '');
 
   const visibleFields = useMemo(() => 
     formData.tim ? getVisibleFields(formData.tim) : [], 
@@ -182,28 +187,79 @@ const ImportTicket = () => {
   const showField = (fieldName: keyof TicketFormData) => visibleFields.includes(fieldName);
 
   useEffect(() => {
-    const kategori = formData.kategori;
-    if (kategori) {
-      const match = kategori.match(/\[(\d+)\]/);
-      if (match && match[1]) {
-        updateField('ttrTarget', match[1]);
-      } else {
-        updateField('ttrTarget', ''); 
-      }
+    if (isEditMode && ticketData) {
+        const formatDateForInput = (dateString: string | null) => {
+            if (!dateString) return '';
+            const d = new Date(dateString);
+            const pad = (n: number) => n.toString().padStart(2, '0');
+            return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        };
+
+        const existingData: TicketFormData = {
+            hsa: ticketData.hsa || '',
+            sto: ticketData.sto || '',
+            odc: ticketData.odc || '',
+            stakeHolder: ticketData.stake_holder || '',
+            jenisPelanggan: ticketData.provider || '',
+            kategori: ticketData.kategori || '',
+            tiket: ticketData.inc_numbers?.[0] || '',
+            tiketTacc: ticketData.tacc || '',
+            indukGamas: ticketData.inc_gamas || '',
+            kjd: ticketData.kjd || '',
+            summary: ticketData.raw_ticket_text || '',
+            idPelanggan: ticketData.id_pelanggan || '',
+            namaPelanggan: ticketData.nama_pelanggan || '',
+            datek: ticketData.datek || '',
+            losNonLos: ticketData.los_non_los || '',
+            siteImpact: ticketData.site_impact || '',
+            classSite: ticketData.class_site || '',
+            koordinat: (ticketData.latitude && ticketData.longitude) 
+                ? `${ticketData.latitude}, ${ticketData.longitude}` 
+                : '',
+            histori6Bulan: '',
+            reportDate: formatDateForInput(ticketData.jam_open),
+            ttrTarget: ticketData.ttr_target_hours?.toString() || '',
+            teknisi1: ticketData.teknisi_list?.[0] || '',
+            tim: ticketData.tim || '',
+            jenisGangguan: ticketData.jenis_gangguan || ''
+        };
+        setFormData(existingData);
+        setIsLoading(false);
+    } else if (!isEditMode) {
+        setFormData(emptyForm);
+        setErrors({});
+        setTouched({});
+        setIsLoading(true);
+        setTimeout(() => setIsLoading(false), 300);
     }
-  }, [formData.kategori]);
+  }, [isEditMode, ticketData, id]);
 
   useEffect(() => {
-    const currentStoOptions = formData.hsa ? hsaToStoMap[formData.hsa] || [] : [];
-    if (formData.sto && !currentStoOptions.includes(formData.sto)) {
-       updateField('sto', '');
+    if (!isLoading && formData.kategori) {
+       const match = formData.kategori.match(/\[(\d+)\]/);
+       if (match && match[1]) {
+         if (formData.ttrTarget !== match[1]) {
+             updateField('ttrTarget', match[1]);
+         }
+       }
     }
-  }, [formData.hsa]);
+  }, [formData.kategori, isLoading]);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 500);
-    return () => clearTimeout(timer);
-  }, []);
+    if (!isLoading) {
+        const currentStoOptions = formData.hsa ? hsaToStoMap[formData.hsa] || [] : [];
+        if (formData.sto && !currentStoOptions.includes(formData.sto) && currentStoOptions.length > 0) {
+           updateField('sto', '');
+        }
+    }
+  }, [formData.hsa, isLoading]);
+
+  useEffect(() => {
+    if (!isEditMode) {
+        const timer = setTimeout(() => setIsLoading(false), 500);
+        return () => clearTimeout(timer);
+    }
+  }, [isEditMode]);
 
   if (user?.role === 'guest') {
     return (
@@ -237,7 +293,7 @@ const ImportTicket = () => {
     );
   }
 
-  if (isLoading) {
+  if (isLoading || (isEditMode && isLoadingTicket)) {
     return (
       <Layout>
         <FormSkeleton sections={4} fieldsPerSection={6} />
@@ -295,13 +351,17 @@ const ImportTicket = () => {
   };
 
   const handleReset = () => {
-    setFormData(emptyForm);
-    setErrors({});
-    setTouched({});
-    toast({
-      title: "Form Direset",
-      description: "Semua field telah dikosongkan",
-    });
+    if (isEditMode && ticketData) {
+        window.location.reload();
+    } else {
+        setFormData(emptyForm);
+        setErrors({});
+        setTouched({});
+        toast({
+            title: "Form Direset",
+            description: "Semua field telah dikosongkan",
+        });
+    }
   };
 
   const handleSubmit = async () => {
@@ -318,7 +378,6 @@ const ImportTicket = () => {
 
     try {
       const jamOpen = new Date(formData.reportDate);
-      const initialStatus = formData.teknisi1 ? 'ASSIGNED' : 'OPEN';
       const ttrHours = parseInt(formData.ttrTarget) || 8760;
       const maxJamClose = new Date(jamOpen.getTime() + (ttrHours * 60 * 60 * 1000));
       let lat = null;
@@ -328,7 +387,8 @@ const ImportTicket = () => {
         lat = parseFloat(latStr);
         lon = parseFloat(lonStr);
       }
-      await createTicket.mutateAsync({
+
+      const payload = {
         hsa: formData.hsa,
         sto: formData.sto,
         odc: formData.odc,
@@ -348,23 +408,43 @@ const ImportTicket = () => {
         jam_open: jamOpen.toISOString(),
         ttr_target_hours: ttrHours,
         max_jam_close: maxJamClose.toISOString(),
-        status: initialStatus,
         provider: formData.jenisPelanggan,
         stake_holder: formData.stakeHolder,
         kjd: formData.kjd || null,
         inc_gamas: formData.indukGamas || null,
         jenis_gangguan: formData.jenisGangguan || null,
         teknisi_list: formData.teknisi1 ? [formData.teknisi1] : [],
-        latitude: isNaN(lat!) ? null : lat,
-        longitude: isNaN(lon!) ? null : lon,
-        created_by: user?.id,
+        latitude: (lat !== null && !isNaN(lat)) ? lat : null,
+        longitude: (lon !== null && !isNaN(lon)) ? lon : null,
         raw_ticket_text: formData.summary
-      });
-      toast({
-        title: "Tiket Berhasil Disimpan",
-        description: `Tiket ${formData.tiket} telah ditambahkan dengan status ${initialStatus}`,
-      });
-      navigate('/tickets');
+      };
+
+      if (isEditMode && id) {
+        await updateTicket.mutateAsync({
+            id: id,
+            updates: {
+                ...payload,
+                updated_at: new Date().toISOString()
+            }
+        });
+        toast({
+            title: "Tiket Diperbarui",
+            description: `Data tiket ${formData.tiket} berhasil diupdate`,
+        });
+        navigate(`/ticket/${id}`);
+      } else {
+        const initialStatus = formData.teknisi1 ? 'ASSIGNED' : 'OPEN';
+        await createTicket.mutateAsync({
+            ...payload,
+            status: initialStatus,
+            created_by: user?.id,
+        });
+        toast({
+            title: "Tiket Berhasil Disimpan",
+            description: `Tiket ${formData.tiket} telah ditambahkan dengan status ${initialStatus}`,
+        });
+        navigate('/tickets');
+      }
     } catch (error) {
       console.error('Gagal menyimpan tiket:', error);
       toast({
@@ -394,12 +474,14 @@ const ImportTicket = () => {
     options,
     placeholder = "Pilih...",
     onAfterChange,
+    disabled = false
   }: { 
     label: string; 
     field: keyof TicketFormData; 
     options: string[];
     placeholder?: string;
     onAfterChange?: (value: string) => void;
+    disabled?: boolean;
   }) => {
     const error = getFieldError(field);
     const required = isFieldRequired(field);
@@ -416,6 +498,7 @@ const ImportTicket = () => {
             markTouched(field);
             if (onAfterChange) onAfterChange(v);
           }}
+          disabled={disabled}
         >
           <SelectTrigger 
             className={cn(
@@ -530,7 +613,7 @@ const ImportTicket = () => {
 
   return (
     <Layout>
-      <SEO title="Input Tiket Baru" description="Form input tiket gangguan baru. Tambahkan data site, kategori, teknisi, dan informasi gangguan ke sistem." />
+      <SEO title={isEditMode ? "Edit Data Tiket" : "Input Tiket Baru"} description="Form manajemen data tiket." />
       <div className="space-y-6 max-w-5xl mx-auto pb-8">
         <motion.div 
           initial={{ opacity: 0, y: -10 }}
@@ -540,14 +623,16 @@ const ImportTicket = () => {
         >
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <TicketIcon className="w-6 h-6 text-primary" />
+               {isEditMode ? <Pencil className="w-6 h-6 text-primary" /> : <TicketIcon className="w-6 h-6 text-primary" />}
             </div>
             <div>
               <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-                Input Tiket Baru
+                {isEditMode ? "Edit Data Tiket" : "Input Tiket Baru"}
               </h1>
               <p className="text-muted-foreground text-sm mt-1">
-                Masukkan data awal tiket gangguan. Progress & status akan diupdate kemudian.
+                {isEditMode 
+                  ? "Perbarui informasi teknis dan data pelanggan" 
+                  : "Masukkan data awal tiket gangguan"}
               </p>
             </div>
           </div>
@@ -575,7 +660,7 @@ const ImportTicket = () => {
               ) : (
                 <Save className="w-4 h-4" />
               )}
-              <span>{isSubmitting ? 'Menyimpan...' : 'Simpan'}</span>
+              <span>{isSubmitting ? 'Menyimpan...' : (isEditMode ? 'Update Tiket' : 'Simpan Tiket')}</span>
             </Button>
           </div>
         </motion.div>
@@ -634,6 +719,7 @@ const ImportTicket = () => {
                     label="Unit" 
                     field="tim" 
                     options={DROPDOWN_OPTIONS.tim} 
+                    disabled={isEditMode}
                     onAfterChange={(val) => {
                       if (val === 'MTC') {
                         updateField('jenisPelanggan', 'GAMAS');
@@ -1000,7 +1086,7 @@ const ImportTicket = () => {
                         </div>
                       )}
                       {showField('ttrTarget') && (
-                        <InputField label="TTR Target (Jam)" field="ttrTarget" placeholder="Otomatis..." />
+                        <InputField label="TTR Target (Jam)" field="ttrTarget" placeholder="Otomatis..." type="number" />
                       )}
                     </div>
                     {showField('summary') && (
@@ -1209,7 +1295,7 @@ const ImportTicket = () => {
             ) : (
               <>
                 <Save className="w-4 h-4" />
-                <span>Simpan Tiket</span>
+                <span>{isEditMode ? "Update Tiket" : "Simpan Tiket"}</span>
               </>
             )}
           </Button>
