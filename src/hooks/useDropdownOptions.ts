@@ -44,9 +44,9 @@ export const defaultDropdownOptions: DropdownOptions = {
 
   losNonLos: ['LOS', 'NON LOS', 'UNSPEC'],
   classSite: ['Platinum', 'Diamond', 'Gold', 'Silver', 'Bronze', 'Premium'],
-  tim: ['SQUAT-A', 'SQUAT-B'],
+  tim: ['SQUAT-A', 'SQUAT-B', 'MTC'],
   
-  statusTiket: ['OPEN', 'ASSIGNED', 'ONPROGRESS', 'PENDING', 'WAITING_MATERIAL', 'WAITING_ACCESS', 'WAITING_COORDINATION', 'CLOSED', 'GAMAS'],
+  statusTiket: ['OPEN', 'ASSIGNED', 'ONPROGRESS', 'PENDING', 'WAITING_MATERIAL', 'WAITING_ACCESS', 'WAITING_COORDINATION', 'CLOSED'],
   compliance: ['COMPLY', 'NOT COMPLY'],
   permanenTemporer: ['PERMANEN', 'TEMPORARY'],
   statusAlatBerat: ['DI LOKASI DAN BEROPERASI', 'STOP TETAPI DI LOKASI', 'TIDAK ADA ALBER DI LOKASI'],
@@ -166,7 +166,7 @@ export const dropdownLabels: Record<keyof DropdownOptions, string> = {
   kategori: 'Severity',
   losNonLos: 'LOS / Non LOS',
   classSite: 'Class Site',
-  tim: 'Tim',
+  tim: 'Unit',
   statusTiket: 'Status Tiket',
   compliance: 'Compliance',
   permanenTemporer: 'Permanen / Temporer',

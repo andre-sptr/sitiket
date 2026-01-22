@@ -78,6 +78,7 @@ interface TicketFormData {
   ttrTarget: string;
   teknisi1: string;
   tim: string;
+  jenisGangguan: string;
 }
 
 type FormErrors = Partial<Record<keyof TicketFormData, string>>;
@@ -106,6 +107,7 @@ const emptyForm: TicketFormData = {
   ttrTarget: '',
   teknisi1: '',
   tim: '',
+  jenisGangguan: '',
 };
 
 const REQUIRED_FIELDS: { field: keyof TicketFormData; label: string }[] = [
@@ -136,7 +138,8 @@ const cardVariants = {
 
 const TEAM_CONFIG: Record<string, string[]> = {
   'SQUAT-A': ['teknisi1', 'hsa', 'sto', 'odc', 'stakeHolder', 'jenisPelanggan', 'kategori', 'tiket', 'tiketTacc', 'indukGamas', 'kjd', 'reportDate', 'ttrTarget', 'summary','idPelanggan', 'namaPelanggan', 'datek', 'losNonLos', 'siteImpact', 'classSite' ],
-  'SQUAT-B': ['teknisi1', 'idPelanggan', 'namaPelanggan', 'datek', 'losNonLos', 'siteImpact', 'classSite'],
+  'SQUAT-B': ['teknisi1', 'hsa', 'sto', 'odc', 'stakeHolder', 'jenisPelanggan', 'kategori', 'tiket', 'tiketTacc', 'indukGamas', 'kjd', 'reportDate', 'ttrTarget', 'summary','idPelanggan', 'namaPelanggan', 'datek', 'losNonLos', 'siteImpact', 'classSite' ],
+  'MTC': ['teknisi1', 'hsa', 'sto', 'odc', 'stakeHolder', 'jenisPelanggan', 'kategori', 'jenisGangguan', 'datek', 'indukGamas', 'kjd', 'reportDate', 'ttrTarget' ],
 };
 
 const getVisibleFields = (tim: string) => {
@@ -330,6 +333,7 @@ const ImportTicket = () => {
         stake_holder: formData.stakeHolder,
         kjd: formData.kjd || null,
         inc_gamas: formData.indukGamas || null,
+        jenis_gangguan: formData.jenisGangguan || null,
         teknisi_list: formData.teknisi1 ? [formData.teknisi1] : [],
         latitude: isNaN(lat!) ? null : lat,
         longitude: isNaN(lon!) ? null : lon,
@@ -837,6 +841,20 @@ const ImportTicket = () => {
                           />
                         </div>
                       )}
+                      {showField('jenisGangguan') && (
+                        <div className="space-y-2">
+                          <Label className="text-xs font-medium text-muted-foreground">
+                            Jenis Gangguan
+                          </Label>
+                          <Input
+                            value={formData.jenisGangguan}
+                            onChange={(e) => updateField('jenisGangguan', e.target.value)}
+                            onBlur={() => markTouched('jenisGangguan')}
+                            placeholder="Jenis gangguan..."
+                            className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200"
+                          />
+                        </div>
+                      )}
                       {showField('indukGamas') && (
                         <div className="space-y-2">
                           <Label className="text-xs font-medium text-muted-foreground">
@@ -860,7 +878,7 @@ const ImportTicket = () => {
                             value={formData.kjd}
                             onChange={(e) => updateField('kjd', e.target.value)}
                             onBlur={() => markTouched('kjd')}
-                            placeholder="KJD12345"
+                            placeholder="Optional"
                             className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200"
                           />
                         </div>

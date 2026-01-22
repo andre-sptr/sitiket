@@ -204,6 +204,7 @@ export type Database = {
           tacc: string | null
           tim: string | null
           inc_gamas: string | null
+          jenis_gangguan: string | null
           inc_numbers: string[]
           is_permanent: boolean | null
           jam_open: string
@@ -263,6 +264,7 @@ export type Database = {
           tacc?: string | null
           tim?: string | null
           inc_gamas?: string | null
+          jenis_gangguan?: string | null
           inc_numbers?: string[]
           is_permanent?: boolean | null
           jam_open?: string
@@ -322,6 +324,7 @@ export type Database = {
           tacc?: string | null
           tim?: string | null
           inc_gamas?: string | null
+          jenis_gangguan?: string | null
           inc_numbers?: string[]
           is_permanent?: boolean | null
           jam_open?: string
