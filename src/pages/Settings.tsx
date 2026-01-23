@@ -747,7 +747,7 @@ const Settings = () => {
                           key={key}
                           optionKey={key}
                           label={dropdownLabels[key]}
-                          values={dropdownOptions[key]}
+                          values={[...(dropdownOptions[key] || [])].sort((a, b) => a.localeCompare(b))}
                           onChange={(values) => handleDropdownOptionChange(key as keyof DropdownOptions, values)}
                         />
                       ))}

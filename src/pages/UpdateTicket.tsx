@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { ComboboxField } from '@/components/ComboboxField';
 import {
   Select,
   SelectContent,
@@ -451,6 +452,10 @@ const UpdateTicket = () => {
     return () => clearInterval(interval);
   }, [ticket?.max_jam_close]);
 
+  const sortedSegmen = [...DROPDOWN_OPTIONS.segmen].sort((a, b) => a.localeCompare(b));
+  const sortedPenyebab = [...DROPDOWN_OPTIONS.penyebabGangguan].sort((a, b) => a.localeCompare(b));
+  const sortedPerbaikan = [...DROPDOWN_OPTIONS.perbaikanGangguan].sort((a, b) => a.localeCompare(b));
+
   const updateField = (field: keyof UpdateFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
@@ -853,29 +858,34 @@ const UpdateTicket = () => {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <SelectField 
+                  <ComboboxField 
                     label="Segmen Terganggu" 
                     value={formData.segmenTerganggu}
-                    onValueChange={(v) => { updateField('segmenTerganggu', v); markTouched('segmenTerganggu'); }}
+                    onChange={(v) => { updateField('segmenTerganggu', v); markTouched('segmenTerganggu'); }}
+                    onBlur={() => markTouched('segmenTerganggu')}
                     error={getFieldError('segmenTerganggu')}
                     required={isFieldRequired('segmenTerganggu')}
-                    options={DROPDOWN_OPTIONS.segmen}
+                    options={sortedSegmen}
                   />
-                  <SelectField 
+                  
+                  <ComboboxField 
                     label="Penyebab Gangguan" 
                     value={formData.penyebabGangguan}
-                    onValueChange={(v) => { updateField('penyebabGangguan', v); markTouched('penyebabGangguan'); }}
+                    onChange={(v) => { updateField('penyebabGangguan', v); markTouched('penyebabGangguan'); }}
+                    onBlur={() => markTouched('penyebabGangguan')}
                     error={getFieldError('penyebabGangguan')}
                     required={isFieldRequired('penyebabGangguan')}
-                    options={DROPDOWN_OPTIONS.penyebabGangguan} 
+                    options={sortedPenyebab}
                   />
-                  <SelectField 
+                  
+                  <ComboboxField 
                     label="Perbaikan Gangguan" 
                     value={formData.perbaikanGangguan}
-                    onValueChange={(v) => { updateField('perbaikanGangguan', v); markTouched('perbaikanGangguan'); }}
+                    onChange={(v) => { updateField('perbaikanGangguan', v); markTouched('perbaikanGangguan'); }}
+                    onBlur={() => markTouched('perbaikanGangguan')}
                     error={getFieldError('perbaikanGangguan')}
                     required={isFieldRequired('perbaikanGangguan')}
-                    options={DROPDOWN_OPTIONS.perbaikanGangguan} 
+                    options={sortedPerbaikan}
                   />
                 </div>
               </CardContent>
