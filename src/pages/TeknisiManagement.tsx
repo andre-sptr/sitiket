@@ -130,6 +130,7 @@ const TeknisiManagement = () => {
     phone: '',
     area: '',
     isActive: true,
+    employeeId: '',
   });
 
   const isAdmin = user?.role === 'admin';
@@ -195,12 +196,12 @@ const TeknisiManagement = () => {
   const paginatedTeknisi = filteredTeknisi.slice(startIndex, startIndex + itemsPerPage);
 
   const resetForm = () => {
-    setFormData({ name: '', phone: '', area: '', isActive: true });
+    setFormData({ name: '', phone: '', area: '', isActive: true, employeeId: '' });
     setSelectedTeknisi(null);
   };
 
   const handleAdd = async () => {
-    if (!formData.name.trim() || !formData.phone.trim() || !formData.area.trim()) {
+    if (!formData.name.trim() || !formData.phone.trim() || !formData.area.trim() || !formData.employeeId.trim()) {
       toast({
         title: 'Data tidak lengkap',
         description: 'Mohon isi semua field yang diperlukan.',
@@ -217,6 +218,7 @@ const TeknisiManagement = () => {
         phone: formData.phone.trim(),
         area: formData.area.trim(),
         isActive: formData.isActive,
+        employeeId: formData.employeeId.trim(),
       });
 
       toast({
@@ -236,7 +238,7 @@ const TeknisiManagement = () => {
   const handleEdit = async () => {
     if (!selectedTeknisi) return;
     
-    if (!formData.name.trim() || !formData.phone.trim() || !formData.area.trim()) {
+    if (!formData.name.trim() || !formData.phone.trim() || !formData.area.trim() || !formData.employeeId.trim()) {
       toast({
         title: 'Data tidak lengkap',
         description: 'Mohon isi semua field yang diperlukan.',
@@ -253,6 +255,7 @@ const TeknisiManagement = () => {
         phone: formData.phone.trim(),
         area: formData.area.trim(),
         isActive: formData.isActive,
+        employeeId: formData.employeeId.trim(),
       });
 
       toast({
@@ -305,6 +308,7 @@ const TeknisiManagement = () => {
       phone: teknisi.phone,
       area: teknisi.area,
       isActive: teknisi.isActive,
+      employeeId: teknisi.employeeId,
     });
     setIsEditDialogOpen(true);
   };
@@ -576,7 +580,7 @@ const TeknisiManagement = () => {
                                 <h3 className="font-semibold text-lg leading-tight group-hover:text-primary transition-colors">
                                   {teknisi.name}
                                 </h3>
-                                <p className="text-xs text-muted-foreground mt-1">NIK: {teknisi.id.slice(-6)}</p>
+                                <p className="text-xs text-muted-foreground mt-1">NIK: {teknisi.employeeId || '-'}</p>
                               </div>
                               
                               <div className="space-y-2 pt-2 border-t border-dashed">
@@ -770,6 +774,19 @@ const TeknisiManagement = () => {
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
+              <Label htmlFor="add-nik" className="text-xs font-medium text-muted-foreground">
+                NIK / ID Teknisi <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="add-nik"
+                type='number'
+                placeholder="Masukkan NIK / ID Teknisi"
+                value={formData.employeeId}
+                onChange={(e) => setFormData({ ...formData, employeeId: e.target.value })}
+                className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              />
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="add-name" className="text-xs font-medium text-muted-foreground">
                 Nama Teknisi <span className="text-destructive">*</span>
               </Label>
@@ -787,10 +804,11 @@ const TeknisiManagement = () => {
               </Label>
               <Input
                 id="add-phone"
+                type='number'
                 placeholder="08xxxxxxxxxx"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200"
+                className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
             </div>
             <div className="space-y-2">
@@ -854,6 +872,19 @@ const TeknisiManagement = () => {
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
+              <Label htmlFor='edit-nik' className="text-xs font-medium text-muted-foreground">
+                NIK / ID Teknisi <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="edit-nik"
+                type='number'
+                placeholder="Masukkan NIK / ID Teknisi"
+                value={formData.employeeId}
+                onChange={(e) => setFormData({ ...formData, employeeId: e.target.value })}
+                className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              />
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="edit-name" className="text-xs font-medium text-muted-foreground">
                 Nama Teknisi <span className="text-destructive">*</span>
               </Label>
@@ -871,10 +902,11 @@ const TeknisiManagement = () => {
               </Label>
               <Input
                 id="edit-phone"
+                type='number'
                 placeholder="08xxxxxxxxxx"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200"
+                className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
             </div>
             <div className="space-y-2">
