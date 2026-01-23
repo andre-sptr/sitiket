@@ -300,7 +300,7 @@ const ImportTicket = () => {
   if (isLoading || (isEditMode && isLoadingTicket)) {
     return (
       <Layout>
-        <FormSkeleton sections={4} fieldsPerSection={6} />
+        <FormSkeleton mode={isEditMode ? 'full' : 'simple'} />
       </Layout>
     );
   }

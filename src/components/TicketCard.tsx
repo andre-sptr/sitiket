@@ -132,6 +132,10 @@ export const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
 
               <div className="h-3 w-px bg-border shrink-0 mx-1" />
 
+              <Badge variant="outline" className="h-5 px-1.5 text-[10px] font-normal shrink-0">
+                {ticket.tim}
+              </Badge>
+
               {ticket.teknisiList && ticket.teknisiList.length > 0 ? (
                 <>
                   <div className="flex -space-x-1.5 shrink-0">
