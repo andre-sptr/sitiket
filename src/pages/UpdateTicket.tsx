@@ -251,8 +251,8 @@ const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.1
+      staggerChildren: 0.05,
+      delayChildren: 0.05
     }
   }
 };
@@ -372,6 +372,7 @@ const UpdateTicket = () => {
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Partial<Record<keyof UpdateFormData, boolean>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDataReady, setIsDataReady] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -409,6 +410,7 @@ const UpdateTicket = () => {
         teknisi3: ticket.teknisi_list?.[2] || '',
         teknisi4: ticket.teknisi_list?.[3] || '',
       }));
+      setIsDataReady(true);
     }
   }, [ticket]);
 
@@ -607,7 +609,7 @@ const UpdateTicket = () => {
     );
   }
 
-  if (isTicketLoading) {
+  if (isTicketLoading || !isDataReady) {
     return (
       <Layout>
         <UpdateFormSkeleton />
