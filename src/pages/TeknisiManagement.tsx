@@ -135,6 +135,10 @@ const TeknisiManagement = () => {
   const isAdmin = user?.role === 'admin';
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery]);
 

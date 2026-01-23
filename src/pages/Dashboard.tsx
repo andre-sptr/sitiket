@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { useTodayTickets, useDashboardStats, useActiveTickets } from '@/hooks/useTickets';
 import { mapDbTicketToTicket } from '@/lib/ticketMappers';
 import { getSettings, isDueSoon as checkIsDueSoon } from '@/hooks/useSettings';
+import { generateWhatsAppMessage, formatDateWIB } from '@/lib/formatters';
 import { 
   Ticket as TicketIcon, 
   Clock, 
@@ -18,7 +19,8 @@ import {
   Plus,
   RefreshCw,
   ArrowRight,
-  Hourglass
+  Hourglass,
+  Copy
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
@@ -56,6 +58,10 @@ const Dashboard = () => {
   const realTimeComplianceRate = todayTickets.length > 0
     ? Math.round((todayTickets.filter(t => t.ttrCompliance === 'COMPLY').length / todayTickets.length) * 100)
     : 0;
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -109,6 +115,44 @@ const Dashboard = () => {
       .join('')
       .substring(0, 2)
       .toUpperCase();
+  };
+
+  const handleCopyTickets = () => {
+    if (sortedTickets.length === 0) {
+      toast({
+        title: "Tidak ada tiket",
+        description: "Tidak ada tiket hari ini untuk disalin.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const messages = sortedTickets.map((ticket, index) => {
+      const header = generateWhatsAppMessage('share', ticket);
+      const sortedUpdates = [...(ticket.progressUpdates || [])].sort((a, b) => 
+        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      );
+
+      let timelineContent = "\n\n*Timeline Progress:*\n";
+
+      if (sortedUpdates.length > 0) {
+        timelineContent += sortedUpdates.map((u, i) => 
+          `${i + 1}. [${formatDateWIB(u.timestamp)}] ${u.message}`
+        ).join('\n');
+      } else {
+        timelineContent += "Belum ada update.";
+      }
+      return `${index + 1}. ${header}${timelineContent}`;
+    });
+
+    const fullMessage = messages.join('\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n\n');  
+
+    navigator.clipboard.writeText(fullMessage);
+    
+    toast({
+      title: "Berhasil Disalin",
+      description: `${sortedTickets.length} tiket hari ini telah disalin ke clipboard.`,
+    });
   };
 
   return (
@@ -325,12 +369,24 @@ const Dashboard = () => {
             <h2 className="text-lg font-semibold text-foreground">
               Tiket Hari Ini {sortedTickets.length > 0 && <span className="text-muted-foreground font-normal text-sm ml-1">({sortedTickets.length} total)</span>}
             </h2>
-            <Link to="/tickets">
-              <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground">
-                Lihat Semua
-                <ArrowRight className="w-4 h-4" />
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="whatsapp"
+                size="sm" 
+                className="gap-2 h-9 mr-2" 
+                onClick={handleCopyTickets}
+                disabled={sortedTickets.length === 0}
+              >
+                <Copy className="w-4 h-4" />
+                <span className="hidden sm:inline">Copy Pesan WA</span>
               </Button>
-            </Link>
+              <Link to="/tickets">
+                <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground">
+                  Lihat Semua
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
+            </div>
           </div>
           
           <div className="space-y-3">

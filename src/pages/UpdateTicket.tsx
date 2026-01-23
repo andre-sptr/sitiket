@@ -374,6 +374,10 @@ const UpdateTicket = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [id]);
+
+  useEffect(() => {
     if (ticket) {
       setFormData(prev => ({
         ...prev,

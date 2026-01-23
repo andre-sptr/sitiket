@@ -295,6 +295,10 @@ const Settings = () => {
   const categoryOrder: (keyof AppSettings['categoryTtr'])[] = ['low', 'minor', 'major', 'critical', 'premium'];
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+  
+  useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
       try {

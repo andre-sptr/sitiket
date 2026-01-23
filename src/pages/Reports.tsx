@@ -59,7 +59,7 @@ import {
   RadialBar,
   ResponsiveContainer,
 } from 'recharts';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { format, subDays, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -230,6 +230,10 @@ const Reports = () => {
       isOverdue: isOverdue
     };
   };
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const [dateRange, setDateRange] = useState<{
     from: Date;

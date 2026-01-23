@@ -167,6 +167,10 @@ const AllTickets = () => {
       kategoriFilter, jarakFilter, datekFilter, siteFilter, siteNameFilter, dateRange]);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     setCurrentPage(1);
   }, [filteredTickets.length, sortBy]);
 

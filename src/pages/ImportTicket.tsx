@@ -187,6 +187,10 @@ const ImportTicket = () => {
   const showField = (fieldName: keyof TicketFormData) => visibleFields.includes(fieldName);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [id]);
+
+  useEffect(() => {
     if (isEditMode && ticketData) {
         const formatDateForInput = (dateString: string | null) => {
             if (!dateString) return '';

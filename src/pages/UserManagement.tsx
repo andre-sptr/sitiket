@@ -160,6 +160,10 @@ const UserManagement = () => {
   const itemsPerPage = 12;
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery]);
 
