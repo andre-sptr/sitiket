@@ -981,21 +981,14 @@ const UpdateTicket = () => {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <SelectField 
+                  <InputField 
                     label="Kendala" 
                     value={formData.kendala}
-                    onValueChange={(v) => { updateField('kendala', v); markTouched('kendala'); }}
+                    onChange={(v) => updateField('kendala', v)}
+                    onBlur={() => markTouched('kendala')}
                     error={getFieldError('kendala')}
                     required={isFieldRequired('kendala')}
-                    options={DROPDOWN_OPTIONS.kendala} 
-                  />
-                  <SelectField 
-                    label="Status Alat Berat" 
-                    value={formData.statusAlatBerat}
-                    onValueChange={(v) => { updateField('statusAlatBerat', v); markTouched('statusAlatBerat'); }}
-                    error={getFieldError('statusAlatBerat')}
-                    required={isFieldRequired('statusAlatBerat')}
-                    options={DROPDOWN_OPTIONS.statusAlatBerat} 
+                    placeholder="Deskripsikan kendala" 
                   />
                   <InputField 
                     label="ATBT" 
@@ -1005,6 +998,14 @@ const UpdateTicket = () => {
                     error={getFieldError('atbt')}
                     required={isFieldRequired('atbt')}
                     placeholder="Alat Berat yang digunakan" 
+                  />
+                  <SelectField 
+                    label="Status Alat Berat" 
+                    value={formData.statusAlatBerat}
+                    onValueChange={(v) => { updateField('statusAlatBerat', v); markTouched('statusAlatBerat'); }}
+                    error={getFieldError('statusAlatBerat')}
+                    required={isFieldRequired('statusAlatBerat')}
+                    options={DROPDOWN_OPTIONS.statusAlatBerat} 
                   />
                   <InputField 
                     label="Tiket Eksternal" 
