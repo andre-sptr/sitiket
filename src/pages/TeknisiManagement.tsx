@@ -35,7 +35,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import {
   DropdownMenu,
@@ -62,7 +61,8 @@ import {
   UserX,
   MoreVertical,
   RefreshCcw,
-  Filter
+  Filter,
+  Briefcase,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -117,6 +117,15 @@ const TeknisiManagement = () => {
     mitraName: '',
     picName: ''
   });
+
+  const [isEditingMitra, setIsEditingMitra] = useState(false);
+  const [editMitraInput, setEditMitraInput] = useState({
+    mitraName: '',
+    picName: ''
+  });
+
+  const mitraCount = teknisiList.filter(t => t.employeeId.startsWith('M-')).length;
+  const internalTeknisiCount = teknisiList.length - mitraCount;
 
   const uniqueAreas = Array.from(
     new Set(teknisiList.map(t => t.area).filter(Boolean))
@@ -184,12 +193,18 @@ const TeknisiManagement = () => {
   }
 
   const filteredTeknisi = teknisiList.filter(t => {
-    const matchesSearch =
-      t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.area.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.phone.includes(searchQuery)
-    
+    const lowerQuery = searchQuery.toLowerCase().trim();
     const matchesArea = areaFilter === 'all' ? true : t.area === areaFilter;
+
+    if (lowerQuery === 'mitra') {
+      return t.employeeId.startsWith('M-') && matchesArea;
+    }
+
+    const matchesSearch =
+      t.name.toLowerCase().includes(lowerQuery) ||
+      t.area.toLowerCase().includes(lowerQuery) ||
+      t.phone.includes(lowerQuery) ||
+      t.employeeId.toLowerCase().includes(lowerQuery);
 
     return matchesSearch && matchesArea;
   })
@@ -205,7 +220,9 @@ const TeknisiManagement = () => {
   const resetForm = () => {
     setFormData({ name: '', phone: '', area: '', isActive: true, employeeId: '' });
     setMitraInput({ mitraName: '', picName: '' });
+    setEditMitraInput({ mitraName: '', picName: '' });
     setTeknisiType('internal');
+    setIsEditingMitra(false);
     setSelectedTeknisi(null);
   };
 
@@ -222,7 +239,7 @@ const TeknisiManagement = () => {
         return;
       }
       
-      finalName = `${mitraInput.mitraName} (PIC: ${mitraInput.picName})`;
+      finalName = `${mitraInput.mitraName} (PIC: ${mitraInput.picName} | ${formData.area})`;
       finalEmployeeId = `M-${Date.now().toString().slice(-6)}`;
       
     } else {
@@ -264,20 +281,34 @@ const TeknisiManagement = () => {
   const handleEdit = async () => {
     if (!selectedTeknisi) return;
     
-    if (!formData.name.trim() || !formData.phone.trim() || !formData.area.trim() || !formData.employeeId.trim()) {
-      toast({
-        title: 'Data tidak lengkap',
-        description: 'Mohon isi semua field yang diperlukan.',
-        variant: 'destructive',
-      });
-      return;
+    let finalName = formData.name;
+
+    if (isEditingMitra) {
+      if (!editMitraInput.mitraName.trim() || !editMitraInput.picName.trim() || !formData.phone.trim() || !formData.area.trim() || !formData.employeeId.trim()) {
+        toast({
+          title: 'Data tidak lengkap',
+          description: 'Mohon isi semua field yang diperlukan.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      finalName = `${editMitraInput.mitraName} (PIC: ${editMitraInput.picName} | ${formData.area})`;
+    } else {
+      if (!formData.name.trim() || !formData.phone.trim() || !formData.area.trim() || !formData.employeeId.trim()) {
+        toast({
+          title: 'Data tidak lengkap',
+          description: 'Mohon isi semua field yang diperlukan.',
+          variant: 'destructive',
+        });
+        return;
+      }
     }
 
     setIsSubmitting(true);
 
     try {
       await updateTeknisi(selectedTeknisi.id, {
-        name: formData.name.trim(),
+        name: finalName.trim(),
         phone: formData.phone.trim(),
         area: formData.area.trim(),
         isActive: formData.isActive,
@@ -286,7 +317,7 @@ const TeknisiManagement = () => {
 
       toast({
         title: 'Teknisi Diperbarui',
-        description: `Data ${formData.name} berhasil diperbarui.`,
+        description: `Data ${finalName} berhasil diperbarui.`,
       });
 
       resetForm();
@@ -329,6 +360,20 @@ const TeknisiManagement = () => {
 
   const openEditDialog = (teknisi: Teknisi) => {
     setSelectedTeknisi(teknisi);
+    
+    const isMitra = teknisi.employeeId.startsWith('M-');
+    setIsEditingMitra(isMitra);
+
+    if (isMitra) {
+      const match = teknisi.name.match(/^(.*?) \(PIC: (.*?)\)(?: - .*)?$/);
+      
+      if (match) {
+        setEditMitraInput({ mitraName: match[1], picName: match[2] });
+      } else {
+        setEditMitraInput({ mitraName: teknisi.name, picName: '' });
+      }
+    }
+
     setFormData({
       name: teknisi.name,
       phone: teknisi.phone,
@@ -399,26 +444,6 @@ const TeknisiManagement = () => {
           </div>
           {isAdmin && (
             <div className="flex gap-2 shrink-0">
-              {/* <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <RotateCcw className="w-4 h-4 mr-2" />
-                    Reset
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Reset Data Teknisi?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Semua data teknisi akan dikembalikan ke nilai default. Perubahan yang disimpan akan hilang.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Batal</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleReset}>Ya, Reset</AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog> */}
               <Button 
                 onClick={() => {
                   resetForm();
@@ -468,7 +493,7 @@ const TeknisiManagement = () => {
         </motion.div>
 
         
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <motion.div custom={0} initial="hidden" animate="visible" variants={cardVariants}>
             <Card className="glass-card card-hover p-4">
               <div className="flex items-center gap-3">
@@ -476,8 +501,22 @@ const TeknisiManagement = () => {
                   <Users className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">{teknisiList.length}</p>
+                  <p className="text-2xl font-bold">{internalTeknisiCount}</p>
                   <p className="text-xs text-muted-foreground">Total Teknisi</p>
+                </div>
+              </div>
+            </Card>
+          </motion.div>
+
+          <motion.div custom={1} initial="hidden" animate="visible" variants={cardVariants}>
+            <Card className="glass-card card-hover p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                  <Briefcase className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{mitraCount}</p>
+                  <p className="text-xs text-muted-foreground">Total Mitra</p>
                 </div>
               </div>
             </Card>
@@ -606,7 +645,9 @@ const TeknisiManagement = () => {
                                 <h3 className="font-semibold text-lg leading-tight group-hover:text-primary transition-colors">
                                   {teknisi.name}
                                 </h3>
-                                <p className="text-xs text-muted-foreground mt-1">NIK: {teknisi.employeeId || '-'}</p>
+                                {!teknisi.employeeId.startsWith('M-') && (
+                                  <p className="text-xs text-muted-foreground mt-1">NIK: {teknisi.employeeId || '-'}</p>
+                                )}
                               </div>
                               
                               <div className="space-y-2 pt-2 border-t border-dashed">
@@ -802,8 +843,8 @@ const TeknisiManagement = () => {
           <div className="flex-1 overflow-y-auto py-2 px-1">
             <Tabs value={teknisiType} onValueChange={(v) => setTeknisiType(v as 'internal' | 'mitra')} className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-4">
-                <TabsTrigger value="internal">Teknisi Internal</TabsTrigger>
-                <TabsTrigger value="mitra">Mitra / Vendor</TabsTrigger>
+                <TabsTrigger value="internal">Teknisi</TabsTrigger>
+                <TabsTrigger value="mitra">Mitra</TabsTrigger>
               </TabsList>
 
               <div className="space-y-4 py-2">
@@ -935,41 +976,74 @@ const TeknisiManagement = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Pencil className="w-5 h-5 text-primary" />
-              Edit Teknisi
+              Edit {isEditingMitra ? 'Mitra' : 'Teknisi'}
             </DialogTitle>
             <DialogDescription>
-              Perbarui informasi teknisi di bawah ini.
+              Perbarui informasi {isEditingMitra ? 'mitra' : 'teknisi'} di bawah ini.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor='edit-nik' className="text-xs font-medium text-muted-foreground">
-                NIK / ID Teknisi <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="edit-nik"
-                type='number'
-                placeholder="Masukkan NIK / ID teknisi"
-                value={formData.employeeId}
-                onChange={(e) => setFormData({ ...formData, employeeId: e.target.value })}
-                className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-name" className="text-xs font-medium text-muted-foreground">
-                Nama Teknisi <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="edit-name"
-                placeholder="Masukkan nama teknisi"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200"
-              />
-            </div>
+            {!isEditingMitra && (
+              <div className="space-y-2">
+                <Label htmlFor='edit-nik' className="text-xs font-medium text-muted-foreground">
+                  NIK / ID Teknisi <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="edit-nik"
+                  type='text'
+                  placeholder="Masukkan NIK / ID teknisi"
+                  value={formData.employeeId}
+                  onChange={(e) => setFormData({ ...formData, employeeId: e.target.value })}
+                  className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200"
+                />
+              </div>
+            )}
+
+            {isEditingMitra ? (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-mitra-name" className="text-xs font-medium text-muted-foreground">
+                    Nama Mitra <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="edit-mitra-name"
+                    placeholder="Masukkan nama mitra"
+                    value={editMitraInput.mitraName}
+                    onChange={(e) => setEditMitraInput({ ...editMitraInput, mitraName: e.target.value })}
+                    className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-pic-name" className="text-xs font-medium text-muted-foreground">
+                    Nama PIC <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="edit-pic-name"
+                    placeholder="Masukkan nama PIC"
+                    value={editMitraInput.picName}
+                    onChange={(e) => setEditMitraInput({ ...editMitraInput, picName: e.target.value })}
+                    className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200"
+                  />
+                </div>
+              </>
+            ) : (
+              <div className="space-y-2">
+                <Label htmlFor="edit-name" className="text-xs font-medium text-muted-foreground">
+                  Nama Teknisi <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="edit-name"
+                  placeholder="Masukkan nama teknisi"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200"
+                />
+              </div>
+            )}
+
             <div className="space-y-2">
               <Label htmlFor="edit-phone" className="text-xs font-medium text-muted-foreground">
-                Nomor HP <span className="text-destructive">*</span>
+                {isEditingMitra ? 'Nomor HP PIC' : 'Nomor HP'} <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="edit-phone"
@@ -1033,7 +1107,7 @@ const TeknisiManagement = () => {
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <Trash2 className="w-5 h-5 text-destructive" />
-              Hapus Teknisi?
+              Hapus {selectedTeknisi?.employeeId.startsWith('M-') ? 'Mitra' : 'Teknisi'}?
             </AlertDialogTitle>
             <AlertDialogDescription>
               Apakah Anda yakin ingin menghapus <strong>{selectedTeknisi?.name}</strong>? 

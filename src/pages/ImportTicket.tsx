@@ -28,8 +28,8 @@ import {
   Users,
   Building2,
   Ticket as TicketIcon,
-  Sparkles,
-  Pencil
+  Pencil,
+  Loader2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -166,9 +166,6 @@ const ImportTicket = () => {
   const { user } = useAuth();
   const { options: DROPDOWN_OPTIONS } = useDropdownOptions();
   const { activeTeknisi } = useTeknisi();
-  const sortedTeknisi = useMemo(() => {
-    return [...activeTeknisi].sort((a, b) => a.name.localeCompare(b.name));
-  }, [activeTeknisi]);
   const [isLoading, setIsLoading] = useState(true);
   const [formData, setFormData] = useState<TicketFormData>(emptyForm);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -179,6 +176,16 @@ const ImportTicket = () => {
   const createTicket = useCreateTicket();
   const updateTicket = useUpdateTicket();
   const { data: ticketData, isLoading: isLoadingTicket } = useTicket(id || '');
+
+  const sortedTeknisi = useMemo(() => {
+    const filtered = activeTeknisi.filter(t => {
+      if (formData.tim === 'MTC') {
+        return t.employeeId.startsWith('M-');
+      }
+      return !t.employeeId.startsWith('M-'); 
+    });
+    return filtered.sort((a, b) => a.name.localeCompare(b.name));
+  }, [activeTeknisi, formData.tim]);
 
   const visibleFields = useMemo(() => 
     formData.tim ? getVisibleFields(formData.tim) : [], 
@@ -659,7 +666,7 @@ const ImportTicket = () => {
                   animate={{ rotate: 360 }}
                   transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                 >
-                  <Sparkles className="w-4 h-4" />
+                  <Loader2 className="w-4 h-4" />
                 </motion.div>
               ) : (
                 <Save className="w-4 h-4" />
@@ -1292,7 +1299,7 @@ const ImportTicket = () => {
                   animate={{ rotate: 360 }}
                   transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                 >
-                  <Sparkles className="w-4 h-4" />
+                  <Loader2 className="w-4 h-4" />
                 </motion.div>
                 <span>Menyimpan...</span>
               </>

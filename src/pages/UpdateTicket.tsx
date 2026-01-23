@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Layout } from '@/components/Layout';
@@ -363,9 +363,6 @@ const UpdateTicket = () => {
   const { user } = useAuth();
   const { options: DROPDOWN_OPTIONS } = useDropdownOptions();
   const { activeTeknisi } = useTeknisi();
-  const sortedTeknisi = [...activeTeknisi].sort((a, b) => 
-    a.name.localeCompare(b.name)
-  );
   const { data: ticket, isLoading: isTicketLoading } = useTicket(id || '');
   const updateTicketMutation = useUpdateTicket();
   const addProgressMutation = useAddProgressUpdate();
@@ -374,6 +371,17 @@ const UpdateTicket = () => {
   const [touched, setTouched] = useState<Partial<Record<keyof UpdateFormData, boolean>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDataReady, setIsDataReady] = useState(false);
+
+  const sortedTeknisi = useMemo(() => {
+    const filtered = activeTeknisi.filter(t => {
+      if (ticket.tim === 'MTC') {
+        return t.employeeId.startsWith('M-');
+      }
+      return !t.employeeId.startsWith('M-'); 
+    });
+
+    return filtered.sort((a, b) => a.name.localeCompare(b.name));
+  }, [activeTeknisi, ticket?.tim]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
