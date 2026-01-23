@@ -58,6 +58,7 @@ import {
   RadialBarChart, 
   RadialBar,
   ResponsiveContainer,
+  LabelList,
 } from 'recharts';
 import { useEffect, useMemo, useState } from 'react';
 import { format, subDays, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
@@ -464,6 +465,34 @@ const Reports = () => {
 
   const datekChartConfig: ChartConfig = {
     value: { label: 'Jumlah Tiket', color: 'hsl(var(--primary))' },
+  };
+
+  const penyebabData = useMemo(() => {
+    const counts: Record<string, number> = {};
+    filteredTickets.forEach(t => {
+      const p = t.penyebab ? t.penyebab.trim() : 'Belum Diketahui';
+      counts[p] = (counts[p] || 0) + 1;
+    });
+    
+    const totalTickets = filteredTickets.length;
+
+    return Object.entries(counts)
+      .map(([name, value]) => {
+        const percentage = totalTickets > 0 ? ((value / totalTickets) * 100).toFixed(1) : '0';
+        return { 
+          name, 
+          value,
+          percentage,
+          labelDisplay: `${value} (${percentage}%)` 
+        };
+      })
+      .sort((a, b) => b.value - a.value);
+  }, [filteredTickets]);
+
+  const dynamicHeight = Math.max(penyebabData.length * 45, 350);
+
+  const penyebabChartConfig: ChartConfig = {
+    value: { label: 'Tiket', color: 'hsl(var(--primary))' },
   };
 
   const barChartConfig: ChartConfig = {
@@ -1009,13 +1038,13 @@ const Reports = () => {
                 <BarChart3 className="w-4 h-4" />
                 <span className="hidden sm:inline">Overview</span>
               </TabsTrigger>
-              <TabsTrigger value="trends" className="gap-2">
-                <TrendingUp className="w-4 h-4" />
-                <span className="hidden sm:inline">Trends</span>
-              </TabsTrigger>
               <TabsTrigger value="distribution" className="gap-2">
                 <PieChart className="w-4 h-4" />
                 <span className="hidden sm:inline">Distribution</span>
+              </TabsTrigger>
+              <TabsTrigger value="trends" className="gap-2">
+                <TrendingUp className="w-4 h-4" />
+                <span className="hidden sm:inline">Trends</span>
               </TabsTrigger>
             </TabsList>
 
@@ -1428,6 +1457,113 @@ const Reports = () => {
                   </div>
                 </ChartCard>
               </div>
+
+              <motion.div variants={itemVariants}>
+                <Card className="overflow-hidden border-border/50 transition-all duration-300 hover:shadow-lg bg-gradient-to-br from-card to-muted/20">
+                  <CardHeader className="border-b border-border/40 pb-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-amber-500/10 ring-1 ring-amber-500/20 shadow-sm">
+                          <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                        </div>
+                        <div className="space-y-0.5">
+                          <CardTitle className="text-base font-bold tracking-tight">
+                            Penyebab Gangguan
+                          </CardTitle>
+                          <CardDescription className="text-xs text-muted-foreground/80">
+                            Distribusi tiket berdasarkan penyebab gangguan
+                          </CardDescription>
+                        </div>
+                      </div>
+                      
+                      <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-background/50 border border-border/50 shadow-sm backdrop-blur-sm">
+                        <Activity className="w-3.5 h-3.5 text-primary" />
+                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                          Most Frequent
+                        </span>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  
+                  <CardContent className="pt-6 pl-2">
+                    <div className="overflow-y-auto max-h-[600px] pr-4 -mr-4 custom-scrollbar">
+                      <div style={{ height: `${dynamicHeight}px`, width: '100%' }}>
+                        <ChartContainer config={penyebabChartConfig} className="h-full w-full">
+                          <BarChart
+                            accessibilityLayer
+                            data={penyebabData}
+                            layout="vertical"
+                            margin={{ left: 0, right: 80, top: 10, bottom: 10 }}
+                            barSize={24}
+                          >
+                            <defs>
+                              <linearGradient id="causeGradient" x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.6} />
+                                <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={1} />
+                              </linearGradient>
+                            </defs>
+  
+                            <CartesianGrid strokeDasharray="3 3" horizontal={false} className="stroke-muted/20" />
+                            
+                            <YAxis
+                              dataKey="name"
+                              type="category"
+                              tickLine={false}
+                              axisLine={false}
+                              width={220}
+                              tick={{ 
+                                fontSize: 11, 
+                                fill: 'hsl(var(--foreground))',
+                                fontWeight: 500 
+                              }}
+                            />
+                            
+                            <XAxis type="number" hide />
+                            
+                            <ChartTooltip
+                              cursor={{ fill: 'hsl(var(--muted)/0.2)', radius: 4 }}
+                              content={({ active, payload }) => {
+                                if (active && payload && payload.length) {
+                                  const data = payload[0].payload;
+                                  return (
+                                    <div className="bg-popover/95 backdrop-blur-md border border-border/50 p-3 rounded-xl shadow-xl ring-1 ring-black/5">
+                                      <p className="text-sm font-semibold mb-1.5 text-foreground">{data.name}</p>
+                                      <div className="flex items-center justify-between gap-4 text-xs">
+                                        <span className="text-muted-foreground">Jumlah Tiket:</span>
+                                        <span className="font-bold font-mono text-primary">{data.value}</span>
+                                      </div>
+                                      <div className="flex items-center justify-between gap-4 text-xs mt-1">
+                                        <span className="text-muted-foreground">Kontribusi:</span>
+                                        <span className="font-bold font-mono text-emerald-600">{data.percentage}%</span>
+                                      </div>
+                                    </div>
+                                  );
+                                }
+                                return null;
+                              }}
+                            />
+                            
+                            <Bar
+                              dataKey="value"
+                              layout="vertical"
+                              fill="url(#causeGradient)"
+                              radius={[0, 6, 6, 0]}
+                              animationDuration={1000}
+                            >
+                              <LabelList 
+                                dataKey="labelDisplay" 
+                                position="right" 
+                                className="fill-muted-foreground text-[10px] font-semibold"
+                                offset={10}
+                              />
+                            </Bar>
+                          </BarChart>
+                        </ChartContainer>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
 
               <motion.div variants={itemVariants}>
                 <Card className="overflow-hidden border-border/50 transition-all duration-300 hover:shadow-lg bg-gradient-to-br from-card to-muted/20">
