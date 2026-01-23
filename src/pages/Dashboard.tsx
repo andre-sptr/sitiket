@@ -105,10 +105,25 @@ const Dashboard = () => {
 
   const idleTechnicians = activeTeknisi
     .filter((tek) => !uniqueBusyTechs.includes(tek.name))
-    .filter((tek) => tek.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    .filter((tek) => {
+      const query = searchQuery.toLowerCase();
+      if (query === 'mitra') {
+        return tek.employeeId.startsWith('M-');
+      }
+      return tek.name.toLowerCase().includes(query);
+    })
     .sort((a, b) => a.name.localeCompare(b.name));
 
-  const getInitials = (name: string) => {
+  const idleMitraCount = idleTechnicians.filter(t => t.employeeId.startsWith('M-')).length;
+  const idleInternalCount = idleTechnicians.length - idleMitraCount;
+  const totalMitraCount = activeTeknisi.filter(t => t.employeeId.startsWith('M-')).length;
+  const totalInternalCount = activeTeknisi.length - totalMitraCount;
+
+  const getInitials = (name: string, employeeId: string) => {
+    if (employeeId.startsWith('M-')) {
+      return name.charAt(0).toUpperCase();
+    }
+
     return name
       .split(' ')
       .map((n) => n[0])
@@ -272,9 +287,15 @@ const Dashboard = () => {
                 </div>
                 <div className="h-4 w-px bg-border mx-1" /> 
                 <span className="text-xs text-muted-foreground font-normal">
-                  <strong className="text-foreground font-semibold">{idleTechnicians.length}</strong>
+                  <strong className="text-foreground font-semibold">{idleInternalCount}</strong>
                   <span className="mx-1">dari</span>
-                  {activeTeknisi.length} tersedia
+                  {totalInternalCount} teknisi
+                </span>
+                <div className="h-4 w-px bg-border mx-1" /> 
+                <span className="text-xs text-muted-foreground font-normal">
+                  <strong className="text-foreground font-semibold">{idleMitraCount}</strong>
+                  <span className="mx-1">dari</span>
+                  {totalMitraCount} mitra
                 </span>
               </CardTitle>
               
@@ -300,7 +321,7 @@ const Dashboard = () => {
                     >
                       <Avatar className="h-8 w-8 border">
                         <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
-                          {getInitials(tech.name)}
+                          {getInitials(tech.name, tech.employeeId)}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex flex-col overflow-hidden">

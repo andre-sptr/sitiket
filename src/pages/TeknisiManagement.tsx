@@ -149,7 +149,7 @@ const TeknisiManagement = () => {
     employeeId: '',
   });
 
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = user?.role === 'admin' || user?.role === 'hd';
 
   useEffect(() => {
     window.scrollTo(0, 0);
