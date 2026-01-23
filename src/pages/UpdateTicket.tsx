@@ -853,14 +853,13 @@ const UpdateTicket = () => {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <InputField 
+                  <SelectField 
                     label="Segmen Terganggu" 
                     value={formData.segmenTerganggu}
-                    onChange={(v) => updateField('segmenTerganggu', v)}
-                    onBlur={() => markTouched('segmenTerganggu')}
+                    onValueChange={(v) => { updateField('segmenTerganggu', v); markTouched('segmenTerganggu'); }}
                     error={getFieldError('segmenTerganggu')}
                     required={isFieldRequired('segmenTerganggu')}
-                    placeholder="Segmen A-B" 
+                    options={DROPDOWN_OPTIONS.segmen}
                   />
                   <SelectField 
                     label="Penyebab Gangguan" 
