@@ -451,17 +451,57 @@ const Reports = () => {
     return Math.round((total / closedTickets.length) * 10) / 10;
   }, [filteredTickets]);
 
+  const segmenData = useMemo(() => {
+    const counts: Record<string, number> = {};
+    filteredTickets.forEach(t => {
+      const s = t.segmen ? t.segmen.trim() : 'Tanpa Segmen';
+      counts[s] = (counts[s] || 0) + 1;
+    });
+    
+    const totalTickets = filteredTickets.length;
+
+    return Object.entries(counts)
+      .map(([name, value]) => {
+        const percentage = totalTickets > 0 ? ((value / totalTickets) * 100).toFixed(1) : '0';
+        return { 
+          name, 
+          value,
+          percentage,
+          labelDisplay: `${value} (${percentage}%)` 
+        };
+      })
+      .sort((a, b) => b.value - a.value);
+  }, [filteredTickets]);
+
+  const segmenDynamicHeight = Math.max(segmenData.length * 45, 350);
+
+  const segmenChartConfig: ChartConfig = {
+    value: { label: 'Tiket', color: 'hsl(262 83% 58%)' },
+  };
+
   const datekData = useMemo(() => {
     const counts: Record<string, number> = {};
     filteredTickets.forEach(t => {
       const d = t.datek ? t.datek.trim() : 'Tanpa Datek';
       counts[d] = (counts[d] || 0) + 1;
     });
+    
+    const totalTickets = filteredTickets.length;
+
     return Object.entries(counts)
-      .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 5);
+      .map(([name, value]) => {
+        const percentage = totalTickets > 0 ? ((value / totalTickets) * 100).toFixed(1) : '0';
+        return { 
+          name, 
+          value,
+          percentage,
+          labelDisplay: `${value} (${percentage}%)` 
+        };
+      })
+      .sort((a, b) => b.value - a.value);
   }, [filteredTickets]);
+
+  const datekDynamicHeight = Math.max(datekData.length * 45, 350);
 
   const datekChartConfig: ChartConfig = {
     value: { label: 'Jumlah Tiket', color: 'hsl(var(--primary))' },
@@ -1442,7 +1482,7 @@ const Reports = () => {
                 
                 <ChartCard 
                   title="Site Impact" 
-                  description="Distribusi berdasarkan site terdampak"
+                  description="Distribusi tiket berdasarkan site terdampak"
                   icon={Globe}
                 >
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-[280px] overflow-y-auto custom-scrollbar pr-2">
@@ -1457,6 +1497,189 @@ const Reports = () => {
                   </div>
                 </ChartCard>
               </div>
+
+              <ChartCard 
+                title="Detail per Severity" 
+                description="Breakdown tiket berdasarkan severity dan status penyelesaian"
+                icon={BarChart3}
+              >
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {categoryData.map((cat, index) => {
+                    const categoryTickets = filteredTickets.filter(t => t.kategori === cat.category);
+                    const closed = categoryTickets.filter(t => t.status === 'CLOSED').length;
+                    const onProgress = categoryTickets.filter(t => t.status === 'ONPROGRESS').length;
+                    const pending = categoryTickets.filter(t => t.status === 'PENDING' || t.status.startsWith('WAITING')).length;
+                    const overdue = categoryTickets.filter(t => getRealTimeStatus(t).isOverdue).length;
+                    const percentage = categoryTickets.length > 0 ? Math.round((closed / categoryTickets.length) * 100) : 0;
+                    
+                    return (
+                      <motion.div 
+                        key={cat.category} 
+                        className="p-4 bg-muted/30 rounded-xl border border-border/50 transition-all hover:shadow-md hover:border-primary/20"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        whileHover={{ scale: 1.02 }}
+                      >
+                        <div className="flex items-start justify-between mb-3">
+                          <div>
+                            <h4 className="font-semibold text-sm">{cat.name}</h4>
+                            <p className="text-2xl font-bold text-primary mt-1">{cat.value}</p>
+                          </div>
+                          <div 
+                            className="w-3 h-3 rounded-full" 
+                            style={{ backgroundColor: CATEGORY_COLORS[index % CATEGORY_COLORS.length] }}
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1 bg-muted rounded-full h-2 overflow-hidden">
+                              <motion.div 
+                                className="h-full bg-emerald-500 rounded-full"
+                                initial={{ width: 0 }}
+                                animate={{ width: `${percentage}%` }}
+                                transition={{ duration: 0.8, delay: index * 0.1 }}
+                              />
+                            </div>
+                            <span className="text-xs font-medium text-muted-foreground w-10 text-right">
+                              {percentage}%
+                            </span>
+                          </div>
+                          
+                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+                            {overdue > 0 && (
+                              <span className="flex items-center gap-1 text-destructive">
+                                <AlertTriangle className="w-3 h-3" />
+                                {overdue}
+                              </span>
+                            )}
+                            <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
+                              <Activity className="w-3 h-3" />
+                              {onProgress}
+                            </span>
+                            <span className="flex items-center gap-1 text-muted-foreground">
+                              <PauseCircle className="w-3 h-3" />
+                              {pending}
+                            </span>
+                            <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                              <CheckCircle2 className="w-3 h-3" />
+                              {closed}
+                            </span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </ChartCard>
+
+              <motion.div variants={itemVariants}>
+                <Card className="overflow-hidden border-border/50 transition-all duration-300 hover:shadow-lg bg-gradient-to-br from-card to-muted/20">
+                  <CardHeader className="border-b border-border/40 pb-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-violet-500/10 ring-1 ring-violet-500/20 shadow-sm">
+                          <LayoutGrid className="w-5 h-5 text-violet-600 dark:text-violet-400" />
+                        </div>
+                        <div className="space-y-0.5">
+                          <CardTitle className="text-base font-bold tracking-tight">
+                            Segmen Gangguan
+                          </CardTitle>
+                          <CardDescription className="text-xs text-muted-foreground/80">
+                            Distribusi tiket berdasarkan segmen gangguan
+                          </CardDescription>
+                        </div>
+                      </div>
+                      
+                      <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-background/50 border border-border/50 shadow-sm backdrop-blur-sm">
+                        <Activity className="w-3.5 h-3.5 text-primary" />
+                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                          Most Frequent
+                        </span>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  
+                  <CardContent className="pt-6 pl-2">
+                    <div className="overflow-y-auto max-h-[600px] pr-4 -mr-4 custom-scrollbar">
+                      <div style={{ height: `${segmenDynamicHeight}px`, width: '100%' }}>
+                        <ChartContainer config={segmenChartConfig} className="h-full w-full">
+                          <BarChart
+                            accessibilityLayer
+                            data={segmenData}
+                            layout="vertical"
+                            margin={{ left: 0, right: 80, top: 10, bottom: 10 }}
+                            barSize={24}
+                          >
+                            <defs>
+                              <linearGradient id="segmenGradient" x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="0%" stopColor="hsl(262 83% 58%)" stopOpacity={0.6} />
+                                <stop offset="100%" stopColor="hsl(262 83% 58%)" stopOpacity={1} />
+                              </linearGradient>
+                            </defs>
+  
+                            <CartesianGrid strokeDasharray="3 3" horizontal={false} className="stroke-muted/20" />
+                            
+                            <YAxis
+                              dataKey="name"
+                              type="category"
+                              tickLine={false}
+                              axisLine={false}
+                              width={220}
+                              tick={{ 
+                                fontSize: 11, 
+                                fill: 'hsl(var(--foreground))',
+                                fontWeight: 500 
+                              }}
+                            />
+                            
+                            <XAxis type="number" hide />
+                            
+                            <ChartTooltip
+                              cursor={{ fill: 'hsl(var(--muted)/0.2)', radius: 4 }}
+                              content={({ active, payload }) => {
+                                if (active && payload && payload.length) {
+                                  const data = payload[0].payload;
+                                  return (
+                                    <div className="bg-popover/95 backdrop-blur-md border border-border/50 p-3 rounded-xl shadow-xl ring-1 ring-black/5">
+                                      <p className="text-sm font-semibold mb-1.5 text-foreground">{data.name}</p>
+                                      <div className="flex items-center justify-between gap-4 text-xs">
+                                        <span className="text-muted-foreground">Jumlah Tiket:</span>
+                                        <span className="font-bold font-mono text-violet-600 dark:text-violet-400">{data.value}</span>
+                                      </div>
+                                      <div className="flex items-center justify-between gap-4 text-xs mt-1">
+                                        <span className="text-muted-foreground">Kontribusi:</span>
+                                        <span className="font-bold font-mono text-emerald-600">{data.percentage}%</span>
+                                      </div>
+                                    </div>
+                                  );
+                                }
+                                return null;
+                              }}
+                            />
+                            
+                            <Bar
+                              dataKey="value"
+                              layout="vertical"
+                              fill="url(#segmenGradient)"
+                              radius={[0, 6, 6, 0]}
+                              animationDuration={1000}
+                            >
+                              <LabelList 
+                                dataKey="labelDisplay" 
+                                position="right" 
+                                className="fill-muted-foreground text-[10px] font-semibold"
+                                offset={10}
+                              />
+                            </Bar>
+                          </BarChart>
+                        </ChartContainer>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
 
               <motion.div variants={itemVariants}>
                 <Card className="overflow-hidden border-border/50 transition-all duration-300 hover:shadow-lg bg-gradient-to-br from-card to-muted/20">
@@ -1575,7 +1798,7 @@ const Reports = () => {
                         </div>
                         <div className="space-y-0.5">
                           <CardTitle className="text-base font-bold tracking-tight">
-                            Top 5 Datek
+                            Data Teknis
                           </CardTitle>
                           <CardDescription className="text-xs text-muted-foreground/80">
                             Distribusi tiket berdasarkan data teknis
@@ -1592,123 +1815,84 @@ const Reports = () => {
                     </div>
                   </CardHeader>
                   <CardContent className="pt-6 pl-2">
-                    <ChartContainer config={datekChartConfig} className="h-[250px] w-full">
-                      <BarChart
-                        accessibilityLayer
-                        data={datekData}
-                        layout="vertical"
-                        margin={{ left: -35, right: 10, top: 0, bottom: 0 }}
-                        barSize={24}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" horizontal={false} className="stroke-border/30" />
-                        <YAxis
-                          dataKey="name"
-                          type="category"
-                          tickLine={false}
-                          axisLine={false}
-                          width={140}
-                          tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))', fontWeight: 500 }}
-                        />
-                        <XAxis type="number" hide />
-                        <ChartTooltip
-                          cursor={{ fill: 'hsl(var(--muted)/0.4)', radius: 4 }}
-                          content={
-                            <ChartTooltipContent 
-                              indicator="line" 
-                              className="bg-background/95 backdrop-blur-xl border-border/50 shadow-xl"
+                    <div className="overflow-y-auto max-h-[600px] pr-4 -mr-4 custom-scrollbar">
+                      <div style={{ height: `${datekDynamicHeight}px`, width: '100%' }}>
+                        <ChartContainer config={datekChartConfig} className="h-full w-full">
+                          <BarChart
+                            accessibilityLayer
+                            data={datekData}
+                            layout="vertical"
+                            margin={{ left: 0, right: 80, top: 10, bottom: 10 }}
+                            barSize={24}
+                          >
+                            <defs>
+                              <linearGradient id="datekGradient" x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="0%" stopColor="hsl(217 91% 60%)" stopOpacity={0.6} />
+                                <stop offset="100%" stopColor="hsl(217 91% 60%)" stopOpacity={1} />
+                              </linearGradient>
+                            </defs>
+  
+                            <CartesianGrid strokeDasharray="3 3" horizontal={false} className="stroke-muted/20" />
+                            
+                            <YAxis
+                              dataKey="name"
+                              type="category"
+                              tickLine={false}
+                              axisLine={false}
+                              width={220}
+                              tick={{ 
+                                fontSize: 11, 
+                                fill: 'hsl(var(--foreground))',
+                                fontWeight: 500 
+                              }}
                             />
-                          }
-                        />
-                        <Bar
-                          dataKey="value"
-                          layout="vertical"
-                          fill="hsl(var(--primary))"
-                          radius={[0, 6, 6, 0]}
-                        >
-                          <div className="fill-foreground text-xs" />
-                        </Bar>
-                      </BarChart>
-                    </ChartContainer>
+                            
+                            <XAxis type="number" hide />
+                            
+                            <ChartTooltip
+                              cursor={{ fill: 'hsl(var(--muted)/0.2)', radius: 4 }}
+                              content={({ active, payload }) => {
+                                if (active && payload && payload.length) {
+                                  const data = payload[0].payload;
+                                  return (
+                                    <div className="bg-popover/95 backdrop-blur-md border border-border/50 p-3 rounded-xl shadow-xl ring-1 ring-black/5">
+                                      <p className="text-sm font-semibold mb-1.5 text-foreground">{data.name}</p>
+                                      <div className="flex items-center justify-between gap-4 text-xs">
+                                        <span className="text-muted-foreground">Jumlah Tiket:</span>
+                                        <span className="font-bold font-mono text-blue-600 dark:text-blue-400">{data.value}</span>
+                                      </div>
+                                      <div className="flex items-center justify-between gap-4 text-xs mt-1">
+                                        <span className="text-muted-foreground">Kontribusi:</span>
+                                        <span className="font-bold font-mono text-emerald-600">{data.percentage}%</span>
+                                      </div>
+                                    </div>
+                                  );
+                                }
+                                return null;
+                              }}
+                            />
+                            
+                            <Bar
+                              dataKey="value"
+                              layout="vertical"
+                              fill="url(#datekGradient)"
+                              radius={[0, 6, 6, 0]}
+                              animationDuration={1000}
+                            >
+                              <LabelList 
+                                dataKey="labelDisplay" 
+                                position="right" 
+                                className="fill-muted-foreground text-[10px] font-semibold"
+                                offset={10}
+                              />
+                            </Bar>
+                          </BarChart>
+                        </ChartContainer>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               </motion.div>
-
-              
-              <ChartCard 
-                title="Detail per Severity" 
-                description="Breakdown tiket berdasarkan severity dan status penyelesaian"
-                icon={BarChart3}
-              >
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {categoryData.map((cat, index) => {
-                    const categoryTickets = filteredTickets.filter(t => t.kategori === cat.category);
-                    const closed = categoryTickets.filter(t => t.status === 'CLOSED').length;
-                    const onProgress = categoryTickets.filter(t => t.status === 'ONPROGRESS').length;
-                    const pending = categoryTickets.filter(t => t.status === 'PENDING' || t.status.startsWith('WAITING')).length;
-                    const overdue = categoryTickets.filter(t => getRealTimeStatus(t).isOverdue).length;
-                    const percentage = categoryTickets.length > 0 ? Math.round((closed / categoryTickets.length) * 100) : 0;
-                    
-                    return (
-                      <motion.div 
-                        key={cat.category} 
-                        className="p-4 bg-muted/30 rounded-xl border border-border/50 transition-all hover:shadow-md hover:border-primary/20"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                        whileHover={{ scale: 1.02 }}
-                      >
-                        <div className="flex items-start justify-between mb-3">
-                          <div>
-                            <h4 className="font-semibold text-sm">{cat.name}</h4>
-                            <p className="text-2xl font-bold text-primary mt-1">{cat.value}</p>
-                          </div>
-                          <div 
-                            className="w-3 h-3 rounded-full" 
-                            style={{ backgroundColor: CATEGORY_COLORS[index % CATEGORY_COLORS.length] }}
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <div className="flex-1 bg-muted rounded-full h-2 overflow-hidden">
-                              <motion.div 
-                                className="h-full bg-emerald-500 rounded-full"
-                                initial={{ width: 0 }}
-                                animate={{ width: `${percentage}%` }}
-                                transition={{ duration: 0.8, delay: index * 0.1 }}
-                              />
-                            </div>
-                            <span className="text-xs font-medium text-muted-foreground w-10 text-right">
-                              {percentage}%
-                            </span>
-                          </div>
-                          
-                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-                            {overdue > 0 && (
-                              <span className="flex items-center gap-1 text-destructive">
-                                <AlertTriangle className="w-3 h-3" />
-                                {overdue}
-                              </span>
-                            )}
-                            <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
-                              <Activity className="w-3 h-3" />
-                              {onProgress}
-                            </span>
-                            <span className="flex items-center gap-1 text-muted-foreground">
-                              <PauseCircle className="w-3 h-3" />
-                              {pending}
-                            </span>
-                            <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
-                              <CheckCircle2 className="w-3 h-3" />
-                              {closed}
-                            </span>
-                          </div>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-              </ChartCard>
             </TabsContent>
           </Tabs>
         </motion.div>
