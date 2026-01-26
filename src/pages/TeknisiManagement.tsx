@@ -438,7 +438,7 @@ const TeknisiManagement = () => {
                 Kelola Teknisi
               </h1>
               <p className="text-muted-foreground text-sm mt-1">
-                Tambah, edit, atau hapus data teknisi lapangan
+                Tambah, edit, atau hapus data teknisi
               </p>
             </div>
           </div>

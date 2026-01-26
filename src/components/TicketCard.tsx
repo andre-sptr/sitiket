@@ -122,7 +122,10 @@ export const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
 
             <div className="flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
               <div className="flex items-center gap-1.5 shrink-0">
-                <Badge variant="outline" className="hidden sm:inline-flex h-5 px-1.5 text-[10px]">
+                <Badge variant="outline" className="hidden sm:inline-flex h-5 px-1.5 text-[9px] bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-300">
+                  {ticket.stakeHolder}
+                </Badge>
+                <Badge variant="outline" className="h-5 px-1.5 text-[10px]">
                   {ticket.provider}
                 </Badge>
                 <Badge variant="outline" className="h-5 px-1.5 text-[10px]">

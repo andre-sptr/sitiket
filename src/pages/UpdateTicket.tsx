@@ -690,7 +690,7 @@ const UpdateTicket = () => {
               </div>
               Update Tiket
             </motion.h1>
-            <p className="text-muted-foreground text-sm mt-1.5">
+            <p className="hidden sm:inline-flex text-muted-foreground text-sm mt-1.5">
               Update progress tiket dengan informasi terbaru
             </p>
           </div>

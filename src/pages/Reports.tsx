@@ -782,7 +782,7 @@ const Reports = () => {
             <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
               Laporan & Analitik
             </h1>
-            <p className="text-muted-foreground text-sm mt-1">
+            <p className="hidden sm:inline-flex text-muted-foreground text-sm mt-1">
               Ringkasan performa dan statistik tiket secara komprehensif
             </p>
           </div>

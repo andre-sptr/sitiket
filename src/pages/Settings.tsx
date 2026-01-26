@@ -606,7 +606,7 @@ const Settings = () => {
             <div>
               <h1 className="text-2xl font-bold text-foreground">Pengaturan</h1>
               <p className="text-muted-foreground text-sm mt-1">
-                Konfigurasi sistem, dropdown options, dan template
+                Konfigurasi sistem dan template
               </p>
             </div>
           </div>
@@ -1101,7 +1101,7 @@ const Settings = () => {
                         </div>
                         <div>
                           <CardTitle className="text-foreground">Template Share Tiket</CardTitle>
-                          <CardDescription>
+                          <CardDescription className='hidden sm:inline-flex'>
                             Template pesan WA untuk share tiket ke grup
                           </CardDescription>
                         </div>
@@ -1125,46 +1125,6 @@ const Settings = () => {
                       onChange={(e) => handleTemplateChange('shareTemplate', e.target.value)}
                       className="min-h-[300px] font-mono text-sm bg-muted/30 border-border/50 focus:border-primary/50 focus:ring-primary/20"
                       placeholder="Masukkan template share tiket..."
-                    />
-                  </CardContent>
-                </Card>
-              </motion.div>
-
-              
-              <motion.div variants={cardVariants} whileHover="hover">
-                <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-lg shadow-primary/5 overflow-hidden">
-                  <CardHeader className="border-b border-border/50 bg-muted/30">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-blue-500/10">
-                          <MessageSquare className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                        </div>
-                        <div>
-                          <CardTitle className="text-foreground">Template Update Progress</CardTitle>
-                          <CardDescription>
-                            Template untuk TA update progress
-                          </CardDescription>
-                        </div>
-                      </div>
-                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => handleCopyTemplate(settings.whatsappTemplates.updateTemplate)}
-                          className="border-border/50 hover:bg-muted/50"
-                        >
-                          <Copy className="w-4 h-4 mr-1" />
-                          Copy
-                        </Button>
-                      </motion.div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="pt-4">
-                    <Textarea
-                      value={settings.whatsappTemplates.updateTemplate}
-                      onChange={(e) => handleTemplateChange('updateTemplate', e.target.value)}
-                      className="min-h-[250px] font-mono text-sm bg-muted/30 border-border/50 focus:border-primary/50 focus:ring-primary/20"
-                      placeholder="Masukkan template update progress..."
                     />
                   </CardContent>
                 </Card>
