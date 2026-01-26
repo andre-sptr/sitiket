@@ -29,7 +29,8 @@ import {
   Building2,
   Ticket as TicketIcon,
   Pencil,
-  Loader2
+  Loader2,
+  Info
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -54,6 +55,12 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import SEO from '@/components/SEO';
 import { ComboboxField } from '@/components/ComboboxField';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface TicketFormData {
   hsa: string;
@@ -125,6 +132,15 @@ const REQUIRED_FIELDS: { field: keyof TicketFormData; label: string }[] = [
   { field: 'namaPelanggan', label: 'Nama Pelanggan / Site' },
   { field: 'datek', label: 'DATEK' },
   { field: 'losNonLos', label: 'LOS / Non LOS' },
+];
+
+const DATEK_PATTERNS = [
+  { regex: /^GPON[A-Z0-9]{2}-D1-[A-Z0-9]{3}-[A-Z0-9]{1}$/, label: 'GPON: GPONXX-D1-XXX-X' },
+  { regex: /^GPON[A-Z0-9]{2}-D1-[A-Z0-9]{3}-[A-Z0-9]{4}$/, label: 'GPON: GPONXX-D1-XXX-XXXX' },
+  { regex: /^FE-[A-Z0-9]{3}-[A-Z0-9]{2}$/, label: 'FEEDER: FE-XXX-XX' },
+  { regex: /^ODC-[A-Z0-9]{3}-[A-Z0-9]{3}$/, label: 'ODC: ODC-XXX-XXX' },
+  { regex: /^ODC-[A-Z0-9]{3}-[A-Z0-9]{3}\/[A-Z0-9]{2}$/, label: 'DISTRIBUSI: ODC-XXX-XXX/XX' },
+  { regex: /^ODP-[A-Z0-9]{3}-[A-Z0-9]{3}\/[A-Z0-9]{3}$/, label: 'ODP: ODP-XXX-XXX/XXX' },
 ];
 
 const cardVariants = {
@@ -342,7 +358,14 @@ const ImportTicket = () => {
     }
 
     if (activeFields.includes('tiket') && formData.tiket && !formData.tiket.toUpperCase().startsWith('INC')) {
-      newErrors.tiket = 'Format tiket harus dimulai dengan INC (contoh: INC12345678)';
+      newErrors.tiket = 'Format Tiket tidak valid';
+    }
+
+    if (activeFields.includes('datek') && formData.datek) {
+      const isValidDatek = DATEK_PATTERNS.some(pattern => pattern.regex.test(formData.datek.toUpperCase()));
+      if (!isValidDatek) {
+        newErrors.datek = 'Format Datek tidak valid';
+      }
     }
 
     setErrors(newErrors);
@@ -403,7 +426,7 @@ const ImportTicket = () => {
         hsa: formData.hsa,
         sto: formData.sto,
         odc: formData.odc,
-        datek: formData.datek,
+        datek: formData.datek.toUpperCase(),
         los_non_los: formData.losNonLos,
         site_impact: formData.siteImpact,
         class_site: formData.classSite,
@@ -1216,16 +1239,37 @@ const ImportTicket = () => {
                       )}
                       {showField('datek') && (
                         <div className="space-y-2">
-                          <Label className="text-xs font-medium text-muted-foreground">
+                          <Label className="text-xs font-medium text-muted-foreground flex items-center gap-1 mb-2.5 mt-1.5">
                             DATEK <span className="text-destructive">*</span>
+                            <TooltipProvider delayDuration={0}>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button 
+                                    type="button" 
+                                    className="focus:outline-none"
+                                    onClick={(e) => e.preventDefault()}
+                                  >
+                                    <Info className="w-3 h-3 text-muted-foreground cursor-help hover:text-primary transition-colors" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent className="max-w-xs text-xs" side="right">
+                                  <p className="font-semibold mb-1">Format yang diterima:</p>
+                                  <ul className="list-disc pl-3 space-y-0.5">
+                                    {DATEK_PATTERNS.map((p, idx) => (
+                                      <li key={idx}>{p.label}</li>
+                                    ))}
+                                  </ul>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
                           </Label>
                           <Input
                             value={formData.datek}
-                            onChange={(e) => updateField('datek', e.target.value)}
+                            onChange={(e) => updateField('datek', e.target.value.toUpperCase())}
                             onBlur={() => markTouched('datek')}
-                            placeholder="PBR/GPON01-D1-PBB-1"
+                            placeholder="GPON/FE/ODC/ODP..."
                             className={cn(
-                              "h-10 font-mono text-sm bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200",
+                              "h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200",
                               errors.datek && touched.datek && "border-destructive ring-2 ring-destructive/20 bg-destructive/5"
                             )}
                           />
