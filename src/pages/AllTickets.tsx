@@ -266,6 +266,13 @@ const AllTickets = () => {
     (siteFilter !== 'ALL' ? 1 : 0) +
     (siteNameFilter !== 'ALL' ? 1 : 0) +
     (dateRange.from || dateRange.to ? 1 : 0);
+  
+  const getDisplayLabel = (val: string) => {
+    if (val === 'newest') return 'Terbaru';
+    if (val === 'oldest') return 'Terlama';
+    if (val === 'ttr') return 'Sisa TTR';
+    return val;
+  };
 
   const FilterSelect = ({ 
     label, 
@@ -273,7 +280,6 @@ const AllTickets = () => {
     onValueChange, 
     options, 
     placeholder,
-    allLabel = "Semua"
   }: { 
     label: string;
     value: string; 
@@ -289,10 +295,9 @@ const AllTickets = () => {
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent className="max-h-[200px] overflow-y-auto">
-          <SelectItem value="ALL">{allLabel}</SelectItem>
           {options.map(option => (
             <SelectItem key={option} value={option}>
-              {option}
+              {getDisplayLabel(option)}
             </SelectItem>
           ))}
         </SelectContent>
@@ -447,9 +452,8 @@ const AllTickets = () => {
                     label="Urutkan"
                     value={sortBy}
                     onValueChange={setSortBy}
-                    options={['newest', 'oldest', 'ttr', 'site']}
+                    options={['newest', 'oldest', 'ttr']}
                     placeholder="Urutkan"
-                    allLabel="Sisa TTR"
                   />
                   
                   <Separator />
