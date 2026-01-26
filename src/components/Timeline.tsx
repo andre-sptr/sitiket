@@ -68,7 +68,7 @@ export const Timeline: React.FC<TimelineProps> = ({ updates }) => {
         {sortedUpdates.map((update, index) => (
           <motion.div 
             key={update.id} 
-            className="relative pl-10"
+            className="relative pl-7 sm:pl-10"
             variants={itemVariants}
             initial="hidden"
             animate="visible"
@@ -105,9 +105,9 @@ export const Timeline: React.FC<TimelineProps> = ({ updates }) => {
               className="bg-card border border-border/50 rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-300 hover:border-border"
               whileHover={{ y: -2, scale: 1.005 }}
             >
-              <div className="flex items-center justify-between gap-2 mb-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 mb-2">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xs font-medium px-2 py-1 rounded-full bg-muted/50 text-muted-foreground">
+                  <span className="text-[10px] sm:text-xs font-medium px-2 py-1 rounded-full bg-muted/50 text-muted-foreground">
                     {update.createdBy} ({(update.source)})
                   </span>
                   {update.statusAfterUpdate && (
@@ -120,12 +120,12 @@ export const Timeline: React.FC<TimelineProps> = ({ updates }) => {
                     </motion.div>
                   )}
                 </div>
-                <span className="text-xs text-muted-foreground font-mono bg-muted/30 px-2 py-1 rounded-md">
+                <span className="text-[10px] sm:text-xs text-muted-foreground font-mono bg-muted/30 px-2 py-1 rounded-md">
                   {formatDateShort(new Date(update.timestamp))}
                 </span>
               </div>
               
-              <p className="text-sm whitespace-pre-wrap leading-relaxed">{update.message}</p>
+              <p className="text-xs sm:text-sm whitespace-pre-wrap leading-relaxed">{update.message}</p>
 
               {update.attachments && update.attachments.length > 0 && (
                 <motion.div 

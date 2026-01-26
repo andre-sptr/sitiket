@@ -1109,7 +1109,7 @@ const TicketDetail = () => {
                     )}
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="px-3 sm:px-6">
                   <Timeline updates={enrichedUpdates} />
                 </CardContent>
               </Card>
