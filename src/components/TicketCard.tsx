@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, forwardRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MapPin, Calendar, ChevronRight } from 'lucide-react';
@@ -12,7 +12,7 @@ interface TicketCardProps {
   ticket: Ticket;
 }
 
-export const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
+export const TicketCard = forwardRef<HTMLDivElement, TicketCardProps>(({ ticket }, ref) => {
   const navigate = useNavigate();
   const isMTC = ticket?.tim === 'MTC';
 
@@ -55,6 +55,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
 
   return (
     <motion.div
+      ref={ref}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ scale: 1.005 }}
@@ -174,4 +175,4 @@ export const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
       </Card>
     </motion.div>
   );
-};
+});

@@ -63,12 +63,12 @@ export const Timeline: React.FC<TimelineProps> = ({ updates }) => {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="">
       <AnimatePresence mode="popLayout">
         {sortedUpdates.map((update, index) => (
           <motion.div 
             key={update.id} 
-            className="relative pl-7 sm:pl-10"
+            className="relative pl-10 sm:pl-12 pb-8 last:pb-0"
             variants={itemVariants}
             initial="hidden"
             animate="visible"
@@ -78,7 +78,7 @@ export const Timeline: React.FC<TimelineProps> = ({ updates }) => {
           >
             {index < sortedUpdates.length - 1 && (
               <motion.div 
-                className="absolute left-[15px] top-10 bottom-0 w-0.5 bg-gradient-to-b from-border to-transparent"
+                className="absolute left-[15px] top-10 bottom-0 w-0.5 bg-gradient-to-b from-border/80 to-border/40"
                 initial={{ scaleY: 0 }}
                 animate={{ scaleY: 1 }}
                 transition={{ delay: index * 0.05 + 0.2, duration: 0.3 }}
@@ -87,7 +87,7 @@ export const Timeline: React.FC<TimelineProps> = ({ updates }) => {
             )}
             
             <motion.div 
-              className={`absolute left-0 top-3 w-8 h-8 rounded-full ${getSourceColor(update.source)} flex items-center justify-center text-white shadow-lg`}
+              className={`absolute left-0 top-3 w-8 h-8 rounded-full ${getSourceColor(update.source)} flex items-center justify-center text-white shadow-lg z-10`}
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ 

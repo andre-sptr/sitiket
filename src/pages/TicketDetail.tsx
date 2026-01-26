@@ -1109,8 +1109,10 @@ const TicketDetail = () => {
                     )}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="px-3 sm:px-6">
-                  <Timeline updates={enrichedUpdates} />
+                <CardContent className="p-0">
+                  <div className="max-h-[500px] overflow-y-auto px-4 py-4 sm:px-6 sm:py-6 custom-scrollbar">
+                    <Timeline updates={enrichedUpdates} />
+                  </div>
                 </CardContent>
               </Card>
             </motion.div>

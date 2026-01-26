@@ -170,12 +170,12 @@ const StatCard = ({ title, value, icon: Icon, trend, variant = 'default', subtit
   return (
     <motion.div variants={cardVariants} whileHover={{ scale: 1.02, y: -4 }} transition={{ duration: 0.2 }}>
       <Card className={cn("relative overflow-hidden transition-all duration-300 hover:shadow-lg", styles.bg)}>
-        <CardContent className="p-5">
+        <CardContent className="p-4 sm:p-5">
           <div className="flex items-start justify-between">
-            <div className="space-y-2">
-              <p className="text-sm font-medium text-muted-foreground">{title}</p>
-              <p className={cn("text-3xl font-bold tracking-tight", styles.valueColor)}>{value}</p>
-              {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
+            <div className="space-y-1 sm:space-y-2">
+              <p className="text-xs sm:text-sm font-medium text-muted-foreground">{title}</p>
+              <p className={cn("text-2xl sm:text-3xl font-bold tracking-tight truncate", styles.valueColor)}>{value}</p>
+              {subtitle && <p className="text-[10px] sm:text-xs text-muted-foreground line-clamp-1">{subtitle}</p>}
               {trend && (
                 <div className={cn("flex items-center gap-1 text-xs font-medium", trend.isUp ? "text-emerald-600" : "text-destructive")}>
                   {trend.isUp ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
@@ -183,8 +183,8 @@ const StatCard = ({ title, value, icon: Icon, trend, variant = 'default', subtit
                 </div>
               )}
             </div>
-            <div className={cn("p-3 rounded-xl", styles.iconBg)}>
-              <Icon className={cn("w-6 h-6", styles.iconColor)} />
+            <div className={cn("p-2 sm:p-3 rounded-xl shrink-0 ml-2", styles.iconBg)}>
+              <Icon className={cn("w-5 h-5 sm:w-6 sm:h-6", styles.iconColor)} />
             </div>
           </div>
         </CardContent>
@@ -196,14 +196,14 @@ const StatCard = ({ title, value, icon: Icon, trend, variant = 'default', subtit
 const ChartCard = ({ children, title, description, icon: Icon, className }: { children: React.ReactNode; title: string; description?: string; icon?: React.ElementType; className?: string }) => (
   <motion.div variants={chartCardVariants} className="h-full">
     <Card className={cn("overflow-hidden transition-all duration-300 hover:shadow-lg h-full flex flex-col", className)}>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg flex items-center gap-2">
-          {Icon && <Icon className="w-5 h-5 text-primary" />}
-          {title}
+      <CardHeader className="pb-2 p-4 sm:p-6">
+        <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+          {Icon && <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-primary shrink-0" />}
+          <span className="line-clamp-1">{title}</span>
         </CardTitle>
-        {description && <CardDescription>{description}</CardDescription>}
+        {description && <CardDescription className="text-xs sm:text-sm line-clamp-2">{description}</CardDescription>}
       </CardHeader>
-      <CardContent className="flex-1">{children}</CardContent>
+      <CardContent className="flex-1 p-2 sm:p-6 pt-0 sm:pt-0 overflow-x-auto">{children}</CardContent>
     </Card>
   </motion.div>
 );
@@ -771,23 +771,23 @@ const Reports = () => {
     <Layout>
       <SEO title="Laporan & Analitik" description="Statistik dan performa penanganan tiket." />
       <motion.div 
-        className="space-y-6"
+        className="space-y-4 sm:space-y-6 pb-20 sm:pb-0 overflow-x-hidden"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
         
-        <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
+        <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-1">
             <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
               Laporan & Analitik
             </h1>
-            <p className="hidden sm:inline-flex text-muted-foreground text-sm mt-1">
-              Ringkasan performa dan statistik tiket secara komprehensif
+            <p className="text-muted-foreground text-sm">
+              Ringkasan performa dan statistik tiket
             </p>
           </div>
           <motion.div 
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 w-full md:w-auto"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
@@ -796,16 +796,16 @@ const Reports = () => {
               <DropdownMenuTrigger asChild>
                 <Button 
                   variant="outline" 
-                  className="gap-2 pl-3 pr-4 h-9 bg-background/50 backdrop-blur-sm border-primary/20 hover:bg-primary/5 hover:border-primary/40 transition-all shadow-sm group"
+                  className="w-full md:w-auto gap-2 pl-3 pr-4 h-10 md:h-9 bg-background/50 backdrop-blur-sm border-primary/20 hover:bg-primary/5 hover:border-primary/40 transition-all shadow-sm group"
                 >
                   <div className="bg-primary/10 p-1 rounded-md group-hover:bg-primary/20 transition-colors">
                     <DownloadCloud className="w-4 h-4 text-primary" />
                   </div>
-                  <span className="text-sm font-medium">Export Data</span>
+                  <span className="text-sm font-medium flex-1 md:flex-none text-left">Export Data</span>
                   <ChevronDown className="w-3 h-3 text-muted-foreground group-hover:text-primary transition-colors ml-1" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-64 p-2 glass-card">
+              <DropdownMenuContent align="end" className="w-[calc(100vw-2rem)] md:w-64 p-2 glass-card">
                 <DropdownMenuLabel className="text-xs font-normal text-muted-foreground px-2 py-1.5">
                   Pilih Format Laporan (.xlsx)
                 </DropdownMenuLabel>
@@ -842,47 +842,46 @@ const Reports = () => {
 
         
         <motion.div variants={itemVariants}>
-          <Card className="p-4 bg-gradient-to-r from-card to-muted/30 border-border/50 space-y-4">
+          <Card className="p-3 sm:p-4 bg-gradient-to-r from-card to-muted/30 border-border/50 space-y-4">
             
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="flex flex-col xl:flex-row xl:items-center gap-4">
               <div className="flex items-center gap-2 min-w-fit">
                 <div className="p-2 rounded-lg bg-primary/10">
                   <CalendarIcon className="w-4 h-4 text-primary" />
                 </div>
-                <span className="font-medium text-sm">Periode Laporan:</span>
+                <span className="font-medium text-sm">Periode:</span>
               </div>
               
-              <div className="flex items-center gap-2 flex-wrap flex-1">
-                <div className="flex items-center gap-1">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 flex-1">
+                <div className="grid grid-cols-3 w-full sm:w-auto gap-2">
                   {[7, 14, 30].map((days) => (
-                    <motion.div key={days} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handlePresetRange(days)}
-                        className="text-xs transition-all hover:bg-primary hover:text-primary-foreground h-8"
-                      >
-                        {days} Hari
-                      </Button>
-                    </motion.div>
+                    <Button
+                      key={days}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePresetRange(days)}
+                      className="text-xs transition-all hover:bg-primary hover:text-primary-foreground h-9 sm:h-8"
+                    >
+                      {days} Hari
+                    </Button>
                   ))}
                 </div>
 
-                <div className="h-6 w-px bg-border hidden sm:block mx-1" />
+                <div className="h-6 w-px bg-border hidden xl:block mx-1" />
 
-                <div className="flex items-center gap-2">
+                <div className="grid grid-cols-2 sm:flex items-center gap-2 w-full sm:w-auto">
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
                         size="sm"
                         className={cn(
-                          "justify-start text-left font-normal text-xs min-w-[120px] transition-all h-8",
+                          "justify-start text-left font-normal text-xs w-full sm:min-w-[120px] transition-all h-9 sm:h-8",
                           !dateRange.from && "text-muted-foreground"
                         )}
                       >
                         <CalendarIcon className="mr-2 h-3 w-3" />
-                        {dateRange.from ? format(dateRange.from, "dd MMM yyyy", { locale: id }) : "Dari"}
+                        {dateRange.from ? format(dateRange.from, "dd MMM yy", { locale: id }) : "Dari"}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0 bg-popover/95 backdrop-blur-xl" align="start">
@@ -897,7 +896,7 @@ const Reports = () => {
                     </PopoverContent>
                   </Popover>
 
-                  <span className="text-muted-foreground text-sm">-</span>
+                  <span className="hidden sm:inline text-muted-foreground text-sm">-</span>
 
                   <Popover>
                     <PopoverTrigger asChild>
@@ -905,12 +904,12 @@ const Reports = () => {
                         variant="outline"
                         size="sm"
                         className={cn(
-                          "justify-start text-left font-normal text-xs min-w-[120px] transition-all h-8",
+                          "justify-start text-left font-normal text-xs w-full sm:min-w-[120px] transition-all h-9 sm:h-8",
                           !dateRange.to && "text-muted-foreground"
                         )}
                       >
                         <CalendarIcon className="mr-2 h-3 w-3" />
-                        {dateRange.to ? format(dateRange.to, "dd MMM yyyy", { locale: id }) : "Sampai"}
+                        {dateRange.to ? format(dateRange.to, "dd MMM yy", { locale: id }) : "Sampai"}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0 bg-popover/95 backdrop-blur-xl" align="start">
@@ -929,14 +928,29 @@ const Reports = () => {
             </div>
 
             
-            <div className="flex flex-col md:flex-row gap-4 items-start md:items-center pt-2 border-t border-border/50">
-              <div className="flex items-center gap-2 min-w-fit">
-                 <div className="p-2 rounded-lg bg-blue-500/10">
-                   <Filter className="w-4 h-4 text-blue-500" />
-                 </div>
-                 <span className="font-medium text-sm">Filter Detail:</span>
+            <div className="flex flex-col gap-3 pt-2 border-t border-border/50">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                   <div className="p-2 rounded-lg bg-blue-500/10">
+                     <Filter className="w-4 h-4 text-blue-500" />
+                   </div>
+                   <span className="font-medium text-sm">Filter Detail:</span>
+                </div>
+                <div className="flex items-center gap-2">
+                   <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleResetFilter}
+                      className="text-xs text-muted-foreground hover:text-foreground h-8 px-2"
+                    >
+                      <X className="w-3 h-3 sm:mr-1" />
+                      <span className="hidden sm:inline">Reset</span>
+                   </Button>
+                    <span className="text-xs bg-primary/10 text-primary px-3 py-1.5 rounded-full font-medium whitespace-nowrap">
+                      {filteredTickets.length} <span className="hidden sm:inline">tiket</span>
+                    </span>
+                </div>
               </div>
-              
               
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 w-full">
                 <FilterCombobox
@@ -944,98 +958,75 @@ const Reports = () => {
                   onValueChange={setFilterStatus}
                   options={statusOptions}
                   placeholder="Semua Status"
-                  className="h-8 text-xs w-full"
+                  className="h-9 sm:h-8 text-xs w-full"
                 />
                 <FilterCombobox
                   value={filterSTO}
                   onValueChange={setFilterSTO}
                   options={stoOptions}
                   placeholder="Semua STO"
-                  className="h-8 text-xs w-full"
+                  className="h-9 sm:h-8 text-xs w-full"
                 />
                 <FilterCombobox
                   value={filterKategori}
                   onValueChange={setFilterKategori}
                   options={kategoriOptions}
                   placeholder="Semua Severity"
-                  className="h-8 text-xs w-full"
+                  className="h-9 sm:h-8 text-xs w-full"
                 />
                 <FilterCombobox
                   value={filterProvider}
                   onValueChange={setFilterProvider}
                   options={providerOptions}
                   placeholder="Semua Pelanggan"
-                  className="h-8 text-xs w-full"
+                  className="h-9 sm:h-8 text-xs w-full"
                 />
                 <FilterCombobox
                   value={filterSegmen}
                   onValueChange={setFilterSegmen}
                   options={segmenOptions}
                   placeholder="Semua Segmen"
-                  className="h-8 text-xs w-full"
+                  className="h-9 sm:h-8 text-xs w-full"
                 />
                 <FilterCombobox
                   value={filterPenyebab}
                   onValueChange={setFilterPenyebab}
                   options={penyebabOptions}
                   placeholder="Semua Penyebab"
-                  className="h-8 text-xs w-full"
+                  className="h-9 sm:h-8 text-xs w-full"
                 />
                 <FilterCombobox
                   value={filterTeknisi}
                   onValueChange={setFilterTeknisi}
                   options={teknisiOptions}
                   placeholder="Semua Teknisi"
-                  className="h-8 text-xs w-full"
+                  className="h-9 sm:h-8 text-xs w-full"
                 />
                 <Input 
                   placeholder="Datek..." 
                   value={filterDatek} 
                   onChange={(e) => setFilterDatek(e.target.value)}
-                  className="h-8 text-xs w-full bg-background"
+                  className="h-9 sm:h-8 text-xs w-full bg-background"
                 />
                 <Input 
                   placeholder="ID Pelanggan / Site..." 
                   value={filterId} 
                   onChange={(e) => setFilterId(e.target.value)}
-                  className="h-8 text-xs w-full bg-background"
+                  className="h-9 sm:h-8 text-xs w-full bg-background"
                 />
-              </div>
-              
-              <div className="flex items-center gap-2 min-w-fit ml-auto">
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleResetFilter}
-                    className="text-xs text-muted-foreground hover:text-foreground h-8"
-                  >
-                    <X className="w-3 h-3 mr-1" />
-                    Reset
-                  </Button>
-                </motion.div>
-                 <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  key={filteredTickets.length}
-                >
-                  <span className="text-xs bg-primary/10 text-primary px-3 py-1.5 rounded-full font-medium whitespace-nowrap">
-                    {filteredTickets.length} tiket
-                  </span>
-                </motion.div>
               </div>
             </div>
           </Card>
         </motion.div>
 
         
-        <motion.div variants={containerVariants} className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-4">
+        <motion.div variants={containerVariants} className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4">
           <StatCard 
-            title="Total Periode" 
+            title="Total" 
             value={filteredTickets.length} 
             icon={LayoutGrid} 
             variant="primary"
-            subtitle={`${format(dateRange.from, 'dd MMM', { locale: id })} - ${format(dateRange.to, 'dd MMM', { locale: id })}`}
+            subtitle={`${format(dateRange.from, 'd MMM', { locale: id })} - ${format(dateRange.to, 'd MMM', { locale: id })}`}
           />
           <StatCard 
             title="Open" 
@@ -1044,7 +1035,7 @@ const Reports = () => {
             variant="primary"
           />
           <StatCard 
-            title="On Progress" 
+            title="Progress" 
             value={filteredTickets.filter(t => t.status === 'ONPROGRESS').length} 
             icon={Activity}
             variant="warning"
@@ -1062,41 +1053,41 @@ const Reports = () => {
             variant="success"
           />
           <StatCard 
-            title="Compliance" 
+            title="Comply" 
             value={`${complianceRadialData[0]?.value || 0}%`} 
             icon={Target} 
             variant="success"
-            subtitle="TTR sesuai SLA"
+            subtitle="TTR Rate"
           />
         </motion.div>
 
         
         <motion.div variants={itemVariants}>
           <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-grid mb-4">
-              <TabsTrigger value="overview" className="gap-2">
+            <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-grid mb-4 h-10">
+              <TabsTrigger value="overview" className="gap-2 text-xs sm:text-sm">
                 <BarChart3 className="w-4 h-4" />
                 <span className="hidden sm:inline">Overview</span>
               </TabsTrigger>
-              <TabsTrigger value="distribution" className="gap-2">
+              <TabsTrigger value="distribution" className="gap-2 text-xs sm:text-sm">
                 <PieChart className="w-4 h-4" />
                 <span className="hidden sm:inline">Distribution</span>
               </TabsTrigger>
-              <TabsTrigger value="trends" className="gap-2">
+              <TabsTrigger value="trends" className="gap-2 text-xs sm:text-sm">
                 <TrendingUp className="w-4 h-4" />
                 <span className="hidden sm:inline">Trends</span>
               </TabsTrigger>
             </TabsList>
 
             
-            <TabsContent value="overview" className="space-y-6">
+            <TabsContent value="overview" className="space-y-4 sm:space-y-6">
               
               <ChartCard 
-                title={`Tiket per Periode (${format(dateRange.from, "dd MMM", { locale: id })} - ${format(dateRange.to, "dd MMM yyyy", { locale: id })})`}
-                description="Jumlah tiket berdasarkan status per hari"
+                title={`Tiket per Periode`}
+                description="Status tiket harian"
                 icon={BarChart3}
               >
-                <ChartContainer config={barChartConfig} className="h-[350px] w-full">
+                <ChartContainer config={barChartConfig} className="h-[250px] sm:h-[350px] w-full">
                   <BarChart data={periodData} accessibilityLayer>
                     <defs>
                       <linearGradient id="openGradient" x1="0" y1="0" x2="0" y2="1">
@@ -1121,15 +1112,16 @@ const Reports = () => {
                       dataKey="name" 
                       tickLine={false} 
                       axisLine={false}
-                      tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+                      tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                      interval={0}
                     />
                     <YAxis 
                       tickLine={false} 
                       axisLine={false}
-                      tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+                      tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
                     />
                     <ChartTooltip content={<ChartTooltipContent />} />
-                    <ChartLegend content={<ChartLegendContent />} />
+                    <ChartLegend content={<ChartLegendContent />} className="flex-wrap text-[10px]" />
                     <Bar dataKey="open" fill="url(#openGradient)" radius={[6, 6, 0, 0]} />
                     <Bar dataKey="onprogress" fill="url(#progressGradient)" radius={[6, 6, 0, 0]} />
                     <Bar dataKey="pending" fill="url(#pendingGradient)" radius={[6, 6, 0, 0]} />
@@ -1139,11 +1131,11 @@ const Reports = () => {
               </ChartCard>
 
               
-              <div className="grid lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                 
                 <ChartCard 
-                  title="Performa per Pelanggan" 
-                  description="Distribusi dan compliance rate per pelanggan"
+                  title="Performa Pelanggan" 
+                  description="Top 5 Pelanggan"
                   icon={Users}
                 >
                   <div className="space-y-4">
@@ -1156,11 +1148,11 @@ const Reports = () => {
                         transition={{ delay: index * 0.1 }}
                       >
                         <div className="flex items-center justify-between">
-                          <span className="font-medium text-sm">{provider.name}</span>
-                          <div className="flex items-center gap-3">
+                          <span className="font-medium text-xs sm:text-sm truncate mr-2">{provider.name}</span>
+                          <div className="flex items-center gap-3 shrink-0">
                             <span className="text-xs text-muted-foreground">{provider.total} tiket</span>
                             <span className={cn(
-                              "text-xs font-semibold px-2 py-0.5 rounded-full",
+                              "text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-full",
                               provider.rate >= 80 ? "bg-emerald-500/10 text-emerald-600" :
                               provider.rate >= 60 ? "bg-amber-500/10 text-amber-600" :
                               "bg-destructive/10 text-destructive"
@@ -1170,7 +1162,7 @@ const Reports = () => {
                           </div>
                         </div>
                         <div className="relative">
-                          <Progress value={provider.rate} className="h-2" />
+                          <Progress value={provider.rate} className="h-1.5 sm:h-2" />
                         </div>
                       </motion.div>
                     ))}
@@ -1180,12 +1172,12 @@ const Reports = () => {
                 
                 <ChartCard 
                   title="TTR Compliance" 
-                  description="Persentase tiket yang sesuai target TTR"
+                  description="Persentase sesuai SLA"
                   icon={Target}
                 >
-                  <div className="flex flex-col items-center justify-center h-[280px]">
+                  <div className="flex flex-col items-center justify-center h-[250px] sm:h-[280px]">
                     <div className="relative">
-                      <ResponsiveContainer width={200} height={200}>
+                      <ResponsiveContainer width={180} height={180}>
                         <RadialBarChart 
                           innerRadius="70%" 
                           outerRadius="100%" 
@@ -1201,20 +1193,20 @@ const Reports = () => {
                         </RadialBarChart>
                       </ResponsiveContainer>
                       <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <span className="text-4xl font-bold text-emerald-600 dark:text-emerald-400">
+                        <span className="text-3xl sm:text-4xl font-bold text-emerald-600 dark:text-emerald-400">
                           {complianceRadialData[0]?.value || 0}%
                         </span>
                         <span className="text-xs text-muted-foreground">Compliance</span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4 mt-4">
+                    <div className="flex items-center gap-4 mt-2 sm:mt-4">
                       <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                        <span className="text-sm">Comply: {filteredTickets.filter(t => getRealTimeStatus(t).isComply).length}</span>
+                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                        <span className="text-xs sm:text-sm">Comply: {filteredTickets.filter(t => getRealTimeStatus(t).isComply).length}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-destructive" />
-                        <span className="text-sm">Not Comply: {filteredTickets.filter(t => !getRealTimeStatus(t).isComply).length}</span>
+                        <div className="w-2.5 h-2.5 rounded-full bg-destructive" />
+                        <span className="text-xs sm:text-sm">Not Comply: {filteredTickets.filter(t => !getRealTimeStatus(t).isComply).length}</span>
                       </div>
                     </div>
                   </div>
@@ -1223,14 +1215,14 @@ const Reports = () => {
             </TabsContent>
 
             
-            <TabsContent value="trends" className="space-y-6">
+            <TabsContent value="trends" className="space-y-4 sm:space-y-6">
               
               <ChartCard 
                 title="Trend Tiket" 
-                description="Perbandingan total tiket masuk dan closed per hari"
+                description="Masuk vs Closed"
                 icon={TrendingUp}
               >
-                <ChartContainer config={areaChartConfig} className="h-[350px] w-full">
+                <ChartContainer config={areaChartConfig} className="h-[250px] sm:h-[350px] w-full">
                   <AreaChart data={periodData} accessibilityLayer>
                     <defs>
                       <linearGradient id="totalArea" x1="0" y1="0" x2="0" y2="1">
@@ -1247,15 +1239,15 @@ const Reports = () => {
                       dataKey="name" 
                       tickLine={false} 
                       axisLine={false}
-                      tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+                      tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
                     />
                     <YAxis 
                       tickLine={false} 
                       axisLine={false}
-                      tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+                      tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
                     />
                     <ChartTooltip content={<ChartTooltipContent />} />
-                    <ChartLegend content={<ChartLegendContent />} />
+                    <ChartLegend content={<ChartLegendContent />} className="text-[10px]" />
                     <Area 
                       type="monotone" 
                       dataKey="total" 
@@ -1275,25 +1267,25 @@ const Reports = () => {
               </ChartCard>
 
               
-              <div className="grid lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                 <ChartCard 
-                  title="Rata-rata TTR per Hari" 
-                  description="Waktu penyelesaian rata-rata dalam jam"
+                  title="Rata-rata TTR" 
+                  description="Per hari (jam)"
                   icon={Timer}
                 >
-                  <ChartContainer config={{ avgTTR: { label: 'Avg TTR (jam)', color: 'hsl(262 83% 58%)' }}} className="h-[280px] w-full">
+                  <ChartContainer config={{ avgTTR: { label: 'Avg TTR (jam)', color: 'hsl(262 83% 58%)' }}} className="h-[250px] sm:h-[280px] w-full">
                     <LineChart data={periodData} accessibilityLayer>
                       <CartesianGrid strokeDasharray="3 3" className="stroke-border/50" vertical={false} />
                       <XAxis 
                         dataKey="name" 
                         tickLine={false} 
                         axisLine={false}
-                        tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                        tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
                       />
                       <YAxis 
                         tickLine={false} 
                         axisLine={false}
-                        tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                        tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
                       />
                       <ChartTooltip content={<ChartTooltipContent />} />
                       <Line 
@@ -1310,24 +1302,24 @@ const Reports = () => {
 
                 
                 <ChartCard 
-                  title="Distribusi per Jam" 
-                  description="Jumlah tiket berdasarkan jam pembuatan"
+                  title="Distribusi Jam" 
+                  description="Waktu tiket dibuat"
                   icon={Clock}
                 >
-                  <ChartContainer config={{ count: { label: 'Jumlah Tiket', color: 'hsl(var(--primary))' }}} className="h-[280px] w-full">
+                  <ChartContainer config={{ count: { label: 'Jumlah Tiket', color: 'hsl(var(--primary))' }}} className="h-[250px] sm:h-[280px] w-full">
                     <BarChart data={hourlyData} accessibilityLayer>
                       <CartesianGrid strokeDasharray="3 3" className="stroke-border/50" vertical={false} />
                       <XAxis 
                         dataKey="hour" 
                         tickLine={false} 
                         axisLine={false}
-                        tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
-                        interval={2}
+                        tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }}
+                        interval={3}
                       />
                       <YAxis 
                         tickLine={false} 
                         axisLine={false}
-                        tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                        tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
                       />
                       <ChartTooltip content={<ChartTooltipContent />} />
                       <Bar 
@@ -1343,24 +1335,24 @@ const Reports = () => {
             </TabsContent>
 
             
-            <TabsContent value="distribution" className="space-y-6">
-              <div className="grid lg:grid-cols-2 gap-6">
+            <TabsContent value="distribution" className="space-y-4 sm:space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                 
                 <ChartCard 
-                  title="Tiket per Severity" 
-                  description="Distribusi tiket berdasarkan severity"
+                  title="Severity" 
+                  description="Distribusi Kategori"
                   icon={PieChart}
                 >
                   <div className="flex flex-col items-center">
-                    <ChartContainer config={pieChartConfig} className="h-[320px] w-full">
+                    <ChartContainer config={pieChartConfig} className="h-[280px] sm:h-[320px] w-full">
                       <RechartsPieChart>
                         <ChartTooltip content={<ChartTooltipContent />} />
                         <Pie
                           data={categoryData}
                           cx="50%"
                           cy="50%"
-                          innerRadius={70}
-                          outerRadius={110}
+                          innerRadius={60}
+                          outerRadius={90}
                           paddingAngle={3}
                           dataKey="value"
                           nameKey="name"
@@ -1374,15 +1366,15 @@ const Reports = () => {
                     </ChartContainer>
 
                     
-                    <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mt-2">
+                    <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 mt-2 px-2">
                       {categoryData.map((item, index) => (
-                        <div key={index} className="flex items-center gap-2">
+                        <div key={index} className="flex items-center gap-1.5">
                           <div 
-                            className="w-3 h-3 rounded-full ring-1 ring-border" 
+                            className="w-2.5 h-2.5 rounded-full ring-1 ring-border" 
                             style={{ backgroundColor: CATEGORY_COLORS[index % CATEGORY_COLORS.length] }} 
                           />
-                          <span className="text-sm font-medium text-muted-foreground">
-                            {item.name} <span className="text-xs opacity-70">({item.value})</span>
+                          <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                            {item.name} <span className="text-[10px] opacity-70">({item.value})</span>
                           </span>
                         </div>
                       ))}
@@ -1392,20 +1384,20 @@ const Reports = () => {
 
                 
                 <ChartCard 
-                  title="Tiket per Status" 
-                  description="Distribusi tiket berdasarkan status penanganan"
+                  title="Status Tiket" 
+                  description="Distribusi Status"
                   icon={TrendingUp}
                 >
                   <div className="flex flex-col items-center">
-                    <ChartContainer config={statusChartConfig} className="h-[320px] w-full">
+                    <ChartContainer config={statusChartConfig} className="h-[280px] sm:h-[320px] w-full">
                       <RechartsPieChart>
                         <ChartTooltip content={<ChartTooltipContent />} />
                         <Pie
                           data={statusData}
                           cx="50%"
                           cy="50%"
-                          innerRadius={70}
-                          outerRadius={110}
+                          innerRadius={60}
+                          outerRadius={90}
                           paddingAngle={3}
                           dataKey="value"
                           nameKey="name"
@@ -1417,15 +1409,15 @@ const Reports = () => {
                       </RechartsPieChart>
                     </ChartContainer>
 
-                    <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mt-2">
+                    <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 mt-2 px-2">
                       {statusData.map((item, index) => (
-                        <div key={index} className="flex items-center gap-2">
+                        <div key={index} className="flex items-center gap-1.5">
                           <div 
-                            className="w-3 h-3 rounded-full ring-1 ring-border" 
+                            className="w-2.5 h-2.5 rounded-full ring-1 ring-border" 
                             style={{ backgroundColor: item.fill }} 
                           />
-                          <span className="text-sm font-medium text-muted-foreground">
-                            {item.name} <span className="text-xs opacity-70">({item.value})</span>
+                          <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                            {item.name} <span className="text-[10px] opacity-70">({item.value})</span>
                           </span>
                         </div>
                       ))}
@@ -1435,7 +1427,7 @@ const Reports = () => {
               </div>
               
               
-              <div className="grid lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                  
                 <ChartCard 
                   title="Sifat Perbaikan" 
@@ -1443,15 +1435,15 @@ const Reports = () => {
                   icon={Wrench}
                 >
                   <div className="flex flex-col items-center">
-                    <ChartContainer config={{}} className="h-[250px] w-full">
+                    <ChartContainer config={{}} className="h-[200px] sm:h-[250px] w-full">
                       <RechartsPieChart>
                         <ChartTooltip content={<ChartTooltipContent />} />
                         <Pie
                           data={sifatPerbaikanData}
                           cx="50%"
                           cy="50%"
-                          innerRadius={60}
-                          outerRadius={90}
+                          innerRadius={50}
+                          outerRadius={80}
                           paddingAngle={5}
                           dataKey="value"
                           nameKey="name"
@@ -1463,15 +1455,15 @@ const Reports = () => {
                       </RechartsPieChart>
                     </ChartContainer>
 
-                    <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mt-2">
+                    <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 mt-2">
                       {sifatPerbaikanData.map((item, index) => (
-                        <div key={index} className="flex items-center gap-2">
+                        <div key={index} className="flex items-center gap-1.5">
                           <div 
-                            className="w-3 h-3 rounded-full ring-1 ring-border" 
+                            className="w-2.5 h-2.5 rounded-full ring-1 ring-border" 
                             style={{ backgroundColor: item.fill }} 
                           />
-                          <span className="text-sm font-medium text-muted-foreground">
-                            {item.name} <span className="text-xs opacity-70">({item.value})</span>
+                          <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                            {item.name} <span className="text-[10px] opacity-70">({item.value})</span>
                           </span>
                         </div>
                       ))}
@@ -1482,14 +1474,14 @@ const Reports = () => {
                 
                 <ChartCard 
                   title="Site Impact" 
-                  description="Distribusi tiket berdasarkan site terdampak"
+                  description="Top Site Terdampak"
                   icon={Globe}
                 >
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-[280px] overflow-y-auto custom-scrollbar pr-2">
+                  <div className="grid grid-cols-3 gap-3 max-h-[200px] sm:max-h-[280px] overflow-y-auto custom-scrollbar pr-2">
                      {impactData.map((item, i) => (
-                        <div key={i} className="flex flex-col items-center justify-center p-3 rounded-lg bg-muted/30 border border-border/50 hover:bg-muted/50 transition-colors text-center">
-                           <span className="text-xl font-bold text-primary mb-1">{item.value}</span>
-                           <span className="text-xs font-medium text-muted-foreground line-clamp-2 leading-tight" title={item.name}>
+                        <div key={i} className="flex flex-col items-center justify-center p-2 sm:p-3 rounded-lg bg-muted/30 border border-border/50 hover:bg-muted/50 transition-colors text-center">
+                           <span className="text-lg sm:text-xl font-bold text-primary mb-1">{item.value}</span>
+                           <span className="text-[10px] sm:text-xs font-medium text-muted-foreground line-clamp-2 leading-tight" title={item.name}>
                              {item.name}
                            </span>
                         </div>
@@ -1499,11 +1491,11 @@ const Reports = () => {
               </div>
 
               <ChartCard 
-                title="Detail per Severity" 
-                description="Breakdown tiket berdasarkan severity dan status penyelesaian"
+                title="Detail Severity" 
+                description="Status per Kategori"
                 icon={BarChart3}
               >
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                   {categoryData.map((cat, index) => {
                     const categoryTickets = filteredTickets.filter(t => t.kategori === cat.category);
                     const closed = categoryTickets.filter(t => t.status === 'CLOSED').length;
@@ -1515,26 +1507,26 @@ const Reports = () => {
                     return (
                       <motion.div 
                         key={cat.category} 
-                        className="p-4 bg-muted/30 rounded-xl border border-border/50 transition-all hover:shadow-md hover:border-primary/20"
+                        className="p-3 sm:p-4 bg-muted/30 rounded-xl border border-border/50 transition-all hover:shadow-md hover:border-primary/20"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.05 }}
                         whileHover={{ scale: 1.02 }}
                       >
                         <div className="flex items-start justify-between mb-3">
-                          <div>
-                            <h4 className="font-semibold text-sm">{cat.name}</h4>
-                            <p className="text-2xl font-bold text-primary mt-1">{cat.value}</p>
+                          <div className="overflow-hidden mr-2">
+                            <h4 className="font-semibold text-xs sm:text-sm truncate">{cat.name}</h4>
+                            <p className="text-xl sm:text-2xl font-bold text-primary mt-1">{cat.value}</p>
                           </div>
                           <div 
-                            className="w-3 h-3 rounded-full" 
+                            className="w-3 h-3 rounded-full shrink-0" 
                             style={{ backgroundColor: CATEGORY_COLORS[index % CATEGORY_COLORS.length] }}
                           />
                         </div>
                         
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
-                            <div className="flex-1 bg-muted rounded-full h-2 overflow-hidden">
+                            <div className="flex-1 bg-muted rounded-full h-1.5 sm:h-2 overflow-hidden">
                               <motion.div 
                                 className="h-full bg-emerald-500 rounded-full"
                                 initial={{ width: 0 }}
@@ -1542,12 +1534,12 @@ const Reports = () => {
                                 transition={{ duration: 0.8, delay: index * 0.1 }}
                               />
                             </div>
-                            <span className="text-xs font-medium text-muted-foreground w-10 text-right">
+                            <span className="text-xs font-medium text-muted-foreground w-8 text-right">
                               {percentage}%
                             </span>
                           </div>
                           
-                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] sm:text-xs">
                             {overdue > 0 && (
                               <span className="flex items-center gap-1 text-destructive">
                                 <AlertTriangle className="w-3 h-3" />
@@ -1576,18 +1568,18 @@ const Reports = () => {
 
               <motion.div variants={itemVariants}>
                 <Card className="overflow-hidden border-border/50 transition-all duration-300 hover:shadow-lg bg-gradient-to-br from-card to-muted/20">
-                  <CardHeader className="border-b border-border/40 pb-4">
+                  <CardHeader className="border-b border-border/40 pb-3 sm:pb-4 p-4 sm:p-6">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-violet-500/10 ring-1 ring-violet-500/20 shadow-sm">
-                          <LayoutGrid className="w-5 h-5 text-violet-600 dark:text-violet-400" />
+                        <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-violet-500/10 ring-1 ring-violet-500/20 shadow-sm">
+                          <LayoutGrid className="w-4 h-4 sm:w-5 sm:h-5 text-violet-600 dark:text-violet-400" />
                         </div>
                         <div className="space-y-0.5">
-                          <CardTitle className="text-base font-bold tracking-tight">
+                          <CardTitle className="text-sm sm:text-base font-bold tracking-tight">
                             Segmen Gangguan
                           </CardTitle>
-                          <CardDescription className="text-xs text-muted-foreground/80">
-                            Distribusi tiket berdasarkan segmen gangguan
+                          <CardDescription className="text-[10px] sm:text-xs text-muted-foreground/80">
+                            Distribusi per segmen
                           </CardDescription>
                         </div>
                       </div>
@@ -1601,16 +1593,16 @@ const Reports = () => {
                     </div>
                   </CardHeader>
                   
-                  <CardContent className="pt-6 pl-2">
-                    <div className="overflow-y-auto max-h-[600px] pr-4 -mr-4 custom-scrollbar">
+                  <CardContent className="pt-4 sm:pt-6 pl-0 sm:pl-2">
+                    <div className="overflow-y-auto max-h-[400px] sm:max-h-[600px] pr-4 -mr-4 custom-scrollbar">
                       <div style={{ height: `${segmenDynamicHeight}px`, width: '100%' }}>
                         <ChartContainer config={segmenChartConfig} className="h-full w-full">
                           <BarChart
                             accessibilityLayer
                             data={segmenData}
                             layout="vertical"
-                            margin={{ left: 0, right: 80, top: 10, bottom: 10 }}
-                            barSize={24}
+                            margin={{ left: 0, right: 60, top: 10, bottom: 10 }}
+                            barSize={20}
                           >
                             <defs>
                               <linearGradient id="segmenGradient" x1="0" y1="0" x2="1" y2="0">
@@ -1626,9 +1618,9 @@ const Reports = () => {
                               type="category"
                               tickLine={false}
                               axisLine={false}
-                              width={220}
+                              width={140}
                               tick={{ 
-                                fontSize: 11, 
+                                fontSize: 10, 
                                 fill: 'hsl(var(--foreground))',
                                 fontWeight: 500 
                               }}
@@ -1645,12 +1637,8 @@ const Reports = () => {
                                     <div className="bg-popover/95 backdrop-blur-md border border-border/50 p-3 rounded-xl shadow-xl ring-1 ring-black/5">
                                       <p className="text-sm font-semibold mb-1.5 text-foreground">{data.name}</p>
                                       <div className="flex items-center justify-between gap-4 text-xs">
-                                        <span className="text-muted-foreground">Jumlah Tiket:</span>
+                                        <span className="text-muted-foreground">Jumlah:</span>
                                         <span className="font-bold font-mono text-violet-600 dark:text-violet-400">{data.value}</span>
-                                      </div>
-                                      <div className="flex items-center justify-between gap-4 text-xs mt-1">
-                                        <span className="text-muted-foreground">Kontribusi:</span>
-                                        <span className="font-bold font-mono text-emerald-600">{data.percentage}%</span>
                                       </div>
                                     </div>
                                   );
@@ -1669,8 +1657,8 @@ const Reports = () => {
                               <LabelList 
                                 dataKey="labelDisplay" 
                                 position="right" 
-                                className="fill-muted-foreground text-[10px] font-semibold"
-                                offset={10}
+                                className="fill-muted-foreground text-[9px] sm:text-[10px] font-semibold"
+                                offset={5}
                               />
                             </Bar>
                           </BarChart>
@@ -1683,18 +1671,18 @@ const Reports = () => {
 
               <motion.div variants={itemVariants}>
                 <Card className="overflow-hidden border-border/50 transition-all duration-300 hover:shadow-lg bg-gradient-to-br from-card to-muted/20">
-                  <CardHeader className="border-b border-border/40 pb-4">
+                  <CardHeader className="border-b border-border/40 pb-3 sm:pb-4 p-4 sm:p-6">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-amber-500/10 ring-1 ring-amber-500/20 shadow-sm">
-                          <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                        <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-amber-500/10 ring-1 ring-amber-500/20 shadow-sm">
+                          <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600 dark:text-amber-400" />
                         </div>
                         <div className="space-y-0.5">
-                          <CardTitle className="text-base font-bold tracking-tight">
+                          <CardTitle className="text-sm sm:text-base font-bold tracking-tight">
                             Penyebab Gangguan
                           </CardTitle>
-                          <CardDescription className="text-xs text-muted-foreground/80">
-                            Distribusi tiket berdasarkan penyebab gangguan
+                          <CardDescription className="text-[10px] sm:text-xs text-muted-foreground/80">
+                            Distribusi per penyebab
                           </CardDescription>
                         </div>
                       </div>
@@ -1708,16 +1696,16 @@ const Reports = () => {
                     </div>
                   </CardHeader>
                   
-                  <CardContent className="pt-6 pl-2">
-                    <div className="overflow-y-auto max-h-[600px] pr-4 -mr-4 custom-scrollbar">
+                  <CardContent className="pt-4 sm:pt-6 pl-0 sm:pl-2">
+                    <div className="overflow-y-auto max-h-[400px] sm:max-h-[600px] pr-4 -mr-4 custom-scrollbar">
                       <div style={{ height: `${dynamicHeight}px`, width: '100%' }}>
                         <ChartContainer config={penyebabChartConfig} className="h-full w-full">
                           <BarChart
                             accessibilityLayer
                             data={penyebabData}
                             layout="vertical"
-                            margin={{ left: 0, right: 80, top: 10, bottom: 10 }}
-                            barSize={24}
+                            margin={{ left: 0, right: 60, top: 10, bottom: 10 }}
+                            barSize={20}
                           >
                             <defs>
                               <linearGradient id="causeGradient" x1="0" y1="0" x2="1" y2="0">
@@ -1733,9 +1721,9 @@ const Reports = () => {
                               type="category"
                               tickLine={false}
                               axisLine={false}
-                              width={220}
+                              width={140}
                               tick={{ 
-                                fontSize: 11, 
+                                fontSize: 10, 
                                 fill: 'hsl(var(--foreground))',
                                 fontWeight: 500 
                               }}
@@ -1752,12 +1740,8 @@ const Reports = () => {
                                     <div className="bg-popover/95 backdrop-blur-md border border-border/50 p-3 rounded-xl shadow-xl ring-1 ring-black/5">
                                       <p className="text-sm font-semibold mb-1.5 text-foreground">{data.name}</p>
                                       <div className="flex items-center justify-between gap-4 text-xs">
-                                        <span className="text-muted-foreground">Jumlah Tiket:</span>
+                                        <span className="text-muted-foreground">Jumlah:</span>
                                         <span className="font-bold font-mono text-primary">{data.value}</span>
-                                      </div>
-                                      <div className="flex items-center justify-between gap-4 text-xs mt-1">
-                                        <span className="text-muted-foreground">Kontribusi:</span>
-                                        <span className="font-bold font-mono text-emerald-600">{data.percentage}%</span>
                                       </div>
                                     </div>
                                   );
@@ -1776,8 +1760,8 @@ const Reports = () => {
                               <LabelList 
                                 dataKey="labelDisplay" 
                                 position="right" 
-                                className="fill-muted-foreground text-[10px] font-semibold"
-                                offset={10}
+                                className="fill-muted-foreground text-[9px] sm:text-[10px] font-semibold"
+                                offset={5}
                               />
                             </Bar>
                           </BarChart>
@@ -1790,18 +1774,18 @@ const Reports = () => {
 
               <motion.div variants={itemVariants}>
                 <Card className="overflow-hidden border-border/50 transition-all duration-300 hover:shadow-lg bg-gradient-to-br from-card to-muted/20">
-                  <CardHeader className="border-b border-border/40 pb-4">
+                  <CardHeader className="border-b border-border/40 pb-3 sm:pb-4 p-4 sm:p-6">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-blue-500/10 ring-1 ring-blue-500/20 shadow-sm">
-                          <FileSpreadsheet className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                        <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-blue-500/10 ring-1 ring-blue-500/20 shadow-sm">
+                          <FileSpreadsheet className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400" />
                         </div>
                         <div className="space-y-0.5">
-                          <CardTitle className="text-base font-bold tracking-tight">
-                            Data Teknis
+                          <CardTitle className="text-sm sm:text-base font-bold tracking-tight">
+                            Data Teknis (Datek)
                           </CardTitle>
-                          <CardDescription className="text-xs text-muted-foreground/80">
-                            Distribusi tiket berdasarkan data teknis
+                          <CardDescription className="text-[10px] sm:text-xs text-muted-foreground/80">
+                            Distribusi per Datek
                           </CardDescription>
                         </div>
                       </div>
@@ -1814,16 +1798,16 @@ const Reports = () => {
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="pt-6 pl-2">
-                    <div className="overflow-y-auto max-h-[600px] pr-4 -mr-4 custom-scrollbar">
+                  <CardContent className="pt-4 sm:pt-6 pl-0 sm:pl-2">
+                    <div className="overflow-y-auto max-h-[400px] sm:max-h-[600px] pr-4 -mr-4 custom-scrollbar">
                       <div style={{ height: `${datekDynamicHeight}px`, width: '100%' }}>
                         <ChartContainer config={datekChartConfig} className="h-full w-full">
                           <BarChart
                             accessibilityLayer
                             data={datekData}
                             layout="vertical"
-                            margin={{ left: 0, right: 80, top: 10, bottom: 10 }}
-                            barSize={24}
+                            margin={{ left: 0, right: 60, top: 10, bottom: 10 }}
+                            barSize={20}
                           >
                             <defs>
                               <linearGradient id="datekGradient" x1="0" y1="0" x2="1" y2="0">
@@ -1839,9 +1823,9 @@ const Reports = () => {
                               type="category"
                               tickLine={false}
                               axisLine={false}
-                              width={220}
+                              width={140}
                               tick={{ 
-                                fontSize: 11, 
+                                fontSize: 10, 
                                 fill: 'hsl(var(--foreground))',
                                 fontWeight: 500 
                               }}
@@ -1858,12 +1842,8 @@ const Reports = () => {
                                     <div className="bg-popover/95 backdrop-blur-md border border-border/50 p-3 rounded-xl shadow-xl ring-1 ring-black/5">
                                       <p className="text-sm font-semibold mb-1.5 text-foreground">{data.name}</p>
                                       <div className="flex items-center justify-between gap-4 text-xs">
-                                        <span className="text-muted-foreground">Jumlah Tiket:</span>
+                                        <span className="text-muted-foreground">Jumlah:</span>
                                         <span className="font-bold font-mono text-blue-600 dark:text-blue-400">{data.value}</span>
-                                      </div>
-                                      <div className="flex items-center justify-between gap-4 text-xs mt-1">
-                                        <span className="text-muted-foreground">Kontribusi:</span>
-                                        <span className="font-bold font-mono text-emerald-600">{data.percentage}%</span>
                                       </div>
                                     </div>
                                   );
@@ -1882,8 +1862,8 @@ const Reports = () => {
                               <LabelList 
                                 dataKey="labelDisplay" 
                                 position="right" 
-                                className="fill-muted-foreground text-[10px] font-semibold"
-                                offset={10}
+                                className="fill-muted-foreground text-[9px] sm:text-[10px] font-semibold"
+                                offset={5}
                               />
                             </Bar>
                           </BarChart>
@@ -1899,30 +1879,30 @@ const Reports = () => {
 
         
         <motion.div variants={itemVariants}>
-          <Card className="p-6 bg-gradient-to-r from-primary/5 via-card to-primary/5 border-primary/10">
+          <Card className="p-4 sm:p-6 bg-gradient-to-r from-primary/5 via-card to-primary/5 border-primary/10">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <Timer className="w-5 h-5 text-primary" />
-                  <span className="text-sm text-muted-foreground">Avg. Resolution</span>
+                  <Timer className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                  <span className="text-xs sm:text-sm text-muted-foreground">Avg. Resolution</span>
                 </div>
-                <p className="text-3xl font-bold">{avgResolutionTime} <span className="text-lg font-normal text-muted-foreground">jam</span></p>
+                <p className="text-2xl sm:text-3xl font-bold">{avgResolutionTime} <span className="text-base sm:text-lg font-normal text-muted-foreground">jam</span></p>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <Zap className="w-5 h-5 text-amber-500" />
-                  <span className="text-sm text-muted-foreground">Tiket/Hari</span>
+                  <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500" />
+                  <span className="text-xs sm:text-sm text-muted-foreground">Tiket/Hari</span>
                 </div>
-                <p className="text-3xl font-bold">
+                <p className="text-2xl sm:text-3xl font-bold">
                   {periodData.length > 0 ? Math.round(filteredTickets.length / periodData.length) : 0}
                 </p>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <Percent className="w-5 h-5 text-emerald-500" />
-                  <span className="text-sm text-muted-foreground">Close Rate</span>
+                  <Percent className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500" />
+                  <span className="text-xs sm:text-sm text-muted-foreground">Close Rate</span>
                 </div>
-                <p className="text-3xl font-bold">
+                <p className="text-2xl sm:text-3xl font-bold">
                   {filteredTickets.length > 0 
                     ? Math.round((filteredTickets.filter(t => t.status === 'CLOSED').length / filteredTickets.length) * 100) 
                     : 0}%
@@ -1930,10 +1910,10 @@ const Reports = () => {
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <Users className="w-5 h-5 text-primary" />
-                  <span className="text-sm text-muted-foreground">Pelanggan Aktif</span>
+                  <Users className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                  <span className="text-xs sm:text-sm text-muted-foreground">Pelanggan Aktif</span>
                 </div>
-                <p className="text-3xl font-bold">{providerData.length}</p>
+                <p className="text-2xl sm:text-3xl font-bold">{providerData.length}</p>
               </div>
             </div>
           </Card>

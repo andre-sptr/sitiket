@@ -431,7 +431,7 @@ const Dashboard = () => {
 
                 
                 {totalPages > 1 && (
-                  <div className="flex justify-center mt-6 pt-2">
+                  <div className="flex justify-center mt-6 pt-2 w-full overflow-x-auto pb-2 sm:pb-0">
                     <Pagination>
                       <PaginationContent>
                         <PaginationItem>
@@ -439,6 +439,8 @@ const Dashboard = () => {
                             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                             className={cn(
                               "cursor-pointer select-none", 
+                              "pl-2.5 sm:pl-4",
+                              "[&>span]:hidden [&>span]:sm:inline",
                               currentPage === 1 && "pointer-events-none opacity-50"
                             )} 
                           />
@@ -446,12 +448,29 @@ const Dashboard = () => {
                         
                         {Array.from({ length: totalPages }).map((_, i) => {
                           const pageNumber = i + 1;
+                          
+                          if (
+                            totalPages > 7 &&
+                            pageNumber !== 1 &&
+                            pageNumber !== totalPages &&
+                            Math.abs(currentPage - pageNumber) > 1
+                          ) {
+                            if (pageNumber === 2 || pageNumber === totalPages - 1) {
+                              return (
+                                <PaginationItem key={i}>
+                                  <span className="px-1 text-muted-foreground text-xs sm:text-sm h-8 w-8 sm:h-10 sm:w-10 flex items-center justify-center">...</span>
+                                </PaginationItem>
+                              );
+                            }
+                            return null;
+                          }
+
                           return (
                             <PaginationItem key={i}>
                               <PaginationLink
                                 isActive={pageNumber === currentPage}
                                 onClick={() => setCurrentPage(pageNumber)}
-                                className="cursor-pointer select-none"
+                                className="cursor-pointer select-none h-8 w-8 text-xs sm:h-10 sm:w-10 sm:text-sm"
                               >
                                 {pageNumber}
                               </PaginationLink>
@@ -464,6 +483,8 @@ const Dashboard = () => {
                             onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                             className={cn(
                               "cursor-pointer select-none", 
+                              "pr-2.5 sm:pr-4",
+                              "[&>span]:hidden [&>span]:sm:inline",
                               currentPage === totalPages && "pointer-events-none opacity-50"
                             )}
                           />

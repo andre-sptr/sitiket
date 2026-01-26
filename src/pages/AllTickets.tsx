@@ -1033,7 +1033,7 @@ const AllTickets = () => {
 
               
               {totalPages > 1 && (
-                <div className="flex justify-center mt-6 pt-2">
+                <div className="flex justify-center mt-6 pt-2 w-full overflow-x-auto pb-2 sm:pb-0">
                   <Pagination>
                     <PaginationContent>
                       <PaginationItem>
@@ -1041,6 +1041,8 @@ const AllTickets = () => {
                           onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                           className={cn(
                             "cursor-pointer select-none", 
+                            "pl-2.5 sm:pl-4",
+                            "[&>span]:hidden [&>span]:sm:inline",
                             currentPage === 1 && "pointer-events-none opacity-50"
                           )} 
                         />
@@ -1052,14 +1054,14 @@ const AllTickets = () => {
                           totalPages > 7 &&
                           pageNumber !== 1 &&
                           pageNumber !== totalPages &&
-                          (pageNumber < currentPage - 1 || pageNumber > currentPage + 1)
+                          Math.abs(currentPage - pageNumber) > 1
                         ) {
                           if (pageNumber === 2 || pageNumber === totalPages - 1) {
                             return (
-                                <PaginationItem key={i}>
-                                    <span className="flex h-9 w-9 items-center justify-center text-muted-foreground">...</span>
-                                </PaginationItem>
-                            )
+                              <PaginationItem key={i}>
+                                <span className="px-1 text-muted-foreground text-xs sm:text-sm h-8 w-8 sm:h-10 sm:w-10 flex items-center justify-center">...</span>
+                              </PaginationItem>
+                            );
                           }
                           return null;
                         }
@@ -1069,7 +1071,7 @@ const AllTickets = () => {
                             <PaginationLink
                               isActive={pageNumber === currentPage}
                               onClick={() => setCurrentPage(pageNumber)}
-                              className="cursor-pointer select-none"
+                              className="cursor-pointer select-none h-8 w-8 text-xs sm:h-10 sm:w-10 sm:text-sm"
                             >
                               {pageNumber}
                             </PaginationLink>
@@ -1082,6 +1084,8 @@ const AllTickets = () => {
                           onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                           className={cn(
                             "cursor-pointer select-none", 
+                            "pr-2.5 sm:pr-4",
+                            "[&>span]:hidden [&>span]:sm:inline",
                             currentPage === totalPages && "pointer-events-none opacity-50"
                           )}
                         />
