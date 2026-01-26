@@ -649,7 +649,7 @@ const Settings = () => {
               >
                 <div>
                   <h2 className="text-lg font-semibold text-foreground">Kelola Opsi Dropdown</h2>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="hidden sm:inline text-sm text-muted-foreground">
                     Tambah, hapus, atau ubah opsi dropdown yang digunakan di form
                   </p>
                 </div>
@@ -703,7 +703,7 @@ const Settings = () => {
                       </div>
                       <div>
                         <CardTitle className="text-base text-foreground">Form Input Tiket</CardTitle>
-                        <CardDescription>
+                        <CardDescription className='hidden sm:inline'>
                           Opsi dropdown yang digunakan saat membuat tiket baru
                         </CardDescription>
                       </div>
@@ -734,7 +734,7 @@ const Settings = () => {
                       </div>
                       <div>
                         <CardTitle className="text-base text-foreground">Form Update Tiket</CardTitle>
-                        <CardDescription>
+                        <CardDescription className='hidden sm:inline'>
                           Opsi dropdown yang digunakan saat mengupdate tiket
                         </CardDescription>
                       </div>
@@ -811,7 +811,7 @@ const Settings = () => {
                       </div>
                       <div>
                         <CardTitle className="text-foreground">Standar SLA per Kategori</CardTitle>
-                        <CardDescription>
+                        <CardDescription className='hidden sm:inline'>
                           Tentukan durasi target untuk setiap kategori tiket
                         </CardDescription>
                       </div>
@@ -855,7 +855,7 @@ const Settings = () => {
                       </div>
                       <div>
                         <CardTitle className="text-foreground">Konfigurasi TTR & Reminder</CardTitle>
-                        <CardDescription>
+                        <CardDescription className='hidden sm:inline'>
                           Atur kapan sistem menampilkan warning dan alert untuk tiket
                         </CardDescription>
                       </div>
@@ -926,7 +926,7 @@ const Settings = () => {
                           className="w-24 bg-muted/30 border-border/50 focus:border-primary/50"
                         />
                         <span className="text-sm text-muted-foreground">
-                          Dashboard menampilkan badge "Due Soon" jika sisa TTR ≤ {settings.ttrThresholds.dueSoonHours} jam
+                          Menampilkan badge "Due Soon" jika sisa TTR ≤ {settings.ttrThresholds.dueSoonHours} jam
                         </span>
                       </div>
                     </motion.div>
@@ -1063,7 +1063,7 @@ const Settings = () => {
                       </div>
                       <div>
                         <CardTitle className="text-base text-foreground">Variabel Template</CardTitle>
-                        <CardDescription>
+                        <CardDescription className='hidden sm:inline'>
                           Gunakan variabel berikut dalam template, sistem akan mengganti otomatis
                         </CardDescription>
                       </div>

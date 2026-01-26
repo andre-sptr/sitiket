@@ -694,20 +694,6 @@ const UpdateTicket = () => {
               Update progress tiket dengan informasi terbaru
             </p>
           </div>
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-            <Button 
-              onClick={handleSubmit} 
-              disabled={isSubmitting}
-              className="btn-gradient-primary btn-ripple gap-2 h-11 px-6 rounded-xl shadow-lg shadow-primary/20"
-            >
-              {isSubmitting ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Save className="w-4 h-4" />
-              )}
-              Simpan
-            </Button>
-          </motion.div>
         </motion.div>
 
         
@@ -1116,7 +1102,7 @@ const UpdateTicket = () => {
               ) : (
                 <Save className="w-4 h-4" />
               )}
-              Simpan Update
+              <span className='hidden sm:inline'>Simpan Update</span>
             </Button>
           </motion.div>
         </motion.div>

@@ -403,7 +403,7 @@ const Dashboard = () => {
               </Button>
               <Link to="/tickets">
                 <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground">
-                  Lihat Semua
+                  <span className='hidden sm:inline'>Lihat Semua</span>
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>

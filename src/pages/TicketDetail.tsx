@@ -523,7 +523,7 @@ const TicketDetail = () => {
                     onClick={() => navigate(`/ticket/${id}/update`)}
                   >
                     <FileText className="w-4 h-4" />
-                    Update Tiket
+                    <span className='hidden sm:inline'>Update Tiket</span>
                   </Button>
                 </motion.div>
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
@@ -533,7 +533,7 @@ const TicketDetail = () => {
                     onClick={() => navigate(`/ticket/${id}/edit-data`)}
                   >
                     <Pencil className="w-4 h-4" />
-                    Edit Tiket
+                    <span className='hidden sm:inline'>Edit Tiket</span>
                   </Button>
                 </motion.div>
               </>
@@ -574,7 +574,7 @@ const TicketDetail = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="whatsapp" size="sm" className="gap-2 rounded-xl">
                     <Copy className="w-4 h-4" />
-                    Copy Pesan WA
+                    <span className='hidden sm:inline'>Copy Pesan WA</span>
                     <ChevronDown className="w-3 h-3 opacity-50" />
                   </Button>
                 </DropdownMenuTrigger>

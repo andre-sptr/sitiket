@@ -452,7 +452,7 @@ const TeknisiManagement = () => {
                 className="btn-ripple gap-2"
               >
                 <Plus className="w-4 h-4" />
-                Tambah Teknisi
+                <span className='hidden sm:inline'>Tambah Teknisi</span>
               </Button>
             </div>
           )}

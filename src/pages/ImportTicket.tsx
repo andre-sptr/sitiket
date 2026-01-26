@@ -642,7 +642,7 @@ const ImportTicket = () => {
               </h1>
               <p className="text-muted-foreground text-sm mt-1">
                 {isEditMode 
-                  ? "Perbarui informasi teknis dan data pelanggan" 
+                  ? "Perbarui informasi teknis pelanggan" 
                   : "Masukkan data awal tiket gangguan"}
               </p>
             </div>
@@ -671,7 +671,7 @@ const ImportTicket = () => {
               ) : (
                 <Save className="w-4 h-4" />
               )}
-              <span>{isSubmitting ? 'Menyimpan...' : (isEditMode ? 'Update Tiket' : 'Simpan Tiket')}</span>
+              <span className='hidden sm:inline'>{isSubmitting ? 'Menyimpan...' : (isEditMode ? 'Update Tiket' : 'Simpan Tiket')}</span>
             </Button>
           </div>
         </motion.div>
@@ -1286,12 +1286,12 @@ const ImportTicket = () => {
             className="gap-2 icon-hover-spin"
           >
             <RotateCcw className="w-4 h-4" />
-            Reset
+            <span className="hidden sm:inline">Reset</span>
           </Button>
           <Button 
             onClick={handleSubmit} 
             disabled={isSubmitting || !formData.tim}
-            className="gap-2 btn-ripple min-w-[140px]"
+            className="gap-2 btn-ripple"
           >
             {isSubmitting ? (
               <>
@@ -1306,7 +1306,7 @@ const ImportTicket = () => {
             ) : (
               <>
                 <Save className="w-4 h-4" />
-                <span>{isEditMode ? "Update Tiket" : "Simpan Tiket"}</span>
+                <span className='hidden sm:inline'>{isEditMode ? "Update Tiket" : "Simpan Tiket"}</span>
               </>
             )}
           </Button>

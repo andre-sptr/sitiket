@@ -357,7 +357,7 @@ const UserManagement = () => {
                 onClick={openAddDialog}
               >
                 <Plus className="w-4 h-4" />
-                Tambah Pengguna
+                <span className='hidden sm:inline'>Tambah Pengguna</span>
               </Button>
             </div>
           )}
