@@ -65,6 +65,8 @@ const mobileMenuVariants = {
       type: "spring" as const,
       stiffness: 400,
       damping: 40,
+      staggerChildren: 0.05,
+      staggerDirection: -1
     },
   },
   open: {
@@ -73,6 +75,8 @@ const mobileMenuVariants = {
       type: "spring" as const,
       stiffness: 400,
       damping: 40,
+      staggerChildren: 0.07,
+      delayChildren: 0.2
     },
   },
 };

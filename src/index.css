@@ -64,6 +64,19 @@
     --sidebar-accent-foreground: 0 0% 95%;
     --sidebar-border: 240 6% 18%;
     --sidebar-ring: 238 65% 65%;
+
+    input, button, a {
+      @apply touch-manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
   }
 
   .dark {
@@ -217,6 +230,14 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+
+  .glass-card-mobile {
+    @apply bg-card/80 backdrop-blur-md border-b border-border/50;
+  }
+  
+  .btn-mobile-lg {
+    @apply h-12 px-6 text-base font-semibold active:scale-95 transition-transform;
   }
 }
 
@@ -474,4 +495,9 @@
   );
   background-size: 200% 100%;
   animation: skeleton-wave 1.5s ease-in-out infinite;
+}
+
+.ticket-list-item {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 80px;
 }
