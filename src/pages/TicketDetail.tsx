@@ -1047,7 +1047,7 @@ const TicketDetail = () => {
                   <CardContent className="space-y-4">
                     <Select value={updateStatus} onValueChange={(v) => setUpdateStatus(v as TicketStatus)}>
                       <SelectTrigger className="rounded-xl">
-                        <SelectValue placeholder="Status baru (opsional)" />
+                        <SelectValue placeholder="Status baru"/>
                       </SelectTrigger>
                       <SelectContent className="rounded-xl">
                         <SelectItem value="ONPROGRESS">On Progress</SelectItem>
@@ -1085,7 +1085,7 @@ const TicketDetail = () => {
                           ) : (
                             <>
                               <Send className="w-4 h-4 mr-2" />
-                              Kirim Update
+                              <span className='hidden sm:inline'>Kirim Update</span>
                             </>
                           )}
                         </Button>
