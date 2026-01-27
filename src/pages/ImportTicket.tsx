@@ -263,7 +263,7 @@ const ImportTicket = () => {
 
   useEffect(() => {
     if (!isLoading && formData.kategori) {
-       const match = formData.kategori.match(/\[(\d+)\]/);
+       const match = formData.kategori.match(/\[(\d+(?:\.\d+)?)\]/);
        if (match && match[1]) {
          if (formData.ttrTarget !== match[1]) {
              updateField('ttrTarget', match[1]);
@@ -412,7 +412,7 @@ const ImportTicket = () => {
 
     try {
       const jamOpen = new Date(formData.reportDate);
-      const ttrHours = parseInt(formData.ttrTarget) || 8760;
+      const ttrHours = Math.round(parseFloat(formData.ttrTarget) || 8760);
       const maxJamClose = new Date(jamOpen.getTime() + (ttrHours * 60 * 60 * 1000));
       let lat = null;
       let lon = null;
@@ -577,12 +577,14 @@ const ImportTicket = () => {
     placeholder = "",
     type = "text",
     icon: Icon,
+    min,
   }: { 
     label: string; 
     field: keyof TicketFormData; 
     placeholder?: string;
     type?: string;
     icon?: React.ComponentType<{ className?: string }>;
+    min?: number;
   }) => {
     const error = getFieldError(field);
     const required = isFieldRequired(field);
@@ -598,8 +600,19 @@ const ImportTicket = () => {
           )}
           <Input
             type={type}
+            min={min}
             value={formData[field]}
-            onChange={(e) => updateField(field, e.target.value)}
+            onChange={(e) => {
+              let val = e.target.value;
+              
+              if (type === 'number' && min !== undefined) {
+                 if (val !== '' && parseFloat(val) < min) {
+                    val = min.toString();
+                 }
+              }
+              
+              updateField(field, val);
+            }}
             onBlur={() => markTouched(field)}
             placeholder={placeholder}
             className={cn(
@@ -1120,7 +1133,7 @@ const ImportTicket = () => {
                         </div>
                       )}
                       {showField('ttrTarget') && (
-                        <InputField label="TTR Target (Jam)" field="ttrTarget" placeholder="Otomatis..." type="number" />
+                        <InputField label="TTR Target (Jam)" field="ttrTarget" placeholder="Otomatis..." type="number" min={0} />
                       )}
                     </div>
                     {showField('summary') && (
