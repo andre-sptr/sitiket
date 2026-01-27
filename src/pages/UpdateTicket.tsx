@@ -373,6 +373,7 @@ const UpdateTicket = () => {
   const [isDataReady, setIsDataReady] = useState(false);
 
   const sortedTeknisi = useMemo(() => {
+    if (!ticket) return [];
     const filtered = activeTeknisi.filter(t => {
       if (ticket.tim === 'MTC') {
         return t.employeeId.startsWith('M-');

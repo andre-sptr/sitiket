@@ -99,8 +99,6 @@ export type Database = {
           created_at: string
           created_by: string | null
           id: string
-          location_lat: number | null
-          location_lon: number | null
           message: string
           source: string
           status_after_update:
@@ -114,8 +112,6 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           id?: string
-          location_lat?: number | null
-          location_lon?: number | null
           message: string
           source: string
           status_after_update?:
@@ -129,8 +125,6 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           id?: string
-          location_lat?: number | null
-          location_lon?: number | null
           message?: string
           source?: string
           status_after_update?:
@@ -187,10 +181,6 @@ export type Database = {
       }
       tickets: {
         Row: {
-          admin_notes: string | null
-          assigned_at: string | null
-          assigned_by: string | null
-          assigned_to: string | null
           created_at: string
           created_by: string | null
           id: string
@@ -215,9 +205,7 @@ export type Database = {
           lokasi_text: string
           longitude: number | null
           max_jam_close: string
-          network_element: string | null
           penyebab: string | null
-          permanent_notes: string | null
           provider: string
           stake_holder: string | null
           raw_ticket_text: string | null
@@ -247,10 +235,6 @@ export type Database = {
           tiket_eksternal: string | null
         }
         Insert: {
-          admin_notes?: string | null
-          assigned_at?: string | null
-          assigned_by?: string | null
-          assigned_to?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
@@ -275,9 +259,7 @@ export type Database = {
           lokasi_text: string
           longitude?: number | null
           max_jam_close: string
-          network_element?: string | null
           penyebab?: string | null
-          permanent_notes?: string | null
           provider?: string
           stake_holder?: string | null
           raw_ticket_text?: string | null
@@ -307,10 +289,6 @@ export type Database = {
           tiket_eksternal?: string | null
         }
         Update: {
-          admin_notes?: string | null
-          assigned_at?: string | null
-          assigned_by?: string | null
-          assigned_to?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
@@ -335,9 +313,7 @@ export type Database = {
           lokasi_text?: string
           longitude?: number | null
           max_jam_close?: string
-          network_element?: string | null
           penyebab?: string | null
-          permanent_notes?: string | null
           provider?: string
           stake_holder?: string | null
           raw_ticket_text?: string | null

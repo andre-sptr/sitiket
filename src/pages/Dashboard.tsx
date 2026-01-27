@@ -88,13 +88,12 @@ const Dashboard = () => {
   const dueSoonTickets = todayTickets.filter(t => 
     checkIsDueSoon(t.sisaTtrHours, settings.ttrThresholds) && t.status !== 'CLOSED'
   );
-  const unassignedTickets = todayTickets.filter(t => !t.assignedTo && t.status === 'OPEN');
+  const unassignedTickets = todayTickets.filter(t => t.status === 'OPEN');
 
   const { activeTeknisi } = useTeknisi();
   const allBusyTechs = (activeTicketsRaw || [])
     .flatMap((t) => {
       const techs: string[] = [];
-      if (t.assigned_to) techs.push(t.assigned_to);
       if (t.teknisi_list && Array.isArray(t.teknisi_list)) {
         techs.push(...(t.teknisi_list as string[]));
       }

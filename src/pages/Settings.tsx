@@ -711,7 +711,9 @@ const Settings = () => {
                   </CardHeader>
                   <CardContent className="pt-4">
                     <Accordion type="multiple" className="w-full">
-                      {optionGroups['Import Tiket'].map((key) => (
+                      {optionGroups['Import Tiket']
+                        .filter(key => key !== 'odc') 
+                        .map((key) => (
                         <DropdownOptionEditor
                           key={key}
                           optionKey={key}
@@ -742,7 +744,9 @@ const Settings = () => {
                   </CardHeader>
                   <CardContent className="pt-4">
                     <Accordion type="multiple" className="w-full">
-                      {optionGroups['Update Tiket'].map((key) => (
+                      {optionGroups['Update Tiket']
+                        .filter(key => key !== 'kendala') 
+                        .map((key) => (
                         <DropdownOptionEditor
                           key={key}
                           optionKey={key}

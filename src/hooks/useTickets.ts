@@ -129,7 +129,6 @@ export const useActiveTickets = () => {
       const { data, error } = await supabase
         .from('tickets')
         .select(`
-          assigned_to,
           teknisi_list,
           status
         `)

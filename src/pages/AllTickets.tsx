@@ -133,7 +133,6 @@ const AllTickets = () => {
         ticket.provider?.toLowerCase().includes(searchLower) ||
         ticket.kategori?.toLowerCase().includes(searchLower) ||
         ticket.teknisiList?.some(tek => tek.toLowerCase().includes(searchLower)) ||
-        ticket.networkElement?.toLowerCase().includes(searchLower) ||
         ticket.penyebab?.toLowerCase().includes(searchLower) ||
         ticket.incGamas?.toLowerCase().includes(searchLower) ||
         ticket.kjd?.toLowerCase().includes(searchLower);
