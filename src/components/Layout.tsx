@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { FeedbackButton } from '@/components/FeedbackButton'; 
 import { 
   LayoutDashboard, 
   Ticket, 
@@ -104,7 +105,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                    user?.role === 'guest' ? guestNavItems : [];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative"> 
       <header className="sticky top-0 z-50 glass-card border-b border-border/50">
         <div className="container mx-auto px-4 lg:px-6">
           <div className="flex items-center justify-between h-16">
@@ -386,6 +387,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           {children}
         </motion.div>
       </main>
+      <FeedbackButton />
     </div>
   );
 };

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Calendar } from '@/components/ui/calendar';
+import { useUsers } from '@/hooks/useUsers';
 import {
   Select,
   SelectContent,
@@ -77,6 +78,7 @@ const containerVariants = {
 const AllTickets = () => {
   const { toast } = useToast();
   const { data: dbTickets, isLoading, refetch } = useTickets();
+  const { users } = useUsers();
 
   const allTickets = useMemo(() => 
     dbTickets?.map(mapDbTicketToTicket) || [], 
@@ -94,6 +96,7 @@ const AllTickets = () => {
   const [siteNameFilter, setSiteNameFilter] = useState<string>('ALL');
   const [datekFilter, setDatekFilter] = useState<string>('ALL');
   const [timFilter, setTimFilter] = useState<string>('ALL');
+  const [creatorFilter, setCreatorFilter] = useState<string>('ALL');
   const [dateRange, setDateRange] = useState<{
     from: Date | undefined;
     to: Date | undefined;
@@ -122,7 +125,15 @@ const AllTickets = () => {
     sites: getUniqueValues(allTickets, 'siteCode'),
     siteNames: getUniqueValues(allTickets, 'siteName'),
     tims: getUniqueValues(allTickets, 'tim'),
-  }), [allTickets]);
+    creators: [
+      ...new Set(
+        allTickets.map(ticket => {
+          const user = users.find(u => u.id === ticket.createdByAdmin);
+          return user ? user.name : ticket.createdByAdmin;
+        }).filter(Boolean)
+      )
+    ].sort(),
+  }), [allTickets, users]);
 
   const filteredTickets = useMemo(() => {
     return allTickets.filter(ticket => {
@@ -147,7 +158,9 @@ const AllTickets = () => {
       const matchesDatek = datekFilter === 'ALL' || ticket.datek === datekFilter;
       const matchesSite = siteFilter === 'ALL' || ticket.siteCode === siteFilter;
       const matchesSiteName = siteNameFilter === 'ALL' || ticket.siteName === siteNameFilter;
-      const matchesTim = timFilter === 'ALL' || ticket.tim === timFilter; // New Logic
+      const matchesTim = timFilter === 'ALL' || ticket.tim === timFilter;
+      const ticketCreatorName = users.find(u => u.id === ticket.createdByAdmin)?.name || ticket.createdByAdmin;
+      const matchesCreator = creatorFilter === 'ALL' || ticketCreatorName === creatorFilter;
 
       let matchesDateRange = true;
       if (dateRange.from && dateRange.to) {
@@ -164,10 +177,12 @@ const AllTickets = () => {
 
       return matchesSearch && matchesStatus && matchesCompliance && 
              matchesProvider && matchesKategori && matchesJarak && 
-             matchesDatek && matchesSite && matchesSiteName && matchesTim && matchesDateRange;
+             matchesDatek && matchesSite && matchesSiteName && 
+             matchesTim && matchesCreator && matchesDateRange;
     });
   }, [allTickets, searchQuery, statusFilter, complianceFilter, providerFilter, 
-      kategoriFilter, jarakFilter, datekFilter, siteFilter, siteNameFilter, timFilter, dateRange]);
+      kategoriFilter, jarakFilter, datekFilter, siteFilter, siteNameFilter, 
+      timFilter, creatorFilter, dateRange, users]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -249,6 +264,7 @@ const AllTickets = () => {
     setSiteFilter('ALL');
     setSiteNameFilter('ALL');
     setTimFilter('ALL');
+    setCreatorFilter('ALL');
     setDateRange({ from: undefined, to: undefined });
     setSortBy('newest'); 
   };
@@ -270,6 +286,7 @@ const AllTickets = () => {
     (siteFilter !== 'ALL' ? 1 : 0) +
     (siteNameFilter !== 'ALL' ? 1 : 0) +
     (timFilter !== 'ALL' ? 1 : 0) +
+    (creatorFilter !== 'ALL' ? 1 : 0) +
     (dateRange.from || dateRange.to ? 1 : 0);
   
   const getDisplayLabel = (val: string) => {
@@ -539,6 +556,17 @@ const AllTickets = () => {
                   </div>
 
                   <div className="space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground">HD</label>
+                    <FilterCombobox
+                      value={creatorFilter}
+                      onValueChange={setCreatorFilter}
+                      options={filterOptions.creators}
+                      placeholder="HD"
+                      className="w-full"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
                     <label className="text-sm font-medium text-muted-foreground">ID Site</label>
                     <FilterCombobox
                       value={siteFilter}
@@ -729,6 +757,14 @@ const AllTickets = () => {
             />
 
             <FilterCombobox
+              value={creatorFilter}
+              onValueChange={setCreatorFilter}
+              options={filterOptions.creators}
+              placeholder="HD"
+              className="w-[120px]"
+            />
+
+            <FilterCombobox
               value={siteFilter}
               onValueChange={setSiteFilter}
               options={filterOptions.sites}
@@ -892,6 +928,22 @@ const AllTickets = () => {
                   </Badge>
                 </motion.div>
               )}
+              {jarakFilter !== 'ALL' && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
+                  whileHover={{ scale: 1.05 }}
+                >
+                  <Badge variant="secondary" className="gap-1 cursor-pointer hover:bg-destructive/20 transition-colors duration-200">
+                    {jarakFilter}
+                    <X 
+                      className="w-3 h-3" 
+                      onClick={() => setJarakFilter('ALL')}
+                    />
+                  </Badge>
+                </motion.div>
+              )}
               {providerFilter !== 'ALL' && (
                 <motion.div
                   initial={{ scale: 0 }}
@@ -904,54 +956,6 @@ const AllTickets = () => {
                     <X 
                       className="w-3 h-3" 
                       onClick={() => setProviderFilter('ALL')}
-                    />
-                  </Badge>
-                </motion.div>
-              )}
-              {datekFilter !== 'ALL' && (
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  exit={{ scale: 0 }}
-                  whileHover={{ scale: 1.05 }}
-                >
-                  <Badge variant="secondary" className="gap-1 cursor-pointer hover:bg-destructive/20 transition-colors duration-200">
-                    {datekFilter}
-                    <X 
-                      className="w-3 h-3" 
-                      onClick={() => setDatekFilter('ALL')}
-                    />
-                  </Badge>
-                </motion.div>
-              )}
-              {siteFilter !== 'ALL' && (
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  exit={{ scale: 0 }}
-                  whileHover={{ scale: 1.05 }}
-                >
-                  <Badge variant="secondary" className="gap-1 cursor-pointer hover:bg-destructive/20 transition-colors duration-200">
-                    {siteFilter}
-                    <X 
-                      className="w-3 h-3" 
-                      onClick={() => setSiteFilter('ALL')}
-                    />
-                  </Badge>
-                </motion.div>
-              )}
-              {siteNameFilter !== 'ALL' && (
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  exit={{ scale: 0 }}
-                  whileHover={{ scale: 1.05 }}
-                >
-                  <Badge variant="secondary" className="gap-1 cursor-pointer hover:bg-destructive/20 transition-colors duration-200">
-                    <span className="truncate max-w-[150px]">{siteNameFilter}</span>
-                    <X 
-                      className="w-3 h-3 flex-shrink-0" 
-                      onClick={() => setSiteNameFilter('ALL')}
                     />
                   </Badge>
                 </motion.div>
@@ -988,7 +992,7 @@ const AllTickets = () => {
                   </Badge>
                 </motion.div>
               )}
-              {jarakFilter !== 'ALL' && (
+              {creatorFilter !== 'ALL' && (
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
@@ -996,10 +1000,58 @@ const AllTickets = () => {
                   whileHover={{ scale: 1.05 }}
                 >
                   <Badge variant="secondary" className="gap-1 cursor-pointer hover:bg-destructive/20 transition-colors duration-200">
-                    {jarakFilter}
+                    {creatorFilter}
                     <X 
                       className="w-3 h-3" 
-                      onClick={() => setJarakFilter('ALL')}
+                      onClick={() => setCreatorFilter('ALL')}
+                    />
+                  </Badge>
+                </motion.div>
+              )}
+              {siteFilter !== 'ALL' && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
+                  whileHover={{ scale: 1.05 }}
+                >
+                  <Badge variant="secondary" className="gap-1 cursor-pointer hover:bg-destructive/20 transition-colors duration-200">
+                    {siteFilter}
+                    <X 
+                      className="w-3 h-3" 
+                      onClick={() => setSiteFilter('ALL')}
+                    />
+                  </Badge>
+                </motion.div>
+              )}
+              {siteNameFilter !== 'ALL' && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
+                  whileHover={{ scale: 1.05 }}
+                >
+                  <Badge variant="secondary" className="gap-1 cursor-pointer hover:bg-destructive/20 transition-colors duration-200">
+                    <span className="truncate max-w-[150px]">{siteNameFilter}</span>
+                    <X 
+                      className="w-3 h-3 flex-shrink-0" 
+                      onClick={() => setSiteNameFilter('ALL')}
+                    />
+                  </Badge>
+                </motion.div>
+              )}
+              {datekFilter !== 'ALL' && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
+                  whileHover={{ scale: 1.05 }}
+                >
+                  <Badge variant="secondary" className="gap-1 cursor-pointer hover:bg-destructive/20 transition-colors duration-200">
+                    {datekFilter}
+                    <X 
+                      className="w-3 h-3" 
+                      onClick={() => setDatekFilter('ALL')}
                     />
                   </Badge>
                 </motion.div>
