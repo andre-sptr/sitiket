@@ -93,6 +93,7 @@ const AllTickets = () => {
   const [siteFilter, setSiteFilter] = useState<string>('ALL');
   const [siteNameFilter, setSiteNameFilter] = useState<string>('ALL');
   const [datekFilter, setDatekFilter] = useState<string>('ALL');
+  const [timFilter, setTimFilter] = useState<string>('ALL');
   const [dateRange, setDateRange] = useState<{
     from: Date | undefined;
     to: Date | undefined;
@@ -120,6 +121,7 @@ const AllTickets = () => {
     dateks: getUniqueValues(allTickets, 'datek'),
     sites: getUniqueValues(allTickets, 'siteCode'),
     siteNames: getUniqueValues(allTickets, 'siteName'),
+    tims: getUniqueValues(allTickets, 'tim'),
   }), [allTickets]);
 
   const filteredTickets = useMemo(() => {
@@ -145,6 +147,7 @@ const AllTickets = () => {
       const matchesDatek = datekFilter === 'ALL' || ticket.datek === datekFilter;
       const matchesSite = siteFilter === 'ALL' || ticket.siteCode === siteFilter;
       const matchesSiteName = siteNameFilter === 'ALL' || ticket.siteName === siteNameFilter;
+      const matchesTim = timFilter === 'ALL' || ticket.tim === timFilter; // New Logic
 
       let matchesDateRange = true;
       if (dateRange.from && dateRange.to) {
@@ -160,10 +163,11 @@ const AllTickets = () => {
       }
 
       return matchesSearch && matchesStatus && matchesCompliance && 
-             matchesProvider && matchesKategori && matchesJarak && matchesDatek && matchesSite && matchesSiteName && matchesDateRange;
+             matchesProvider && matchesKategori && matchesJarak && 
+             matchesDatek && matchesSite && matchesSiteName && matchesTim && matchesDateRange;
     });
   }, [allTickets, searchQuery, statusFilter, complianceFilter, providerFilter, 
-      kategoriFilter, jarakFilter, datekFilter, siteFilter, siteNameFilter, dateRange]);
+      kategoriFilter, jarakFilter, datekFilter, siteFilter, siteNameFilter, timFilter, dateRange]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -244,6 +248,7 @@ const AllTickets = () => {
     setDatekFilter('ALL');
     setSiteFilter('ALL');
     setSiteNameFilter('ALL');
+    setTimFilter('ALL');
     setDateRange({ from: undefined, to: undefined });
     setSortBy('newest'); 
   };
@@ -264,6 +269,7 @@ const AllTickets = () => {
     (datekFilter !== 'ALL' ? 1 : 0) +
     (siteFilter !== 'ALL' ? 1 : 0) +
     (siteNameFilter !== 'ALL' ? 1 : 0) +
+    (timFilter !== 'ALL' ? 1 : 0) +
     (dateRange.from || dateRange.to ? 1 : 0);
   
   const getDisplayLabel = (val: string) => {
@@ -464,7 +470,7 @@ const AllTickets = () => {
                         <SelectValue placeholder="Status" />
                       </SelectTrigger>
                       <SelectContent className="max-h-[190px] overflow-y-auto">
-                        <SelectItem value="ALL">Semua Status</SelectItem>
+                        <SelectItem value="ALL">Status</SelectItem>
                         {statusOptions.map(status => (
                           <SelectItem key={status} value={status}>
                             {getStatusLabel(status)}
@@ -481,11 +487,22 @@ const AllTickets = () => {
                         <SelectValue placeholder="Compliance" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="ALL">Semua</SelectItem>
+                        <SelectItem value="ALL">Compliance</SelectItem>
                         <SelectItem value="COMPLY">Comply</SelectItem>
                         <SelectItem value="NOT COMPLY">Not Comply</SelectItem>
                       </SelectContent>
                     </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground">Jarak</label>
+                    <FilterCombobox
+                      value={jarakFilter}
+                      onValueChange={setJarakFilter}
+                      options={filterOptions.jaraks}
+                      placeholder="Jarak"
+                      className="w-full"
+                    />
                   </div>
 
                   <div className="space-y-2">
@@ -494,7 +511,29 @@ const AllTickets = () => {
                       value={providerFilter}
                       onValueChange={setProviderFilter}
                       options={filterOptions.providers}
-                      placeholder="Cari Pelanggan..."
+                      placeholder="Pelanggan"
+                      className="w-full"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground">Severity</label>
+                    <FilterCombobox
+                      value={kategoriFilter}
+                      onValueChange={setKategoriFilter}
+                      options={filterOptions.kategoris}
+                      placeholder="Severity"
+                      className="w-full"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground">Unit</label>
+                    <FilterCombobox
+                      value={timFilter}
+                      onValueChange={setTimFilter}
+                      options={filterOptions.tims}
+                      placeholder="Unit"
                       className="w-full"
                     />
                   </div>
@@ -505,7 +544,7 @@ const AllTickets = () => {
                       value={siteFilter}
                       onValueChange={setSiteFilter}
                       options={filterOptions.sites}
-                      placeholder="Cari ID Site..."
+                      placeholder="ID Site"
                       className="w-full"
                     />
                   </div>
@@ -516,7 +555,7 @@ const AllTickets = () => {
                       value={siteNameFilter}
                       onValueChange={setSiteNameFilter}
                       options={filterOptions.siteNames}
-                      placeholder="Cari Nama Site..."
+                      placeholder="Nama Site"
                       className="w-full"
                     />
                   </div>
@@ -527,26 +566,10 @@ const AllTickets = () => {
                       value={datekFilter}
                       onValueChange={setDatekFilter}
                       options={filterOptions.dateks}
-                      placeholder="Cari Datek..."
+                      placeholder="Datek"
                       className="w-full"
                     />
                   </div>
-
-                  <FilterSelect
-                    label="Kategori"
-                    value={kategoriFilter}
-                    onValueChange={setKategoriFilter}
-                    options={filterOptions.kategoris}
-                    placeholder="Kategori"
-                  />
-
-                  <FilterSelect
-                    label="Range Jarak"
-                    value={jarakFilter}
-                    onValueChange={setJarakFilter}
-                    options={filterOptions.jaraks}
-                    placeholder="Jarak"
-                  />
 
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-muted-foreground">Periode</label>
@@ -643,11 +666,11 @@ const AllTickets = () => {
             transition={{ duration: 0.4, delay: 0.2 }}
           >
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[139px] transition-all duration-200 hover:border-primary/50">
+              <SelectTrigger className="w-[120px] transition-all duration-200 hover:border-primary/50">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent className="max-h-[190px] overflow-y-auto">
-                <SelectItem value="ALL">Semua Status</SelectItem>
+                <SelectItem value="ALL">Status</SelectItem>
                 {statusOptions.map(status => (
                   <SelectItem key={status} value={status}>
                     {getStatusLabel(status)}
@@ -657,7 +680,7 @@ const AllTickets = () => {
             </Select>
 
             <Select value={complianceFilter} onValueChange={setComplianceFilter}>
-              <SelectTrigger className="w-[129px] transition-all duration-200 hover:border-primary/50">
+              <SelectTrigger className="w-[120px] transition-all duration-200 hover:border-primary/50">
                 <SelectValue placeholder="Compliance" />
               </SelectTrigger>
               <SelectContent>
@@ -668,7 +691,7 @@ const AllTickets = () => {
             </Select>
 
             <Select value={jarakFilter} onValueChange={setJarakFilter}>
-              <SelectTrigger className="w-[130px] transition-all duration-200 hover:border-primary/50">
+              <SelectTrigger className="w-[120px] transition-all duration-200 hover:border-primary/50">
                 <SelectValue placeholder="Jarak" />
               </SelectTrigger>
               <SelectContent>
@@ -686,7 +709,7 @@ const AllTickets = () => {
               onValueChange={setProviderFilter}
               options={filterOptions.providers}
               placeholder="Pelanggan"
-              className="w-[130px]" 
+              className="w-[120px]" 
             />
 
             <FilterCombobox
@@ -694,7 +717,15 @@ const AllTickets = () => {
               onValueChange={setKategoriFilter}
               options={filterOptions.kategoris}
               placeholder="Severity"
-              className="w-[125px]"
+              className="w-[120px]"
+            />
+
+            <FilterCombobox
+              value={timFilter}
+              onValueChange={setTimFilter}
+              options={filterOptions.tims}
+              placeholder="Unit"
+              className="w-[120px]"
             />
 
             <FilterCombobox
@@ -702,7 +733,7 @@ const AllTickets = () => {
               onValueChange={setSiteFilter}
               options={filterOptions.sites}
               placeholder="ID Site"
-              className="w-[125px]"
+              className="w-[120px]"
             />
 
             <FilterCombobox
@@ -710,7 +741,7 @@ const AllTickets = () => {
               onValueChange={setSiteNameFilter}
               options={filterOptions.siteNames}
               placeholder="Nama Site"
-              className="w-[125px]"
+              className="w-[120px]"
             />
 
             <FilterCombobox
@@ -718,7 +749,7 @@ const AllTickets = () => {
               onValueChange={setDatekFilter}
               options={filterOptions.dateks}
               placeholder="Datek"
-              className="w-[125px]"
+              className="w-[120px]"
             />
 
             <Popover>
@@ -937,6 +968,22 @@ const AllTickets = () => {
                     <X 
                       className="w-3 h-3" 
                       onClick={() => setKategoriFilter('ALL')}
+                    />
+                  </Badge>
+                </motion.div>
+              )}
+              {timFilter !== 'ALL' && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
+                  whileHover={{ scale: 1.05 }}
+                >
+                  <Badge variant="secondary" className="gap-1 cursor-pointer hover:bg-destructive/20 transition-colors duration-200">
+                    {timFilter}
+                    <X 
+                      className="w-3 h-3" 
+                      onClick={() => setTimFilter('ALL')}
                     />
                   </Badge>
                 </motion.div>

@@ -141,6 +141,7 @@ const DATEK_PATTERNS = [
   { regex: /^ODC-[A-Z0-9]{3}-[A-Z0-9]{3}$/, label: 'ODC: ODC-XXX-XXX' },
   { regex: /^ODC-[A-Z0-9]{3}-[A-Z0-9]{3}\/[A-Z0-9]{2}$/, label: 'DISTRIBUSI: ODC-XXX-XXX/XX' },
   { regex: /^ODP-[A-Z0-9]{3}-[A-Z0-9]{3}\/[A-Z0-9]{3}$/, label: 'ODP: ODP-XXX-XXX/XXX' },
+  { regex: /^ODP-[A-Z0-9]{3}-[A-Z0-9]{3}\/[A-Z0-9]{3}$/, label: 'ODP: ODP-XXX-XX/XXX' },
 ];
 
 const cardVariants = {
@@ -412,7 +413,7 @@ const ImportTicket = () => {
 
     try {
       const jamOpen = new Date(formData.reportDate);
-      const ttrHours = Math.round(parseFloat(formData.ttrTarget) || 8760);
+      const ttrHours = parseFloat(formData.ttrTarget) || 8760; 
       const maxJamClose = new Date(jamOpen.getTime() + (ttrHours * 60 * 60 * 1000));
       let lat = null;
       let lon = null;

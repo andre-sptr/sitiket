@@ -619,7 +619,7 @@ const TicketDetail = () => {
                   
                   <div className="flex items-center justify-between p-3 rounded-xl bg-primary/5 border border-primary/10">
                     <span className="text-sm text-muted-foreground">Target TTR</span>
-                    <span className="font-bold text-primary">{ticket.ttrTargetHours} jam</span>
+                    <span className="font-bold text-primary">{formatTTR(ticket.ttrTargetHours)}</span>
                   </div>
 
                   {ticket.status === 'CLOSED' && ticket.ttrRealHours !== undefined && (
