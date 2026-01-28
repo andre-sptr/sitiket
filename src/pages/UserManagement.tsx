@@ -73,6 +73,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import SEO from '@/components/SEO';
 import { Separator } from '@/components/ui/separator';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 const roleIcons = {
   admin: Shield,
@@ -283,6 +284,15 @@ const UserManagement = () => {
       setIsDeleteDialogOpen(false);
       setUserToDelete(null);
     }
+  };
+
+  const getAvatarInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .substring(0, 2)
+      .toUpperCase();
   };
 
   if (currentUser?.role === 'guest') {
@@ -514,14 +524,15 @@ const UserManagement = () => {
                           
                           <div className="p-5 flex-1">
                             <div className="flex items-start justify-between mb-4">
-                              <motion.div 
-                                whileHover={{ scale: 1.05 }}
-                                className={cn(
-                                  "w-12 h-12 rounded-full flex items-center justify-center text-lg font-semibold shrink-0 shadow-sm",
-                                  iconColorClass
-                                )}
-                              >
-                                {user.name.charAt(0).toUpperCase()}
+                              <motion.div whileHover={{ scale: 1.05 }}>
+                                <Avatar className="h-12 w-12 border shadow-sm">
+                                  <AvatarFallback className={cn(
+                                    "text-lg font-semibold",
+                                    iconColorClass
+                                  )}>
+                                    {getAvatarInitials(user.name)}
+                                  </AvatarFallback>
+                                </Avatar>
                               </motion.div>
                               
                               <div className="mt-2 flex items-center">

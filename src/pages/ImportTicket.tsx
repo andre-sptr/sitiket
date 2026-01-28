@@ -141,7 +141,7 @@ const DATEK_PATTERNS = [
   { regex: /^ODC-[A-Z0-9]{3}-[A-Z0-9]{3}$/, label: 'ODC: ODC-XXX-XXX' },
   { regex: /^ODC-[A-Z0-9]{3}-[A-Z0-9]{3}\/[A-Z0-9]{2}$/, label: 'DISTRIBUSI: ODC-XXX-XXX/XX' },
   { regex: /^ODP-[A-Z0-9]{3}-[A-Z0-9]{3}\/[A-Z0-9]{3}$/, label: 'ODP: ODP-XXX-XXX/XXX' },
-  { regex: /^ODP-[A-Z0-9]{3}-[A-Z0-9]{3}\/[A-Z0-9]{3}$/, label: 'ODP: ODP-XXX-XX/XXX' },
+  { regex: /^ODP-[A-Z0-9]{3}-[A-Z0-9]{2}\/[A-Z0-9]{3}$/, label: 'ODP: ODP-XXX-XX/XXX' },
 ];
 
 const cardVariants = {

@@ -9,7 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { TeknisiManagementSkeleton } from '@/components/skeletons';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Pagination,
   PaginationContent,
@@ -76,6 +76,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 const cardVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -410,6 +411,18 @@ const TeknisiManagement = () => {
     window.location.href = `tel:${phone}`;
   };
 
+  const getAvatarInitials = (name: string, employeeId: string) => {
+    if (employeeId.startsWith('M-')) {
+      return name.charAt(0).toUpperCase();
+    }
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .substring(0, 2)
+      .toUpperCase();
+  };
+
   if (!isLoaded) {
     return (
       <Layout>
@@ -615,16 +628,17 @@ const TeknisiManagement = () => {
                           
                           <div className="p-5 flex-1">
                             <div className="flex items-start justify-between mb-4">
-                              <motion.div 
-                                whileHover={{ scale: 1.05 }}
-                                className={cn(
-                                  "w-12 h-12 rounded-full flex items-center justify-center text-lg font-semibold shrink-0 shadow-sm",
-                                  teknisi.isActive 
-                                    ? "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground" 
-                                    : "bg-muted text-muted-foreground"
-                                )}
-                              >
-                                {teknisi.name.charAt(0).toUpperCase()}
+                              <motion.div whileHover={{ scale: 1.05 }}>
+                                <Avatar className="h-12 w-12 border shadow-sm">
+                                  <AvatarFallback className={cn(
+                                    "text-lg font-semibold",
+                                    teknisi.isActive 
+                                      ? "bg-primary/10 text-primary" 
+                                      : "bg-muted text-muted-foreground"
+                                  )}>
+                                    {getAvatarInitials(teknisi.name, teknisi.employeeId)}
+                                  </AvatarFallback>
+                                </Avatar>
                               </motion.div>
                               
                               <Badge 
@@ -693,7 +707,7 @@ const TeknisiManagement = () => {
                                 <DropdownMenuTrigger asChild>
                                   <Button 
                                     variant="ghost" 
-                                    size="sm"
+                                    size="sm" 
                                     className="h-8 px-2 text-muted-foreground hover:text-foreground"
                                   >
                                     <span className="text-xs mr-1">Opsi</span>
