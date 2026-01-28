@@ -231,8 +231,18 @@ const TeknisiManagement = () => {
   const handleAdd = async () => {
     let finalName = formData.name;
     let finalEmployeeId = formData.employeeId;
+
+    if (!formData.phone.trim() || !formData.area.trim() || !formData.jobdesk.trim()) {
+      toast({
+        title: 'Data tidak lengkap',
+        description: 'Mohon isi semua field yang diperlukan.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     if (teknisiType === 'mitra') {
-      if (!mitraInput.mitraName.trim() || !mitraInput.picName.trim() || !formData.phone.trim() || !formData.area.trim()) {
+      if (!mitraInput.mitraName.trim() || !mitraInput.picName.trim()) {
         toast({
           title: 'Data tidak lengkap',
           description: 'Mohon isi semua field yang diperlukan.',
@@ -245,7 +255,7 @@ const TeknisiManagement = () => {
       finalEmployeeId = `M-${Date.now().toString().slice(-6)}`;
       
     } else {
-      if (!formData.name.trim() || !formData.phone.trim() || !formData.area.trim() || !formData.employeeId.trim()) {
+      if (!formData.name.trim() || !formData.employeeId.trim()) {
         toast({
           title: 'Data tidak lengkap',
           description: 'Mohon isi semua field yang diperlukan.',
@@ -286,8 +296,17 @@ const TeknisiManagement = () => {
     
     let finalName = formData.name;
 
+    if (!formData.phone.trim() || !formData.area.trim() || !formData.employeeId.trim() || !formData.jobdesk.trim()) {
+        toast({
+          title: 'Data tidak lengkap',
+          description: 'Mohon isi semua field yang diperlukan.',
+          variant: 'destructive',
+        });
+        return;
+    }
+
     if (isEditingMitra) {
-      if (!editMitraInput.mitraName.trim() || !editMitraInput.picName.trim() || !formData.phone.trim() || !formData.area.trim() || !formData.employeeId.trim()) {
+      if (!editMitraInput.mitraName.trim() || !editMitraInput.picName.trim()) {
         toast({
           title: 'Data tidak lengkap',
           description: 'Mohon isi semua field yang diperlukan.',
@@ -297,7 +316,7 @@ const TeknisiManagement = () => {
       }
       finalName = `${editMitraInput.mitraName} (PIC: ${editMitraInput.picName} | ${formData.area})`;
     } else {
-      if (!formData.name.trim() || !formData.phone.trim() || !formData.area.trim() || !formData.employeeId.trim()) {
+      if (!formData.name.trim()) {
         toast({
           title: 'Data tidak lengkap',
           description: 'Mohon isi semua field yang diperlukan.',
@@ -669,20 +688,24 @@ const TeknisiManagement = () => {
                               </div>
                               
                               <div className="space-y-2 pt-2 border-t border-dashed">
-                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                  <MapPin className="w-4 h-4 text-primary/60 shrink-0" />
-                                  <span className="truncate">{teknisi.area}</span>
-                                </div>
+                                {teknisi.area && (
+                                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                    <MapPin className="w-4 h-4 text-primary/60 shrink-0" />
+                                    <span className="truncate">{teknisi.area}</span>
+                                  </div>
+                                )}
                                 {teknisi.jobdesk && (
                                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                     <Briefcase className="w-4 h-4 text-primary/60 shrink-0" />
                                     <span className="truncate">{teknisi.jobdesk}</span>
                                   </div>
                                 )}
-                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                  <Phone className="w-4 h-4 text-primary/60 shrink-0" />
-                                  <span>{teknisi.phone}</span>
-                                </div>
+                                {teknisi.phone && (
+                                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                    <Phone className="w-4 h-4 text-primary/60 shrink-0" />
+                                    <span>{teknisi.phone}</span>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -690,26 +713,30 @@ const TeknisiManagement = () => {
                           
                           <div className="p-3 bg-muted/30 border-t flex items-center justify-between gap-2">
                             <div className="flex gap-2">
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                className="h-8 w-8 p-0 rounded-full border-emerald-200 hover:bg-emerald-50 hover:text-emerald-600 dark:border-emerald-800 dark:hover:bg-emerald-950"
-                                onClick={() => handleWhatsApp(teknisi.phone)}
-                                title="WhatsApp"
-                              >
-                                <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-                                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.008-.57-.008-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-                                </svg>
-                              </Button>
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                className="h-8 w-8 p-0 rounded-full hover:bg-primary/10 hover:text-primary"
-                                onClick={() => handleCall(teknisi.phone)}
-                                title="Telepon"
-                              >
-                                <Phone className="w-4 h-4" />
-                              </Button>
+                              {teknisi.phone && (
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  className="h-8 w-8 p-0 rounded-full border-emerald-200 hover:bg-emerald-50 hover:text-emerald-600 dark:border-emerald-800 dark:hover:bg-emerald-950"
+                                  onClick={() => handleWhatsApp(teknisi.phone)}
+                                  title="WhatsApp"
+                                >
+                                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.008-.57-.008-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                                  </svg>
+                                </Button>
+                              )}
+                              {teknisi.phone && (
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  className="h-8 w-8 p-0 rounded-full hover:bg-primary/10 hover:text-primary"
+                                  onClick={() => handleCall(teknisi.phone)}
+                                  title="Telepon"
+                                >
+                                  <Phone className="w-4 h-4" />
+                                </Button>
+                              )}
                             </div>
 
                             {isAdmin && (
@@ -961,6 +988,19 @@ const TeknisiManagement = () => {
                   />
                 </div>
 
+                <div className="space-y-2">
+                  <Label htmlFor="add-jobdesk" className="text-xs font-medium text-muted-foreground">
+                    Jobdesk <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="add-jobdesk"
+                    placeholder="Masukkan jobdesk"
+                    value={formData.jobdesk}
+                    onChange={(e) => setFormData({ ...formData, jobdesk: e.target.value })}
+                    className="h-10 bg-muted/50"
+                  />
+                </div>
+
                 <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
                   <Label htmlFor="add-active" className="text-sm font-medium">Status Aktif</Label>
                   <Switch
@@ -997,10 +1037,9 @@ const TeknisiManagement = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
       
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-md glass-card">
+        <DialogContent className="sm:max-w-md glass-card max-h-[85vh] flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Pencil className="w-5 h-5 text-primary" />
@@ -1010,112 +1049,116 @@ const TeknisiManagement = () => {
               Perbarui informasi {isEditingMitra ? 'mitra' : 'teknisi'} di bawah ini.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            {!isEditingMitra && (
-              <div className="space-y-2">
-                <Label htmlFor='edit-nik' className="text-xs font-medium text-muted-foreground">
-                  NIK / ID Teknisi <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="edit-nik"
-                  type='text'
-                  placeholder="Masukkan NIK / ID teknisi"
-                  value={formData.employeeId}
-                  onChange={(e) => setFormData({ ...formData, employeeId: e.target.value })}
-                  className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200"
-                />
-              </div>
-            )}
-
-            {isEditingMitra ? (
-              <>
+          
+          <div className="flex-1 overflow-y-auto py-4 px-1">
+            <div className="space-y-4">
+              {!isEditingMitra && (
                 <div className="space-y-2">
-                  <Label htmlFor="edit-mitra-name" className="text-xs font-medium text-muted-foreground">
-                    Nama Mitra <span className="text-destructive">*</span>
+                  <Label htmlFor='edit-nik' className="text-xs font-medium text-muted-foreground">
+                    NIK / ID Teknisi <span className="text-destructive">*</span>
                   </Label>
                   <Input
-                    id="edit-mitra-name"
-                    placeholder="Masukkan nama mitra"
-                    value={editMitraInput.mitraName}
-                    onChange={(e) => setEditMitraInput({ ...editMitraInput, mitraName: e.target.value })}
+                    id="edit-nik"
+                    type='text'
+                    placeholder="Masukkan NIK / ID teknisi"
+                    value={formData.employeeId}
+                    onChange={(e) => setFormData({ ...formData, employeeId: e.target.value })}
                     className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200"
                   />
                 </div>
+              )}
+
+              {isEditingMitra ? (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-mitra-name" className="text-xs font-medium text-muted-foreground">
+                      Nama Mitra <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="edit-mitra-name"
+                      placeholder="Masukkan nama mitra"
+                      value={editMitraInput.mitraName}
+                      onChange={(e) => setEditMitraInput({ ...editMitraInput, mitraName: e.target.value })}
+                      className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-pic-name" className="text-xs font-medium text-muted-foreground">
+                      Nama PIC <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="edit-pic-name"
+                      placeholder="Masukkan nama PIC"
+                      value={editMitraInput.picName}
+                      onChange={(e) => setEditMitraInput({ ...editMitraInput, picName: e.target.value })}
+                      className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200"
+                    />
+                  </div>
+                </>
+              ) : (
                 <div className="space-y-2">
-                  <Label htmlFor="edit-pic-name" className="text-xs font-medium text-muted-foreground">
-                    Nama PIC <span className="text-destructive">*</span>
+                  <Label htmlFor="edit-name" className="text-xs font-medium text-muted-foreground">
+                    Nama Teknisi <span className="text-destructive">*</span>
                   </Label>
                   <Input
-                    id="edit-pic-name"
-                    placeholder="Masukkan nama PIC"
-                    value={editMitraInput.picName}
-                    onChange={(e) => setEditMitraInput({ ...editMitraInput, picName: e.target.value })}
+                    id="edit-name"
+                    placeholder="Masukkan nama teknisi"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200"
                   />
                 </div>
-              </>
-            ) : (
+              )}
+
               <div className="space-y-2">
-                <Label htmlFor="edit-name" className="text-xs font-medium text-muted-foreground">
-                  Nama Teknisi <span className="text-destructive">*</span>
+                <Label htmlFor="edit-phone" className="text-xs font-medium text-muted-foreground">
+                  {isEditingMitra ? 'Nomor HP PIC' : 'Nomor HP'} <span className="text-destructive">*</span>
                 </Label>
                 <Input
-                  id="edit-name"
-                  placeholder="Masukkan nama teknisi"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  id="edit-phone"
+                  type='number'
+                  placeholder="08xxxxxxxxxx"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-area" className="text-xs font-medium text-muted-foreground">
+                  Area Kerja <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="edit-area"
+                  placeholder="Masukkan area kerja"
+                  value={formData.area}
+                  onChange={(e) => setFormData({ ...formData, area: e.target.value })}
                   className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200"
                 />
               </div>
-            )}
-
-            <div className="space-y-2">
-              <Label htmlFor="edit-phone" className="text-xs font-medium text-muted-foreground">
-                {isEditingMitra ? 'Nomor HP PIC' : 'Nomor HP'} <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="edit-phone"
-                type='number'
-                placeholder="08xxxxxxxxxx"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-area" className="text-xs font-medium text-muted-foreground">
-                Area Kerja <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="edit-area"
-                placeholder="Masukkan area kerja"
-                value={formData.area}
-                onChange={(e) => setFormData({ ...formData, area: e.target.value })}
-                className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="add-jobdesk" className="text-xs font-medium text-muted-foreground">
-                Jobdesk <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="add-jobdesk"
-                placeholder="Masukkan jobdesk"
-                value={formData.jobdesk}
-                onChange={(e) => setFormData({ ...formData, jobdesk: e.target.value })}
-                className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200"
-              />
-            </div>
-            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-              <Label htmlFor="edit-active" className="text-sm font-medium">Status Aktif</Label>
-              <Switch
-                id="edit-active"
-                checked={formData.isActive}
-                onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
-              />
+              <div className="space-y-2">
+                <Label htmlFor="edit-jobdesk" className="text-xs font-medium text-muted-foreground">
+                  Jobdesk <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="edit-jobdesk"
+                  placeholder="Masukkan jobdesk"
+                  value={formData.jobdesk}
+                  onChange={(e) => setFormData({ ...formData, jobdesk: e.target.value })}
+                  className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200"
+                />
+              </div>
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                <Label htmlFor="edit-active" className="text-sm font-medium">Status Aktif</Label>
+                <Switch
+                  id="edit-active"
+                  checked={formData.isActive}
+                  onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
+                />
+              </div>
             </div>
           </div>
-          <DialogFooter className="gap-2">
+
+          <DialogFooter className="gap-2 mt-4 pt-2 border-t border-border/50">
             <Button 
               variant="outline" 
               onClick={() => setIsEditDialogOpen(false)}
@@ -1141,7 +1184,6 @@ const TeknisiManagement = () => {
         </DialogContent>
       </Dialog>
 
-      
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent className="glass-card">
           <AlertDialogHeader>

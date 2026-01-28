@@ -63,6 +63,7 @@ import {
   Loader2,
   Pencil,
   Flame,
+  Briefcase,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -993,6 +994,8 @@ const TicketDetail = () => {
                           {ticket.teknisiList.map((name, i) => {
                             const teknisiData = allTeknisi.find(t => t.name === name);
                             const phoneNumber = teknisiData?.phone;
+                            const area = teknisiData?.area;
+                            const jobdesk = teknisiData?.jobdesk;
 
                             return (
                               <motion.div 

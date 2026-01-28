@@ -907,7 +907,7 @@ const ImportTicket = () => {
                                 {sortedTeknisi.map((teknisi) => (
                                   <CommandItem
                                     key={teknisi.id}
-                                    value={`${teknisi.name} ${teknisi.area}`}
+                                    value={`${teknisi.name} ${teknisi.area} ${teknisi.jobdesk}`}
                                     onSelect={(currentValue) => {
                                       updateField('teknisi1', teknisi.name);
                                       setOpenTeknisi(false);
@@ -925,7 +925,10 @@ const ImportTicket = () => {
                                     />
                                     <div className="flex flex-col">
                                       <span className="font-medium">{teknisi.name}</span>
-                                      <span className="text-xs text-muted-foreground">{teknisi.area}</span>
+                                      <span className="text-xs text-muted-foreground">
+                                        {teknisi.area}
+                                        {teknisi.jobdesk && ` (${teknisi.jobdesk})`}
+                                      </span>
                                     </div>
                                   </CommandItem>
                                 ))}
