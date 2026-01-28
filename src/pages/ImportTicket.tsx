@@ -31,7 +31,8 @@ import {
   Pencil,
   Loader2,
   Info,
-  ArrowLeft
+  ArrowLeft,
+  ClipboardPaste
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -123,7 +124,6 @@ const REQUIRED_FIELDS: { field: keyof TicketFormData; label: string }[] = [
   { field: 'teknisi1', label: 'Teknisi' },
   { field: 'hsa', label: 'HSA' },
   { field: 'sto', label: 'STO' },
-  { field: 'odc', label: 'ODC' },
   { field: 'kategori', label: 'Severity' },
   { field: 'tiket', label: 'No. Tiket (INC)' },
   { field: 'jenisGangguan', label: 'Jenis Gangguan' },
@@ -349,6 +349,10 @@ const ImportTicket = () => {
       }
     });
 
+    if (formData.tim === 'MTC' && (!formData.odc || formData.odc.trim() === '')) {
+      newErrors.odc = 'ODC wajib diisi';
+    }
+
     if (formData.tim === 'MTC' && (!formData.indukGamas || formData.indukGamas.trim() === '')) {
       newErrors.indukGamas = 'Induk GAMAS wajib diisi';
     }
@@ -373,6 +377,7 @@ const ImportTicket = () => {
 
     if (formData.tim === 'MTC') {
       touchedFields.indukGamas = true;
+      touchedFields.odc = true;
     }
     
     setTouched(prev => ({ ...prev, ...touchedFields }));
@@ -488,6 +493,9 @@ const ImportTicket = () => {
   };
 
   const isFieldRequired = (field: keyof TicketFormData): boolean => {
+    if (field === 'odc') {
+      return formData.tim === 'MTC';
+    }
     if (field === 'indukGamas' && formData.tim === 'MTC') {
       return true;
     }
@@ -496,6 +504,80 @@ const ImportTicket = () => {
 
   const getFieldError = (field: keyof TicketFormData): string | undefined => {
     return touched[field] ? errors[field] : undefined;
+  };
+
+  const handlePasteReportDate = async (e: React.ClipboardEvent | React.MouseEvent) => {
+    e.preventDefault(); 
+    
+    let text = "";
+    
+    try {
+      if ('clipboardData' in e && e.clipboardData) {
+        text = e.clipboardData.getData('text');
+      } else {
+        text = await navigator.clipboard.readText();
+      }
+    } catch (err) {
+      console.error("Gagal akses clipboard:", err);
+      toast({
+        title: "Gagal Membaca Clipboard",
+        description: "Browser memblokir akses. Coba paste manual (Ctrl+V).",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!text) return;
+
+    const cleanText = text.trim().replace(/\./g, ':');
+
+    const parseDate = (str: string) => {
+      let d = new Date(str);
+      if (!isNaN(d.getTime())) return d;
+
+      const indoRegex = /(\d{1,2})[/\-](\d{1,2})[/\-](\d{4})\s+(\d{1,2}):(\d{2})(?::\d{2})?/;
+      const match = str.match(indoRegex);
+
+      if (match) {
+        const [_, day, month, year, hour, minute] = match;
+        return new Date(
+          parseInt(year), 
+          parseInt(month) - 1,
+          parseInt(day), 
+          parseInt(hour), 
+          parseInt(minute)
+        );
+      }
+      
+      return null;
+    };
+
+    const date = parseDate(cleanText);
+
+    if (date && !isNaN(date.getTime())) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      
+      const formatted = `${year}-${month}-${day}T${hours}:${minutes}`;
+      
+      updateField('reportDate', formatted);
+      markTouched('reportDate');
+      
+      toast({
+        title: "Berhasil Paste",
+        description: `Waktu terdeteksi: ${day}/${month}/${year} ${hours}:${minutes}`,
+      });
+    } else {
+      console.warn("Gagal parsing:", cleanText);
+      toast({
+        title: "Format Tidak Dikenali",
+        description: `Gagal membaca format tanggal. Pastikan format: DD/MM/YYYY HH:MM:SS`,
+        variant: "destructive",
+      });
+    }
   };
 
   const SelectField = ({ 
@@ -921,7 +1003,7 @@ const ImportTicket = () => {
                       {showField('odc') && (
                         <div className="space-y-2">
                           <Label className="text-xs font-medium text-muted-foreground">
-                            ODC <span className="text-destructive">*</span>
+                            ODC {isFieldRequired('odc') && <span className="text-destructive">*</span>}
                           </Label>
                           <Input
                             value={formData.odc}
@@ -1118,27 +1200,46 @@ const ImportTicket = () => {
                           <Label className="text-xs font-medium text-muted-foreground">
                             Report Date <span className="text-destructive">*</span>
                           </Label>
-                          <div className="relative group">
-                            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                            <Input
-                              type="datetime-local"
-                              value={formData.reportDate}
-                              onChange={(e) => updateField('reportDate', e.target.value)}
-                              className={cn(
-                                "h-10 pl-10 pr-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200",
-                                errors.reportDate && touched.reportDate && "border-destructive ring-2 ring-destructive/20 bg-destructive/5"
-                              )}
-                            />
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="absolute right-0 top-0 h-10 w-10 text-muted-foreground hover:text-primary transition-colors icon-hover-bounce"
-                              onClick={setReportDateToNow}
-                              title="Set waktu saat ini"
-                            >
-                              <Clock className="h-4 w-4" />
-                            </Button>
+                          <div className="relative group flex gap-2">
+                            <div className="relative flex-1">
+                              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                              <Input
+                                type="datetime-local"
+                                value={formData.reportDate}
+                                onChange={(e) => updateField('reportDate', e.target.value)}
+                                onPaste={handlePasteReportDate}
+                                className={cn(
+                                  "h-10 pl-10 pr-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200",
+                                  errors.reportDate && touched.reportDate && "border-destructive ring-2 ring-destructive/20 bg-destructive/5"
+                                )}
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="absolute right-0 top-0 h-10 w-10 text-muted-foreground hover:text-primary transition-colors icon-hover-bounce"
+                                onClick={setReportDateToNow}
+                                title="Set waktu saat ini"
+                              >
+                                <Clock className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <TooltipProvider delayDuration={0}>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="icon"
+                                    className="h-10 w-10 shrink-0 border-dashed hover:border-primary hover:text-primary transition-colors"
+                                    onClick={handlePasteReportDate}
+                                  >
+                                    <ClipboardPaste className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Paste Tanggal</TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
                           </div>
                           <AnimatePresence>
                             {errors.reportDate && touched.reportDate && (
