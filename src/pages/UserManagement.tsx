@@ -798,7 +798,7 @@ const UserManagement = () => {
 
             <div className="space-y-2">
               <Label htmlFor="name" className="text-xs font-medium text-muted-foreground">
-                Nama <span className="text-destructive">*</span>
+                Nama Pengguna <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="name"
@@ -845,12 +845,12 @@ const UserManagement = () => {
 
             <div className="space-y-2">
               <Label htmlFor="phone" className="text-xs font-medium text-muted-foreground">
-                No. Telepon
+                Nomor HP
               </Label>
               <Input
                 id="phone"
                 type='number'
-                placeholder="Contoh: 081234567890"
+                placeholder="08xxxxxxxxxx"
                 value={formData.phone}
                 onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
                 className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -863,7 +863,7 @@ const UserManagement = () => {
               </Label>
               <Input
                 id="area"
-                placeholder="Contoh: Pekanbaru"
+                placeholder="Masukkan area"
                 value={formData.area}
                 onChange={(e) => setFormData(prev => ({ ...prev, area: e.target.value }))}
                 className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200"
