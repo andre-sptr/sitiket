@@ -1008,6 +1008,21 @@ const TicketDetail = () => {
                                     <User className="w-4 h-4 text-primary" />
                                   </div>
                                   <div className="min-w-0">
+                                    {(jobdesk || area) && (
+                                      <div className="flex flex-wrap items-center gap-1.5 my-1">
+                                        {jobdesk && (
+                                          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
+                                            {jobdesk}
+                                          </span>
+                                        )}
+                                        {area && (
+                                          <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                                            <MapPin className="w-2.5 h-2.5" />
+                                            {area}
+                                          </span>
+                                        )}
+                                      </div>
+                                    )}
                                     <p className="text-sm font-medium truncate max-w-[110px] sm:max-w-[150px]" title={name}>
                                       {name}
                                     </p>

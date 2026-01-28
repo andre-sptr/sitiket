@@ -111,7 +111,12 @@ const Dashboard = () => {
       if (query === 'mitra') {
         return tek.employeeId.startsWith('M-');
       }
-      return tek.name.toLowerCase().includes(query);
+      return (
+        tek.name.toLowerCase().includes(query) ||
+        (tek.area && tek.area.toLowerCase().includes(query)) ||
+        (tek.jobdesk && tek.jobdesk.toLowerCase().includes(query)) ||
+        (tek.employeeId && tek.employeeId.toLowerCase().includes(query))
+      );
     })
     .sort((a, b) => a.name.localeCompare(b.name));
 
@@ -331,6 +336,7 @@ const Dashboard = () => {
                         </span>
                         <span className="text-[10px] text-muted-foreground truncate">
                           {tech.area}
+                          {tech.jobdesk && ` (${tech.jobdesk})`}
                         </span>
                       </div>
                     </div>

@@ -287,7 +287,10 @@ const TeknisiCombobox = ({
                     />
                     <div className="flex flex-col">
                       <span className="font-medium">{teknisi.name}</span>
-                      <span className="text-xs text-muted-foreground">{teknisi.area}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {teknisi.area}
+                        {teknisi.jobdesk && ` (${teknisi.jobdesk})`}
+                      </span>
                     </div>
                   </CommandItem>
                 ))}
