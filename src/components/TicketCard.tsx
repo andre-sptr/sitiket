@@ -1,7 +1,7 @@
 import React, { useMemo, forwardRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MapPin, Calendar, ChevronRight } from 'lucide-react';
+import { MapPin, Calendar, ChevronRight, Flame } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { StatusBadge, ComplianceBadge, TTRBadge } from '@/components/StatusBadge';
 import { Ticket, TTRCompliance } from '@/types/ticket';
@@ -10,9 +10,10 @@ import { Badge } from "@/components/ui/badge";
 
 interface TicketCardProps {
   ticket: Ticket;
+  isGaul?: boolean;
 }
 
-export const TicketCard = forwardRef<HTMLDivElement, TicketCardProps>(({ ticket }, ref) => {
+export const TicketCard = forwardRef<HTMLDivElement, TicketCardProps>(({ ticket, isGaul }, ref) => {
   const navigate = useNavigate();
   const isMTC = ticket?.tim === 'MTC';
 
@@ -62,7 +63,7 @@ export const TicketCard = forwardRef<HTMLDivElement, TicketCardProps>(({ ticket 
       transition={{ duration: 0.2 }}
     >
       <Card 
-        className="group relative overflow-hidden border hover:border-primary/40 hover:shadow-md transition-all duration-200 cursor-pointer bg-card"
+        className={`group relative overflow-hidden border hover:border-primary/40 hover:shadow-md transition-all duration-200 cursor-pointer bg-card ${isGaul ? 'border-orange-500/50' : ''}`}
         onClick={() => navigate(`/ticket/${ticket.id}`)}
       >
         
@@ -85,7 +86,16 @@ export const TicketCard = forwardRef<HTMLDivElement, TicketCardProps>(({ ticket 
                 {formatDateWIB(ticket.jamOpen)}
               </span>
             </div>
-            <StatusBadge status={displayStatus} />
+            
+            <div className="flex items-center gap-2">
+              {isGaul && (
+                <Badge variant="destructive" className="bg-orange-600 hover:bg-orange-700 text-white flex items-center gap-1 px-1.5 h-5 text-[10px] animate-in fade-in zoom-in duration-300">
+                  <Flame className="w-3 h-3" />
+                  GAUL
+                </Badge>
+              )}
+              <StatusBadge status={displayStatus} />
+            </div>
           </div>
 
           

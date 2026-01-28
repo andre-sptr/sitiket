@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Layout } from '@/components/Layout';
 import { StatsCard } from '@/components/StatsCard';
@@ -6,7 +6,7 @@ import { TicketCard } from '@/components/TicketCard';
 import { StatsCardSkeleton, TicketCardSkeleton } from '@/components/skeletons';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useTodayTickets, useDashboardStats, useActiveTickets } from '@/hooks/useTickets';
+import { useTodayTickets, useDashboardStats, useActiveTickets, useTickets } from '@/hooks/useTickets';
 import { mapDbTicketToTicket } from '@/lib/ticketMappers';
 import { getSettings, isDueSoon as checkIsDueSoon } from '@/hooks/useSettings';
 import { generateWhatsAppMessage, formatDateWIB } from '@/lib/formatters';
@@ -48,12 +48,14 @@ const Dashboard = () => {
   const settings = getSettings();
   const { data: dbTickets, isLoading, refetch } = useTodayTickets();
   const { data: activeTicketsRaw } = useActiveTickets();
+  const { data: allDbTickets } = useTickets();
   const stats = useDashboardStats();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
-  const todayTickets = dbTickets?.map(mapDbTicketToTicket) || [];
+  const todayTickets = useMemo(() => dbTickets?.map(mapDbTicketToTicket) || [], [dbTickets]);
+  const allTickets = useMemo(() => allDbTickets?.map(mapDbTicketToTicket) || [], [allDbTickets]);
 
   const realTimeComplianceRate = todayTickets.length > 0
     ? Math.round((todayTickets.filter(t => t.ttrCompliance === 'COMPLY').length / todayTickets.length) * 100)
@@ -421,12 +423,32 @@ const Dashboard = () => {
             ) : (
               <>
                 
-                {paginatedTickets.map((ticket) => (
-                  <TicketCard 
-                    key={ticket.id}
-                    ticket={ticket} 
-                  />
-                ))}
+                {paginatedTickets.map((ticket) => {
+                  const isGaul = allTickets.some(otherTicket => {
+                    if (ticket.id === otherTicket.id) return false;
+                    
+                    const isSameSite = ticket.siteCode === otherTicket.siteCode;
+                    if (!isSameSite) return false;
+                    
+                    const ticketDate = new Date(ticket.jamOpen).getTime();
+                    const otherDate = new Date(otherTicket.jamOpen).getTime();
+
+                    if (otherDate >= ticketDate) return false;
+                    
+                    const diffTime = Math.abs(ticketDate - otherDate);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                    
+                    return diffDays <= 30;
+                  });
+
+                  return (
+                    <TicketCard 
+                      key={ticket.id}
+                      ticket={ticket} 
+                      isGaul={isGaul}
+                    />
+                  );
+                })}
 
                 
                 {totalPages > 1 && (

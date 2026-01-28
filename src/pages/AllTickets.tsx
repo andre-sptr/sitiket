@@ -1120,12 +1120,33 @@ const AllTickets = () => {
                 className="space-y-3"
               >
                 <AnimatePresence mode="popLayout">
-                  {paginatedTickets.map((ticket) => (
-                    <TicketCard 
-                      key={ticket.id}
-                      ticket={ticket} 
-                    />
-                  ))}
+                  {paginatedTickets.map((ticket) => {
+                    const isGaul = allTickets.some(otherTicket => {
+                      if (ticket.id === otherTicket.id) return false;
+
+                      const isSameSite = ticket.siteCode === otherTicket.siteCode;
+                      
+                      if (!isSameSite) return false;
+
+                      const ticketDate = new Date(ticket.jamOpen).getTime();
+                      const otherDate = new Date(otherTicket.jamOpen).getTime();
+
+                      if (otherDate >= ticketDate) return false;
+                      
+                      const diffTime = Math.abs(ticketDate - otherDate);
+                      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                      
+                      return diffDays <= 30;
+                    });
+
+                    return (
+                      <TicketCard 
+                        key={ticket.id}
+                        ticket={ticket} 
+                        isGaul={isGaul}
+                      />
+                    );
+                  })}
                 </AnimatePresence>
               </motion.div>
 
