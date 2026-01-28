@@ -23,7 +23,7 @@ import { useTickets } from '@/hooks/useTickets';
 import { mapDbTicketToTicket } from '@/lib/ticketMappers';
 import { getStatusLabel, generateWhatsAppMessage, formatDateWIB } from '@/lib/formatters';
 import { Ticket, TicketStatus } from '@/types/ticket';
-import { Search, Filter, X, SlidersHorizontal, Calendar as CalendarIcon, RotateCcw, RefreshCw, Copy } from 'lucide-react';
+import { Search, Filter, X, SlidersHorizontal, Calendar as CalendarIcon, RotateCcw, RefreshCw, Copy, Flame } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   Sheet,
@@ -65,6 +65,25 @@ const getUniqueValues = (tickets: Ticket[], key: keyof Ticket): string[] => {
   return [...new Set(values)].sort();
 };
 
+const checkIsGaul = (ticket: Ticket, allTickets: Ticket[]) => {
+  return allTickets.some(otherTicket => {
+    if (ticket.id === otherTicket.id) return false;
+    
+    const isSameSite = ticket.siteCode === otherTicket.siteCode;
+    if (!isSameSite) return false;
+    
+    const ticketDate = new Date(ticket.jamOpen).getTime();
+    const otherDate = new Date(otherTicket.jamOpen).getTime();
+
+    if (otherDate >= ticketDate) return false;
+    
+    const diffTime = Math.abs(ticketDate - otherDate);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+    
+    return diffDays <= 30;
+  });
+};
+
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -88,6 +107,7 @@ const AllTickets = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [gaulFilter, setGaulFilter] = useState<string>('ALL');
   const [complianceFilter, setComplianceFilter] = useState<string>('ALL');
   const [providerFilter, setProviderFilter] = useState<string>('ALL');
   const [kategoriFilter, setKategoriFilter] = useState<string>('ALL');
@@ -150,6 +170,8 @@ const AllTickets = () => {
         ticket.incGamas?.toLowerCase().includes(searchLower) ||
         ticket.kjd?.toLowerCase().includes(searchLower);
 
+      const isGaul = checkIsGaul(ticket, allTickets);
+      const matchesGaul = gaulFilter === 'ALL' || (gaulFilter === 'GAUL' && isGaul);
       const matchesStatus = statusFilter === 'ALL' || ticket.status === statusFilter;
       const matchesCompliance = complianceFilter === 'ALL' || ticket.ttrCompliance === complianceFilter;
       const matchesProvider = providerFilter === 'ALL' || ticket.provider === providerFilter;
@@ -175,12 +197,12 @@ const AllTickets = () => {
         matchesDateRange = new Date(ticket.jamOpen) <= endOfDay(dateRange.to);
       }
 
-      return matchesSearch && matchesStatus && matchesCompliance && 
+      return matchesSearch && matchesStatus && matchesGaul && matchesCompliance && 
              matchesProvider && matchesKategori && matchesJarak && 
              matchesDatek && matchesSite && matchesSiteName && 
              matchesTim && matchesCreator && matchesDateRange;
     });
-  }, [allTickets, searchQuery, statusFilter, complianceFilter, providerFilter, 
+  }, [allTickets, searchQuery, statusFilter, gaulFilter, complianceFilter, providerFilter, 
       kategoriFilter, jarakFilter, datekFilter, siteFilter, siteNameFilter, 
       timFilter, creatorFilter, dateRange, users]);
 
@@ -256,6 +278,7 @@ const AllTickets = () => {
   const clearFilters = () => {
     setSearchQuery('');
     setStatusFilter('ALL');
+    setGaulFilter('ALL');
     setComplianceFilter('ALL');
     setProviderFilter('ALL');
     setKategoriFilter('ALL');
@@ -278,6 +301,7 @@ const AllTickets = () => {
 
   const activeFiltersCount = 
     (statusFilter !== 'ALL' ? 1 : 0) + 
+    (gaulFilter !== 'ALL' ? 1 : 0) +
     (complianceFilter !== 'ALL' ? 1 : 0) +
     (providerFilter !== 'ALL' ? 1 : 0) +
     (kategoriFilter !== 'ALL' ? 1 : 0) +
@@ -498,6 +522,19 @@ const AllTickets = () => {
                   </div>
 
                   <div className="space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground">Semua</label>
+                    <Select value={gaulFilter} onValueChange={setGaulFilter}>
+                      <SelectTrigger className="transition-all duration-200 hover:border-primary/50">
+                        <SelectValue placeholder="Tipe Tiket" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ALL">Semua</SelectItem>
+                        <SelectItem value="GAUL">GAUL</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
                     <label className="text-sm font-medium text-muted-foreground">Compliance</label>
                     <Select value={complianceFilter} onValueChange={setComplianceFilter}>
                       <SelectTrigger className="transition-all duration-200 hover:border-primary/50">
@@ -707,6 +744,16 @@ const AllTickets = () => {
               </SelectContent>
             </Select>
 
+            <Select value={gaulFilter} onValueChange={setGaulFilter}>
+              <SelectTrigger className="w-[120px] transition-all duration-200 hover:border-primary/50">
+                <SelectValue placeholder="Tipe Tiket" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">Semua</SelectItem>
+                <SelectItem value="GAUL">GAUL</SelectItem>
+              </SelectContent>
+            </Select>
+
             <Select value={complianceFilter} onValueChange={setComplianceFilter}>
               <SelectTrigger className="w-[120px] transition-all duration-200 hover:border-primary/50">
                 <SelectValue placeholder="Compliance" />
@@ -908,6 +955,23 @@ const AllTickets = () => {
                     <X 
                       className="w-3 h-3" 
                       onClick={() => setStatusFilter('ALL')}
+                    />
+                  </Badge>
+                </motion.div>
+              )}
+              {gaulFilter !== 'ALL' && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
+                  whileHover={{ scale: 1.05 }}
+                >
+                  <Badge variant="secondary" className="gap-1 cursor-pointer hover:bg-destructive/20 transition-colors duration-200">
+                    <Flame className="w-3 h-3 text-orange-500" />
+                    GAUL
+                    <X 
+                      className="w-3 h-3" 
+                      onClick={() => setGaulFilter('ALL')}
                     />
                   </Badge>
                 </motion.div>
@@ -1121,23 +1185,7 @@ const AllTickets = () => {
               >
                 <AnimatePresence mode="popLayout">
                   {paginatedTickets.map((ticket) => {
-                    const isGaul = allTickets.some(otherTicket => {
-                      if (ticket.id === otherTicket.id) return false;
-
-                      const isSameSite = ticket.siteCode === otherTicket.siteCode;
-                      
-                      if (!isSameSite) return false;
-
-                      const ticketDate = new Date(ticket.jamOpen).getTime();
-                      const otherDate = new Date(otherTicket.jamOpen).getTime();
-
-                      if (otherDate >= ticketDate) return false;
-                      
-                      const diffTime = Math.abs(ticketDate - otherDate);
-                      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-                      
-                      return diffDays <= 30;
-                    });
+                    const isGaul = checkIsGaul(ticket, allTickets);
 
                     return (
                       <TicketCard 

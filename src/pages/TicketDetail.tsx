@@ -24,10 +24,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useTicket, useDeleteTicket, useAddProgressUpdate } from '@/hooks/useTickets';
+import { useTicket, useDeleteTicket, useAddProgressUpdate, useTickets } from '@/hooks/useTickets';
 import { mapDbTicketToTicket } from '@/lib/ticketMappers';
 import { formatDateWIB, generateWhatsAppMessage, generateGoogleMapsLink, formatTTR } from '@/lib/formatters';
-import { TicketStatus, TTRCompliance } from '@/types/ticket';
+import { TicketStatus, TTRCompliance, Ticket } from '@/types/ticket';
 import { 
   ArrowLeft, 
   MapPin, 
@@ -62,6 +62,7 @@ import {
   ChevronDown,
   Loader2,
   Pencil,
+  Flame,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -78,6 +79,25 @@ import {
 } from "@/components/ui/alert-dialog";
 import SEO from '@/components/SEO';
 import { useTeknisi } from '@/hooks/useTeknisi';
+
+const getGaulCount = (currentTicket: Ticket, allTickets: Ticket[]) => {
+  if (!currentTicket || !allTickets) return 0;
+  
+  const gaulTickets = allTickets.filter(otherTicket => {
+    const isSameSite = currentTicket.siteCode === otherTicket.siteCode;
+    if (!isSameSite) return false;
+    
+    const currentTicketDate = new Date(currentTicket.jamOpen).getTime();
+    const otherTicketDate = new Date(otherTicket.jamOpen).getTime();
+
+    const diffTime = Math.abs(currentTicketDate - otherTicketDate);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+    
+    return otherTicketDate <= currentTicketDate && diffDays <= 30;
+  });
+
+  return gaulTickets.length;
+};
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -249,6 +269,7 @@ const TicketDetail = () => {
   const { user } = useAuth();
   const deleteTicket = useDeleteTicket();
   const { data: dbTicket, isLoading } = useTicket(id || '');
+  const { data: allDbTickets } = useTickets();
   const [updateMessage, setUpdateMessage] = useState('');
   const [updateStatus, setUpdateStatus] = useState<TicketStatus | ''>('');
   const addProgressUpdate = useAddProgressUpdate();
@@ -256,6 +277,8 @@ const TicketDetail = () => {
   const isAdmin = user?.role === 'admin';
   const ticket = dbTicket ? mapDbTicketToTicket(dbTicket) : null;
   const isMTC = ticket?.tim === 'MTC';
+  const allTickets = useMemo(() => allDbTickets?.map(mapDbTicketToTicket) || [], [allDbTickets]);
+  const gaulCount = useMemo(() => ticket ? getGaulCount(ticket, allTickets) : 0, [ticket, allTickets]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -435,7 +458,7 @@ const TicketDetail = () => {
     }
 
     if (!ticket || !user) return;
- 
+
     try {
       await addProgressUpdate.mutateAsync({
         ticket_id: ticket.id,
@@ -498,6 +521,12 @@ const TicketDetail = () => {
                 {isMTC ? (ticket.incGamas || '-') : ticket.incNumbers.join(', ')}
               </motion.span>
               <StatusBadge status={displayStatus} />
+              {gaulCount > 1 && (
+                <Badge variant="destructive" className="bg-orange-600 hover:bg-orange-700 text-white flex items-center gap-1 animate-in fade-in zoom-in duration-300">
+                  <Flame className="w-3.5 h-3.5" />
+                  GAUL: {gaulCount}x
+                </Badge>
+              )}
             </div>
             
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
