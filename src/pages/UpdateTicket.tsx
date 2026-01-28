@@ -1140,32 +1140,40 @@ const UpdateTicket = () => {
 
         
         <motion.div 
-          variants={itemVariants}
-          className="flex justify-end gap-3 pt-2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="flex justify-end gap-3 pt-4"
         >
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-            <Button 
-              variant="outline" 
-              onClick={() => navigate(-1)}
-              className="h-11 px-6 rounded-xl hover:bg-muted/80"
-            >
-              Batal
-            </Button>
-          </motion.div>
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-            <Button 
-              onClick={handleSubmit} 
-              disabled={isSubmitting}
-              className="btn-gradient-primary btn-ripple gap-2 h-11 px-8 rounded-xl shadow-lg shadow-primary/20"
-            >
-              {isSubmitting ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
+          <Button 
+            variant="outline" 
+            onClick={() => navigate(-1)}
+            className="gap-2 icon-hover-spin"
+          >
+            <span>Batal</span>
+          </Button>
+          <Button 
+            onClick={handleSubmit} 
+            disabled={isSubmitting}
+            className="gap-2 btn-ripple"
+          >
+            {isSubmitting ? (
+              <>
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                >
+                  <Loader2 className="w-4 h-4" />
+                </motion.div>
+                <span>Menyimpan...</span>
+              </>
+            ) : (
+              <>
                 <Save className="w-4 h-4" />
-              )}
-              <span className='hidden sm:inline'>Update Tiket</span>
-            </Button>
-          </motion.div>
+                <span className='hidden sm:inline'>Update Tiket</span>
+              </>
+            )}
+          </Button>
         </motion.div>
       </motion.div>
     </Layout>

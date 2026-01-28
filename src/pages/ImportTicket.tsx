@@ -30,7 +30,8 @@ import {
   Ticket as TicketIcon,
   Pencil,
   Loader2,
-  Info
+  Info,
+  ArrowLeft
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -661,17 +662,34 @@ const ImportTicket = () => {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+          className="flex flex-col sm:flex-row sm:items-start justify-between gap-4"
         >
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-               {isEditMode ? <Pencil className="w-6 h-6 text-primary" /> : <TicketIcon className="w-6 h-6 text-primary" />}
-            </div>
+            {isEditMode && (
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => navigate(-1)}
+                  className="h-10 w-10 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </Button>
+              </motion.div>
+            )}
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-3">
+                <div className={cn(
+                  "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all",
+                  isEditMode 
+                    ? "bg-gradient-to-br from-primary to-primary/70 shadow-lg shadow-primary/20 text-primary-foreground" 
+                    : "bg-primary/10 text-primary"
+                )}>
+                   {isEditMode ? <Pencil className="w-5 h-5" /> : <TicketIcon className="w-5 h-5" />}
+                </div>
                 {isEditMode ? "Edit Tiket" : "Input Tiket Baru"}
               </h1>
-              <p className="text-muted-foreground text-sm mt-1">
+              <p className="text-muted-foreground text-sm mt-1.5 ml-1 hidden sm:inline">
                 {isEditMode 
                   ? "Perbarui informasi teknis pelanggan" 
                   : "Masukkan data awal tiket gangguan"}
@@ -679,14 +697,14 @@ const ImportTicket = () => {
             </div>
           </div>
           {!isEditMode && (
-            <div className="flex gap-2 shrink-0">
+            <div className="flex gap-2 shrink-0 mt-1">
               <Button 
                 variant="outline" 
                 onClick={handleReset} 
                 className="gap-2 icon-hover-spin"
               >
                 <RotateCcw className="w-4 h-4" />
-                <span className="hidden sm:inline">Reset</span>
+                Reset
               </Button>
               <Button 
                 onClick={handleSubmit} 
@@ -703,7 +721,7 @@ const ImportTicket = () => {
                 ) : (
                   <Save className="w-4 h-4" />
                 )}
-                <span className='hidden sm:inline'>{isSubmitting ? 'Menyimpan...' : (isEditMode ? 'Edit Tiket' : 'Simpan Tiket')}</span>
+                <span className='hidden sm:inline'>{isSubmitting ? 'Menyimpan...' : 'Simpan Tiket'}</span>
               </Button>
             </div>
           )}
@@ -1342,9 +1360,7 @@ const ImportTicket = () => {
             {!isEditMode && (
               <RotateCcw className="w-4 h-4" />
             )}
-            <span className="hidden sm:inline">
-              {isEditMode ? "Batal" : "Reset"}
-            </span>
+            {isEditMode ? "Batal" : "Reset"}
           </Button>
           <Button 
             onClick={handleSubmit} 
