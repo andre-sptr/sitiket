@@ -15,6 +15,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { 
   ArrowLeft, 
   Save, 
@@ -29,7 +42,9 @@ import {
   Timer,
   FileWarning,
   Loader2,
-  Ticket as TicketIcon
+  Ticket as TicketIcon,
+  ChevronsUpDown,
+  Check
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useTicket, useUpdateTicket, useAddProgressUpdate } from '@/hooks/useTickets';
@@ -37,9 +52,10 @@ import { TTRBadge } from '@/components/StatusBadge';
 import { formatDateWIB } from '@/lib/formatters';
 import { useDropdownOptions } from '@/hooks/useDropdownOptions';
 import { useAuth } from '@/contexts/AuthContext';
-import { useTeknisi } from '@/hooks/useTeknisi';
+import { useTeknisi, Teknisi } from '@/hooks/useTeknisi';
 import { TicketStatus, TTRCompliance } from '@/types/ticket';
 import SEO from '@/components/SEO';
+import { cn } from "@/lib/utils";
 
 interface UpdateFormData {
   statusTiket: string;
@@ -211,6 +227,92 @@ const SelectField = ({
   );
 };
 
+const TeknisiCombobox = ({ 
+  label, 
+  value, 
+  onChange, 
+  options, 
+  activeTeknisi 
+}: { 
+  label: string; 
+  value: string; 
+  onChange: (val: string) => void; 
+  options: Teknisi[];
+  activeTeknisi: Teknisi[];
+}) => {
+  const [open, setOpen] = useState(false);
+  const selectedTeknisi = activeTeknisi.find((t) => t.name === value);
+
+  return (
+    <motion.div 
+      className="space-y-2"
+      whileHover={{ scale: 1.01 }}
+    >
+      <Label className="text-xs font-medium text-muted-foreground">
+        {label}
+      </Label>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="w-full justify-between h-10 px-3 font-normal bg-muted/30 border-border/50 hover:border-primary/30 hover:bg-muted/50 transition-all duration-200 text-left"
+          >
+            {value ? value : "Pilih Teknisi..."}
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[--radix-popover-trigger-width] p-0 bg-popover/95 backdrop-blur-xl border-border/60 shadow-xl z-50" align="start">
+          <Command>
+            <CommandInput placeholder="Cari Teknisi..." className="h-10" />
+            <CommandList>
+              <CommandEmpty>Teknisi tidak ditemukan.</CommandEmpty>
+              <CommandGroup>
+                {options.map((teknisi) => (
+                  <CommandItem
+                    key={teknisi.id}
+                    value={`${teknisi.name} ${teknisi.area}`}
+                    onSelect={() => {
+                      onChange(teknisi.name);
+                      setOpen(false);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4 transition-opacity",
+                        value === teknisi.name ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    <div className="flex flex-col">
+                      <span className="font-medium">{teknisi.name}</span>
+                      <span className="text-xs text-muted-foreground">{teknisi.area}</span>
+                    </div>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+      <AnimatePresence>
+        {selectedTeknisi && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="flex items-center gap-2 text-xs text-muted-foreground px-1"
+          >
+            <Phone className="w-3 h-3" />
+            {selectedTeknisi.phone || '-'}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+};
+
 const emptyForm: UpdateFormData = {
   statusTiket: '',
   closedDate: '',
@@ -373,16 +475,8 @@ const UpdateTicket = () => {
   const [isDataReady, setIsDataReady] = useState(false);
 
   const sortedTeknisi = useMemo(() => {
-    if (!ticket) return [];
-    const filtered = activeTeknisi.filter(t => {
-      if (ticket.tim === 'MTC') {
-        return t.employeeId.startsWith('M-');
-      }
-      return !t.employeeId.startsWith('M-'); 
-    });
-
-    return filtered.sort((a, b) => a.name.localeCompare(b.name));
-  }, [activeTeknisi, ticket?.tim]);
+    return [...activeTeknisi].sort((a, b) => a.name.localeCompare(b.name));
+  }, [activeTeknisi]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -667,7 +761,6 @@ const UpdateTicket = () => {
         initial="hidden"
         animate="visible"
       >
-        
         <motion.div variants={itemVariants} className="flex items-start gap-4">
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Button 
@@ -1030,47 +1123,14 @@ const UpdateTicket = () => {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {(['teknisi1', 'teknisi2', 'teknisi3', 'teknisi4'] as const).map((field, idx) => (
-                    <motion.div 
-                      key={field} 
-                      className="space-y-2"
-                      whileHover={{ scale: 1.01 }}
-                    >
-                      <Label className="text-xs font-medium text-muted-foreground">
-                        Teknisi {idx + 1}
-                      </Label>
-                      <Select 
-                        value={formData[field] || "__none__"} 
-                        onValueChange={(v) => updateField(field, v === "__none__" ? "" : v)}
-                      >
-                        <SelectTrigger className="h-10 bg-muted/30 border-border/50 transition-all duration-200 hover:border-primary/30 [&>span]:truncate text-left">
-                          <SelectValue placeholder="Pilih Teknisi" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-popover/95 backdrop-blur-xl border-border/60 shadow-xl z-50">
-                          <SelectItem value="__none__">- Kosong -</SelectItem>
-                          {sortedTeknisi.map(teknisi => (
-                            <SelectItem key={teknisi.id} value={teknisi.name}>
-                              <div className="flex items-center gap-2">
-                                <span>{teknisi.name}</span>
-                                <span className="text-xs text-muted-foreground">({teknisi.area})</span>
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <AnimatePresence>
-                        {formData[field] && (
-                          <motion.div 
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            exit={{ opacity: 0, height: 0 }}
-                            className="flex items-center gap-2 text-xs text-muted-foreground px-1"
-                          >
-                            <Phone className="w-3 h-3" />
-                            {activeTeknisi.find(t => t.name === formData[field])?.phone || '-'}
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </motion.div>
+                    <TeknisiCombobox
+                      key={field}
+                      label={`Teknisi ${idx + 1}`}
+                      value={formData[field]}
+                      onChange={(val) => updateField(field, val)}
+                      options={sortedTeknisi}
+                      activeTeknisi={activeTeknisi}
+                    />
                   ))}
                 </div>
               </CardContent>
@@ -1103,7 +1163,7 @@ const UpdateTicket = () => {
               ) : (
                 <Save className="w-4 h-4" />
               )}
-              <span className='hidden sm:inline'>Simpan Update</span>
+              <span className='hidden sm:inline'>Update Tiket</span>
             </Button>
           </motion.div>
         </motion.div>

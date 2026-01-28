@@ -195,14 +195,8 @@ const ImportTicket = () => {
   const { data: ticketData, isLoading: isLoadingTicket } = useTicket(id || '');
 
   const sortedTeknisi = useMemo(() => {
-    const filtered = activeTeknisi.filter(t => {
-      if (formData.tim === 'MTC') {
-        return t.employeeId.startsWith('M-');
-      }
-      return !t.employeeId.startsWith('M-'); 
-    });
-    return filtered.sort((a, b) => a.name.localeCompare(b.name));
-  }, [activeTeknisi, formData.tim]);
+    return [...activeTeknisi].sort((a, b) => a.name.localeCompare(b.name));
+  }, [activeTeknisi]);
 
   const visibleFields = useMemo(() => 
     formData.tim ? getVisibleFields(formData.tim) : [], 
@@ -661,7 +655,7 @@ const ImportTicket = () => {
 
   return (
     <Layout>
-      <SEO title={isEditMode ? "Edit Data Tiket" : "Input Tiket Baru"} description="Form manajemen data tiket." />
+      <SEO title={isEditMode ? "Edit Tiket" : "Input Tiket Baru"} description="Form manajemen data tiket." />
       <div className="space-y-6 max-w-5xl mx-auto pb-8">
         <motion.div 
           initial={{ opacity: 0, y: -10 }}
@@ -675,7 +669,7 @@ const ImportTicket = () => {
             </div>
             <div>
               <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-                {isEditMode ? "Edit Data Tiket" : "Input Tiket Baru"}
+                {isEditMode ? "Edit Tiket" : "Input Tiket Baru"}
               </h1>
               <p className="text-muted-foreground text-sm mt-1">
                 {isEditMode 
@@ -684,33 +678,35 @@ const ImportTicket = () => {
               </p>
             </div>
           </div>
-          <div className="flex gap-2 shrink-0">
-            <Button 
-              variant="outline" 
-              onClick={handleReset} 
-              className="gap-2 icon-hover-spin"
-            >
-              <RotateCcw className="w-4 h-4" />
-              <span className="hidden sm:inline">Reset</span>
-            </Button>
-            <Button 
-              onClick={handleSubmit} 
-              disabled={isSubmitting || !formData.tim}
-              className="gap-2 btn-ripple"
-            >
-              {isSubmitting ? (
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                >
-                  <Loader2 className="w-4 h-4" />
-                </motion.div>
-              ) : (
-                <Save className="w-4 h-4" />
-              )}
-              <span className='hidden sm:inline'>{isSubmitting ? 'Menyimpan...' : (isEditMode ? 'Update Tiket' : 'Simpan Tiket')}</span>
-            </Button>
-          </div>
+          {!isEditMode && (
+            <div className="flex gap-2 shrink-0">
+              <Button 
+                variant="outline" 
+                onClick={handleReset} 
+                className="gap-2 icon-hover-spin"
+              >
+                <RotateCcw className="w-4 h-4" />
+                <span className="hidden sm:inline">Reset</span>
+              </Button>
+              <Button 
+                onClick={handleSubmit} 
+                disabled={isSubmitting || !formData.tim}
+                className="gap-2 btn-ripple"
+              >
+                {isSubmitting ? (
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  >
+                    <Loader2 className="w-4 h-4" />
+                  </motion.div>
+                ) : (
+                  <Save className="w-4 h-4" />
+                )}
+                <span className='hidden sm:inline'>{isSubmitting ? 'Menyimpan...' : (isEditMode ? 'Edit Tiket' : 'Simpan Tiket')}</span>
+              </Button>
+            </div>
+          )}
         </motion.div>
 
         <AnimatePresence>
@@ -811,7 +807,7 @@ const ImportTicket = () => {
                                 {sortedTeknisi.map((teknisi) => (
                                   <CommandItem
                                     key={teknisi.id}
-                                    value={teknisi.name}
+                                    value={`${teknisi.name} ${teknisi.area}`}
                                     onSelect={(currentValue) => {
                                       updateField('teknisi1', teknisi.name);
                                       setOpenTeknisi(false);
@@ -1340,11 +1336,15 @@ const ImportTicket = () => {
         >
           <Button 
             variant="outline" 
-            onClick={handleReset}
+            onClick={isEditMode ? () => navigate(-1) : handleReset}
             className="gap-2 icon-hover-spin"
           >
-            <RotateCcw className="w-4 h-4" />
-            <span className="hidden sm:inline">Reset</span>
+            {!isEditMode && (
+              <RotateCcw className="w-4 h-4" />
+            )}
+            <span className="hidden sm:inline">
+              {isEditMode ? "Batal" : "Reset"}
+            </span>
           </Button>
           <Button 
             onClick={handleSubmit} 
@@ -1364,7 +1364,7 @@ const ImportTicket = () => {
             ) : (
               <>
                 <Save className="w-4 h-4" />
-                <span className='hidden sm:inline'>{isEditMode ? "Update Tiket" : "Simpan Tiket"}</span>
+                <span className='hidden sm:inline'>{isEditMode ? "Edit Tiket" : "Simpan Tiket"}</span>
               </>
             )}
           </Button>
