@@ -9,6 +9,7 @@ export interface Teknisi {
   area: string;
   isActive: boolean;
   employeeId: string;
+  jobdesk: string;
 }
 
 export const useTeknisi = () => {
@@ -34,7 +35,8 @@ export const useTeknisi = () => {
           phone: t.phone || '',
           area: t.area || '',
           isActive: t.is_active,
-          employeeId: t.employee_id,
+          employeeId: t.employee_id || '',
+          jobdesk: t.jobdesk || '',
         }));
         setTeknisiList(formattedData);
       }
@@ -86,6 +88,7 @@ export const useTeknisi = () => {
           area: teknisi.area,
           is_active: teknisi.isActive,
           employee_id: teknisi.employeeId,
+          jobdesk: teknisi.jobdesk,
         },
       ]);
 
@@ -108,6 +111,7 @@ export const useTeknisi = () => {
       if (data.area !== undefined) updatePayload.area = data.area;
       if (data.isActive !== undefined) updatePayload.is_active = data.isActive;
       if (data.employeeId !== undefined) updatePayload.employee_id = data.employeeId;
+      if (data.jobdesk !== undefined) updatePayload.jobdesk = data.jobdesk;
 
       const { error } = await supabase
         .from('teknisi')

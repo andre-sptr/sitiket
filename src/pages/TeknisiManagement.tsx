@@ -148,6 +148,7 @@ const TeknisiManagement = () => {
     area: '',
     isActive: true,
     employeeId: '',
+    jobdesk: '',
   });
 
   const isAdmin = user?.role === 'admin' || user?.role === 'hd';
@@ -219,7 +220,7 @@ const TeknisiManagement = () => {
   const paginatedTeknisi = filteredTeknisi.slice(startIndex, startIndex + itemsPerPage);
 
   const resetForm = () => {
-    setFormData({ name: '', phone: '', area: '', isActive: true, employeeId: '' });
+    setFormData({ name: '', phone: '', area: '', isActive: true, employeeId: '', jobdesk: '' });
     setMitraInput({ mitraName: '', picName: '' });
     setEditMitraInput({ mitraName: '', picName: '' });
     setTeknisiType('internal');
@@ -263,6 +264,7 @@ const TeknisiManagement = () => {
         area: formData.area.trim(),
         isActive: formData.isActive,
         employeeId: finalEmployeeId.trim(),
+        jobdesk: formData.jobdesk.trim(),
       });
 
       toast({
@@ -314,6 +316,7 @@ const TeknisiManagement = () => {
         area: formData.area.trim(),
         isActive: formData.isActive,
         employeeId: formData.employeeId.trim(),
+        jobdesk: formData.jobdesk.trim(),
       });
 
       toast({
@@ -381,6 +384,7 @@ const TeknisiManagement = () => {
       area: teknisi.area,
       isActive: teknisi.isActive,
       employeeId: teknisi.employeeId,
+      jobdesk: teknisi.jobdesk,
     });
     setIsEditDialogOpen(true);
   };
@@ -669,6 +673,12 @@ const TeknisiManagement = () => {
                                   <MapPin className="w-4 h-4 text-primary/60 shrink-0" />
                                   <span className="truncate">{teknisi.area}</span>
                                 </div>
+                                {teknisi.jobdesk && (
+                                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                    <Briefcase className="w-4 h-4 text-primary/60 shrink-0" />
+                                    <span className="truncate">{teknisi.jobdesk}</span>
+                                  </div>
+                                )}
                                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                   <Phone className="w-4 h-4 text-primary/60 shrink-0" />
                                   <span>{teknisi.phone}</span>
@@ -1081,6 +1091,18 @@ const TeknisiManagement = () => {
                 placeholder="Masukkan area kerja"
                 value={formData.area}
                 onChange={(e) => setFormData({ ...formData, area: e.target.value })}
+                className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="add-jobdesk" className="text-xs font-medium text-muted-foreground">
+                Jobdesk <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="add-jobdesk"
+                placeholder="Masukkan jobdesk"
+                value={formData.jobdesk}
+                onChange={(e) => setFormData({ ...formData, jobdesk: e.target.value })}
                 className="h-10 bg-muted/50 border-transparent hover:border-border focus:border-primary/50 focus:bg-card transition-all duration-200"
               />
             </div>
