@@ -908,7 +908,15 @@ const ImportTicket = () => {
                         <SelectField label="HSA" field="hsa" options={DROPDOWN_OPTIONS.hsa} />
                       )}
                       {showField('sto') && (
-                        <SelectField label="STO" field="sto" options={filteredStoOptions} />
+                        <ComboboxField 
+                          label="STO" 
+                          value={formData.sto}
+                          options={filteredStoOptions}
+                          onChange={(val) => updateField('sto', val)}
+                          onBlur={() => markTouched('sto')}
+                          error={getFieldError('sto')}
+                          required={isFieldRequired('sto')}
+                        />
                       )}
                       {showField('odc') && (
                         <div className="space-y-2">

@@ -67,7 +67,7 @@ export const ComboboxField = ({
           <Command>
             <CommandInput placeholder={`Cari ${label}...`} className="h-9" />
             <CommandList>
-              <CommandEmpty>{label} tidak ditemukan.</CommandEmpty>
+              <CommandEmpty>{label} not found</CommandEmpty>
               <CommandGroup>
                 {options.map((opt) => (
                   <CommandItem
