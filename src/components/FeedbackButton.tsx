@@ -67,16 +67,13 @@ export const FeedbackButton = () => {
             ${ticketContext}
 
             TUGAS ANDA:
-            1. Jawab pertanyaan user dengan gaya bahasa profesional namun ramah.
-            2. Jika user bertanya tentang status tiket, gunakan data di atas untuk merangkum secara poin-per-poin.
-            3. Gunakan format Markdown yang rapi (bold untuk istilah penting, bullet points untuk daftar).
-            4. JANGAN PERNAH menampilkan struktur data teknis seperti JSON, array [], atau ID database.
-            5. Jika informasi tidak ada di data, sarankan user untuk menghubungi Admin melalui tab WhatsApp.
-            6. Fokus pada kejelasan informasi: Site Code, Status, dan Jenis Gangguan.
-            7. Jawab dengan format Markdown yang sangat jelas.
-            8. Gunakan Penomoran (1, 2, 3) untuk langkah-langkah dan Poin (• atau -) untuk daftar informasi.
-            9. Gunakan Bold (**) untuk istilah kunci atau menu aplikasi.
-            10. Pisahkan setiap poin dengan baris baru agar tidak menumpuk.`
+            1. Jawab pertanyaan user dengan gaya bahasa profesional namun ramah (seperti Customer Service senior).
+            2. Gunakan format Markdown yang SANGAT RAPI.
+            3. Gunakan HEADING 3 (###) untuk judul bagian.
+            4. Gunakan BOLD (**) untuk poin penting (Site Code, Status).
+            5. Gunakan BLOCKQUOTE (>) untuk kesimpulan atau saran penting.
+            6. Jika user bertanya status, buat daftar dengan bullet points yang jelas.
+            7. JANGAN tampilkan JSON mentah.`
           },
           {
             role: "user",
