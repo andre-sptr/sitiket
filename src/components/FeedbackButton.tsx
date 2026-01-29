@@ -60,17 +60,23 @@ export const FeedbackButton = () => {
         messages: [
           {
             role: "system",
-            content: `Kamu adalah asisten cerdas untuk SiTiket. 
+            content: `Kamu adalah Asisten Virtual cerdas untuk aplikasi SiTiket. 
             Waktu saat ini: ${currentTime}.
 
-            DATA TIKET (HANYA UNTUK REFERENSI KAMU, JANGAN TAMPILKAN KE USER):
+            DATA TIKET TERBARU:
             ${ticketContext}
 
-            ATURAN MENJAWAB (PENTING):
-            1. JANGAN PERNAH menampilkan format JSON, array, atau object mentah dalam jawabanmu.
-            2. Jawablah dengan bahasa Indonesia yang natural, sopan, dan seperti manusia.
-            3. Rangkum informasi dari data di atas. Contoh: "Ada tiket baru di site X dengan status Y..."
-            4. Jika data kosong/null, katakan saja "tidak ada informasi", jangan tulis "null".`
+            TUGAS ANDA:
+            1. Jawab pertanyaan user dengan gaya bahasa profesional namun ramah.
+            2. Jika user bertanya tentang status tiket, gunakan data di atas untuk merangkum secara poin-per-poin.
+            3. Gunakan format Markdown yang rapi (bold untuk istilah penting, bullet points untuk daftar).
+            4. JANGAN PERNAH menampilkan struktur data teknis seperti JSON, array [], atau ID database.
+            5. Jika informasi tidak ada di data, sarankan user untuk menghubungi Admin melalui tab WhatsApp.
+            6. Fokus pada kejelasan informasi: Site Code, Status, dan Jenis Gangguan.
+            7. Jawab dengan format Markdown yang sangat jelas.
+            8. Gunakan Penomoran (1, 2, 3) untuk langkah-langkah dan Poin (• atau -) untuk daftar informasi.
+            9. Gunakan Bold (**) untuk istilah kunci atau menu aplikasi.
+            10. Pisahkan setiap poin dengan baris baru agar tidak menumpuk.`
           },
           {
             role: "user",
@@ -78,10 +84,11 @@ export const FeedbackButton = () => {
           },
         ],
         model: "groq/compound",
-        temperature: 0.3,
+        temperature: 0.5,
       });
 
       setAiResponse(chatCompletion.choices[0]?.message?.content || "Maaf, tidak ada respon.");
+      setMessage('');
     } catch (error) {
       setAiResponse("Error: Gagal menghubungi AI.");
       console.error(error);
@@ -173,12 +180,28 @@ export const FeedbackButton = () => {
             </div>
 
             {aiResponse && (
-              <div className="p-3 bg-muted rounded-md text-sm whitespace-pre-wrap max-h-[200px] overflow-y-auto">
-                <p className="font-semibold mb-1 flex items-center gap-2">
-                  🤖 Jawaban Asisten:
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-4 bg-primary/5 border border-primary/10 rounded-lg text-sm shadow-inner max-h-[250px] overflow-y-auto"
+              >
+                <p className="font-bold mb-3 flex items-center gap-2 text-primary">
+                  <span className="text-lg">🤖</span> Jawaban Asisten:
                 </p>
-                <ReactMarkdown>{aiResponse}</ReactMarkdown>
-              </div>
+                <div className="text-foreground/90 leading-relaxed">
+                  <ReactMarkdown
+                    components={{
+                      ol: ({node, ...props}) => <ol className="list-decimal ml-5 mb-4 space-y-2" {...props} />,
+                      ul: ({node, ...props}) => <ul className="list-disc ml-5 mb-4 space-y-1" {...props} />,
+                      li: ({node, ...props}) => <li className="pl-1" {...props} />,
+                      p: ({node, ...props}) => <p className="mb-3 last:mb-0" {...props} />,
+                      strong: ({node, ...props}) => <strong className="font-bold text-primary" {...props} />,
+                    }}
+                  >
+                    {aiResponse}
+                  </ReactMarkdown>
+                </div>
+              </motion.div>
             )}
 
             <Button 
