@@ -41,16 +41,38 @@ export const FeedbackButton = () => {
     try {
       const { data: tickets, error: dbError } = await supabase
         .from('tickets')
-        .select('site_code, kategori, status, created_at, jenis_gangguan')
+        .select(`
+          id,
+          site_code,
+          site_name,
+          kategori,
+          status,
+          created_at,
+          jenis_gangguan,
+          perbaikan,
+          kendala,
+          penyebab,
+          teknisi_list,
+          sisa_ttr_hours,
+          lokasi_text
+        `)
         .order('created_at', { ascending: false })
-        .limit(5);
+        .limit(10);
 
       if (dbError) throw new Error("Gagal mengambil data tiket");
 
       const formattedData = tickets?.map(t => ({
-        ...t,
-        created_at: new Date(t.created_at).toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' }),
-        jenis_gangguan: t.jenis_gangguan || "Tidak ada detail"
+        Ticket_ID: t.id.substring(0, 8) + "...",
+        Lokasi: `${t.site_name} (${t.site_code})`,
+        Status: t.status,
+        Kategori: t.kategori,
+        Waktu_Dibuat: new Date(t.created_at).toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' }),
+        Gangguan: t.jenis_gangguan || "Tidak ada detail",
+        Teknisi: t.teknisi_list && t.teknisi_list.length > 0 ? t.teknisi_list.join(", ") : "Belum ada teknisi",
+        Progress_Perbaikan: t.perbaikan || "Belum ada update perbaikan",
+        Kendala_Lapangan: t.kendala || "-",
+        Penyebab: t.penyebab || "Masih investigasi",
+        Sisa_SLA: `${t.sisa_ttr_hours} Jam`
       }));
 
       const ticketContext = JSON.stringify(formattedData, null, 2);
@@ -63,16 +85,16 @@ export const FeedbackButton = () => {
             content: `Kamu adalah Asisten Virtual cerdas untuk aplikasi SiTiket. 
             Waktu saat ini: ${currentTime}.
 
-            DATA TIKET TERBARU:
+            DATA 5 TIKET TERAKHIR:
             ${ticketContext}
 
             TUGAS ANDA:
-            1. Jawab pertanyaan user dengan gaya bahasa profesional namun ramah (seperti Customer Service senior).
-            2. Gunakan format Markdown yang SANGAT RAPI.
-            3. Gunakan HEADING 3 (###) untuk judul bagian.
-            4. Gunakan BOLD (**) untuk poin penting (Site Code, Status).
-            5. Gunakan BLOCKQUOTE (>) untuk kesimpulan atau saran penting.
-            6. Jika user bertanya status, buat daftar dengan bullet points yang jelas.
+            1. Jawab pertanyaan user berdasarkan data tiket di atas jika relevan.
+            2. Jika user bertanya tentang status tiket tertentu, cek field 'Kendala_Lapangan' atau 'Progress_Perbaikan' untuk memberikan alasan.
+            3. Gunakan gaya bahasa profesional namun ramah (seperti Customer Service senior).
+            4. Gunakan format Markdown yang SANGAT RAPI.
+            5. Gunakan HEADING 3 (###) untuk judul bagian.
+            6. Gunakan BOLD (**) untuk poin penting (Nama Site, Status, Teknisi).
             7. JANGAN tampilkan JSON mentah.`
           },
           {
@@ -87,7 +109,7 @@ export const FeedbackButton = () => {
       setAiResponse(chatCompletion.choices[0]?.message?.content || "Maaf, tidak ada respon.");
       setMessage('');
     } catch (error) {
-      setAiResponse("Error: Gagal menghubungi AI.");
+      setAiResponse("Error: Gagal menghubungi AI atau mengambil data.");
       console.error(error);
     } finally {
       setIsLoading(false);
