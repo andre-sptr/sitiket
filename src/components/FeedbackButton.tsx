@@ -22,8 +22,6 @@ import { supabase } from "@/integrations/supabase/client";
 const SUGGESTED_QUESTIONS = [
   "Apa status tiket terbaru?",
   "Ada gangguan apa hari ini?",
-  "Berapa sisa SLA tiket PBR123?",
-  "Bagaimana cara membuat tiket baru?",
   "Siapa teknisi yang sedang bertugas?",
   "Apa kendala umum yang sering terjadi?"
 ];
@@ -248,6 +246,22 @@ export const FeedbackButton = () => {
               </div>
             </div>
 
+            <Button
+              onClick={() => handleAskAI()}
+              disabled={isLoading || !message.trim()}
+              className="w-full"
+              variant="secondary"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Sedang Berpikir...
+                </>
+              ) : (
+                "Tanya Asisten Virtual"
+              )}
+            </Button>
+
             <AnimatePresence>
               {aiResponse && (
                 <motion.div
@@ -275,22 +289,6 @@ export const FeedbackButton = () => {
                 </motion.div>
               )}
             </AnimatePresence>
-
-            <Button
-              onClick={() => handleAskAI()}
-              disabled={isLoading || !message.trim()}
-              className="w-full"
-              variant="secondary"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Sedang Berpikir...
-                </>
-              ) : (
-                "Tanya Asisten Virtual"
-              )}
-            </Button>
           </TabsContent>
         </Tabs>
       </DialogContent>
