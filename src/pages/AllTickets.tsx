@@ -109,6 +109,7 @@ const AllTickets = () => {
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [gaulFilter, setGaulFilter] = useState<string>('ALL');
   const [complianceFilter, setComplianceFilter] = useState<string>('ALL');
+  const [distrikFilter, setDistrikFilter] = useState<string>('ALL');
   const [providerFilter, setProviderFilter] = useState<string>('ALL');
   const [kategoriFilter, setKategoriFilter] = useState<string>('ALL');
   const [jarakFilter, setJarakFilter] = useState<string>('ALL');
@@ -138,6 +139,7 @@ const AllTickets = () => {
   };
   
   const filterOptions = useMemo(() => ({
+    distriks: getUniqueValues(allTickets, 'distrik'),
     providers: getUniqueValues(allTickets, 'provider'),
     kategoris: getUniqueValues(allTickets, 'kategori'),
     jaraks: getUniqueValues(allTickets, 'jarakKmRange'),
@@ -168,12 +170,14 @@ const AllTickets = () => {
         ticket.teknisiList?.some(tek => tek.toLowerCase().includes(searchLower)) ||
         ticket.penyebab?.toLowerCase().includes(searchLower) ||
         ticket.incGamas?.toLowerCase().includes(searchLower) ||
+        ticket.distrik?.toLowerCase().includes(searchLower) ||
         ticket.kjd?.toLowerCase().includes(searchLower);
 
       const isGaul = checkIsGaul(ticket, allTickets);
       const matchesGaul = gaulFilter === 'ALL' || (gaulFilter === 'GAUL' && isGaul);
       const matchesStatus = statusFilter === 'ALL' || ticket.status === statusFilter;
       const matchesCompliance = complianceFilter === 'ALL' || ticket.ttrCompliance === complianceFilter;
+      const matchesDistrik = distrikFilter === 'ALL' || ticket.distrik === distrikFilter;
       const matchesProvider = providerFilter === 'ALL' || ticket.provider === providerFilter;
       const matchesKategori = kategoriFilter === 'ALL' || ticket.kategori === kategoriFilter;
       const matchesJarak = jarakFilter === 'ALL' || ticket.jarakKmRange === jarakFilter;
@@ -198,11 +202,11 @@ const AllTickets = () => {
       }
 
       return matchesSearch && matchesStatus && matchesGaul && matchesCompliance && 
-             matchesProvider && matchesKategori && matchesJarak && 
+             matchesDistrik && matchesProvider && matchesKategori && matchesJarak && 
              matchesDatek && matchesSite && matchesSiteName && 
              matchesTim && matchesCreator && matchesDateRange;
     });
-  }, [allTickets, searchQuery, statusFilter, gaulFilter, complianceFilter, providerFilter, 
+  }, [allTickets, searchQuery, statusFilter, gaulFilter, complianceFilter, distrikFilter, providerFilter, 
       kategoriFilter, jarakFilter, datekFilter, siteFilter, siteNameFilter, 
       timFilter, creatorFilter, dateRange, users]);
 
@@ -280,6 +284,7 @@ const AllTickets = () => {
     setStatusFilter('ALL');
     setGaulFilter('ALL');
     setComplianceFilter('ALL');
+    setDistrikFilter('ALL');
     setProviderFilter('ALL');
     setKategoriFilter('ALL');
     setJarakFilter('ALL');
@@ -303,6 +308,7 @@ const AllTickets = () => {
     (statusFilter !== 'ALL' ? 1 : 0) + 
     (gaulFilter !== 'ALL' ? 1 : 0) +
     (complianceFilter !== 'ALL' ? 1 : 0) +
+    (distrikFilter !== 'ALL' ? 1 : 0) +
     (providerFilter !== 'ALL' ? 1 : 0) +
     (kategoriFilter !== 'ALL' ? 1 : 0) +
     (jarakFilter !== 'ALL' ? 1 : 0) +
@@ -549,6 +555,17 @@ const AllTickets = () => {
                   </div>
 
                   <div className="space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground">Distrik</label>
+                    <FilterCombobox
+                      value={distrikFilter}
+                      onValueChange={setDistrikFilter}
+                      options={filterOptions.distriks}
+                      placeholder="Distrik"
+                      className="w-full"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
                     <label className="text-sm font-medium text-muted-foreground">Jarak</label>
                     <FilterCombobox
                       value={jarakFilter}
@@ -764,6 +781,14 @@ const AllTickets = () => {
                 <SelectItem value="NOT COMPLY">Not Comply</SelectItem>
               </SelectContent>
             </Select>
+
+            <FilterCombobox
+              value={distrikFilter}
+              onValueChange={setDistrikFilter}
+              options={filterOptions.distriks}
+              placeholder="Distrik"
+              className="w-[120px]" 
+            />
 
             <Select value={jarakFilter} onValueChange={setJarakFilter}>
               <SelectTrigger className="w-[120px] transition-all duration-200 hover:border-primary/50">

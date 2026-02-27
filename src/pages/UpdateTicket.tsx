@@ -740,7 +740,7 @@ const UpdateTicket = () => {
             <FileWarning className="w-8 h-8 text-muted-foreground" />
           </div>
           <p className="text-muted-foreground mb-4">Tiket tidak ditemukan</p>
-          <Button variant="outline" onClick={() => navigate(-1)} className="hover-lift">
+          <Button variant="outline" onClick={() => navigate('/tickets')} className="hover-lift">
             Kembali
           </Button>
         </motion.div>
@@ -769,7 +769,7 @@ const UpdateTicket = () => {
             <Button 
               variant="ghost" 
               size="icon" 
-              onClick={() => navigate(-1)}
+              onClick={() => navigate(`/ticket/${id}`)}
               className="h-10 w-10 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />

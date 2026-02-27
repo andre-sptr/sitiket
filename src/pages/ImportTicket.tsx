@@ -88,6 +88,7 @@ interface TicketFormData {
   ttrTarget: string;
   teknisi1: string;
   tim: string;
+  distrik: string;
   jenisGangguan: string;
 }
 
@@ -117,11 +118,13 @@ const emptyForm: TicketFormData = {
   ttrTarget: '',
   teknisi1: '',
   tim: '',
+  distrik: '',
   jenisGangguan: '',
 };
 
 const REQUIRED_FIELDS: { field: keyof TicketFormData; label: string }[] = [
   { field: 'teknisi1', label: 'Teknisi' },
+  { field: 'distrik', label: 'Distrik' },
   { field: 'hsa', label: 'HSA' },
   { field: 'sto', label: 'STO' },
   { field: 'kategori', label: 'Severity' },
@@ -159,9 +162,9 @@ const cardVariants = {
 };
 
 const TEAM_CONFIG: Record<string, string[]> = {
-  'SQUAT-A': ['teknisi1', 'hsa', 'sto', 'odc', 'stakeHolder', 'jenisPelanggan', 'kategori', 'tiket', 'tiketTacc', 'indukGamas', 'kjd', 'reportDate', 'ttrTarget', 'summary','idPelanggan', 'namaPelanggan', 'datek', 'losNonLos', 'siteImpact', 'classSite' ],
-  'SQUAT-B': ['teknisi1', 'hsa', 'sto', 'odc', 'stakeHolder', 'jenisPelanggan', 'kategori', 'tiket', 'tiketTacc', 'indukGamas', 'kjd', 'reportDate', 'ttrTarget', 'summary','idPelanggan', 'namaPelanggan', 'datek', 'losNonLos', 'siteImpact', 'classSite' ],
-  'MTC': ['teknisi1', 'hsa', 'sto', 'odc', 'stakeHolder', 'jenisPelanggan', 'kategori', 'jenisGangguan', 'datek', 'indukGamas', 'kjd', 'reportDate', 'ttrTarget' ],
+  'SQUAT-A': ['teknisi1', 'distrik', 'hsa', 'sto', 'odc', 'stakeHolder', 'jenisPelanggan', 'kategori', 'tiket', 'tiketTacc', 'indukGamas', 'kjd', 'reportDate', 'ttrTarget', 'summary','idPelanggan', 'namaPelanggan', 'datek', 'losNonLos', 'siteImpact', 'classSite' ],
+  'SQUAT-B': ['teknisi1', 'distrik', 'hsa', 'sto', 'odc', 'stakeHolder', 'jenisPelanggan', 'kategori', 'tiket', 'tiketTacc', 'indukGamas', 'kjd', 'reportDate', 'ttrTarget', 'summary','idPelanggan', 'namaPelanggan', 'datek', 'losNonLos', 'siteImpact', 'classSite' ],
+  'MTC': ['teknisi1', 'distrik', 'hsa', 'sto', 'odc', 'stakeHolder', 'jenisPelanggan', 'kategori', 'jenisGangguan', 'datek', 'indukGamas', 'kjd', 'reportDate', 'ttrTarget' ],
 };
 
 const getVisibleFields = (tim: string) => {
@@ -243,6 +246,7 @@ const ImportTicket = () => {
             reportDate: formatDateForInput(ticketData.jam_open),
             ttrTarget: ticketData.ttr_target_hours?.toString() || '',
             teknisi1: ticketData.teknisi_list?.[0] || '',
+            distrik: ticketData.distrik || '',
             tim: ticketData.tim || '',
             jenisGangguan: ticketData.jenis_gangguan || ''
         };
@@ -443,6 +447,7 @@ const ImportTicket = () => {
         jam_open: jamOpen.toISOString(),
         ttr_target_hours: ttrHours,
         max_jam_close: maxJamClose.toISOString(),
+        distrik: formData.distrik,
         provider: formData.jenisPelanggan,
         stake_holder: formData.stakeHolder,
         kjd: formData.kjd || null,
@@ -752,7 +757,7 @@ const ImportTicket = () => {
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  onClick={() => navigate(-1)}
+                  onClick={() => navigate(`/ticket/${id}`)}
                   className="h-10 w-10 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
                 >
                   <ArrowLeft className="w-5 h-5" />
@@ -858,7 +863,7 @@ const ImportTicket = () => {
                 </div>
               </CardHeader>
               <CardContent className="pt-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   <SelectField 
                     label="Unit" 
                     field="tim" 
@@ -872,6 +877,13 @@ const ImportTicket = () => {
                       }
                     }}
                   />
+                  
+                  <SelectField 
+                    label="Distrik" 
+                    field="distrik" 
+                    options={['Batam', 'Bukittinggi', 'Dumai', 'Padang', 'Pekanbaru']} 
+                  />
+
                   {showField('teknisi1') && (
                     <div className="space-y-2">
                       <Label className={cn(
@@ -1466,7 +1478,7 @@ const ImportTicket = () => {
         >
           <Button 
             variant="outline" 
-            onClick={isEditMode ? () => navigate(-1) : handleReset}
+            onClick={isEditMode ? () => navigate(`/ticket/${id}`) : handleReset}
             className="gap-2 icon-hover-spin"
           >
             {!isEditMode && (

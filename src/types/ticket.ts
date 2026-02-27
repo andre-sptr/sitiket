@@ -79,6 +79,7 @@ export interface Ticket {
   rawTicketText?: string;
   progressUpdates: ProgressUpdate[];
   perbaikan?: string;
+  distrik?: string;
   statusAlatBerat?: string;
   timelineDispatch?: string;
   timelinePrepare?: string;

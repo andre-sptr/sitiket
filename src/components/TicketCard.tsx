@@ -146,6 +146,11 @@ export const TicketCard = forwardRef<HTMLDivElement, TicketCardProps>(({ ticket,
                 <Badge variant="outline" className="h-5 px-1.5 text-[10px] font-semibold border-primary/20 bg-primary/5">
                   {ticket.tim}
                 </Badge>
+                {ticket.distrik && (
+                  <Badge variant="outline" className="h-5 px-1.5 text-[10px] font-bold border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
+                    {ticket.distrik}
+                  </Badge>
+                )}
               </div>
 
               <div className="flex items-center gap-2 shrink-0 ml-auto">

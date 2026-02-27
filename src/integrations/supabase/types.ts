@@ -226,6 +226,7 @@ export type Database = {
           ttr_target_hours: number
           updated_at: string
           perbaikan: string | null
+          distrik: string | null
           status_alat_berat: string | null
           timeline_dispatch: string | null
           timeline_prepare: string | null
@@ -277,9 +278,10 @@ export type Database = {
           ttr_compliance?: Database["public"]["Enums"]["ttr_compliance"]
           penyebab_not_comply?: string | null
           ttr_real_hours?: number | null
-          ttr_target_hours?: number
+          ttr_target_hours: number
           updated_at?: string
           perbaikan?: string | null
+          distrik?: string | null
           status_alat_berat?: string | null
           timeline_dispatch?: string | null
           timeline_prepare?: string | null
@@ -334,6 +336,7 @@ export type Database = {
           ttr_target_hours?: number
           updated_at?: string
           perbaikan?: string | null
+          distrik?: string | null
           status_alat_berat?: string | null
           timeline_dispatch?: string | null
           timeline_prepare?: string | null

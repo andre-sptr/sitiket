@@ -251,10 +251,12 @@ const Reports = () => {
   const [filterSegmen, setFilterSegmen] = useState<string>("ALL");
   const [filterSTO, setFilterSTO] = useState<string>("ALL");
   const [filterPenyebab, setFilterPenyebab] = useState<string>("ALL");
+  const [filterDistrik, setFilterDistrik] = useState<string>("ALL");
+  const [filterTim, setFilterTim] = useState<string>("ALL");
   const [filterDatek, setFilterDatek] = useState<string>("");
   const [filterId, setFilterId] = useState<string>("");
 
-  const { statusOptions, kategoriOptions, providerOptions, teknisiOptions, segmenOptions, penyebabOptions, stoOptions } = useMemo(() => {
+  const { statusOptions, kategoriOptions, providerOptions, teknisiOptions, segmenOptions, penyebabOptions, stoOptions, distrikOptions, timOptions } = useMemo(() => {
     const statusSet = new Set<string>();
     const kategoriSet = new Set<string>();
     const providerSet = new Set<string>();
@@ -262,6 +264,8 @@ const Reports = () => {
     const segmenSet = new Set<string>();
     const penyebabSet = new Set<string>();
     const stoSet = new Set<string>();
+    const distrikSet = new Set<string>();
+    const timSet = new Set<string>();
 
     tickets.forEach(ticket => {
       if (ticket.status) statusSet.add(ticket.status);
@@ -270,6 +274,8 @@ const Reports = () => {
       if (ticket.segmen) segmenSet.add(ticket.segmen);
       if (ticket.penyebab) penyebabSet.add(ticket.penyebab);
       if (ticket.sto) stoSet.add(ticket.sto);
+      if (ticket.distrik) distrikSet.add(ticket.distrik);
+      if (ticket.tim) timSet.add(ticket.tim);
       if (ticket.teknisi_list && Array.isArray(ticket.teknisi_list)) {
         ticket.teknisi_list.forEach((tech: string) => teknisiSet.add(tech));
       }
@@ -283,6 +289,8 @@ const Reports = () => {
       segmenOptions: Array.from(segmenSet).sort(),
       penyebabOptions: Array.from(penyebabSet).sort(),
       stoOptions: Array.from(stoSet).sort(),
+      distrikOptions: Array.from(distrikSet).sort(),
+      timOptions: Array.from(timSet).sort(),
     };
   }, [tickets]);
 
@@ -301,6 +309,8 @@ const Reports = () => {
       if (filterSegmen !== "ALL" && ticket.segmen !== filterSegmen) return false;
       if (filterPenyebab !== "ALL" && ticket.penyebab !== filterPenyebab) return false;
       if (filterSTO !== "ALL" && ticket.sto !== filterSTO) return false;
+      if (filterDistrik !== "ALL" && ticket.distrik !== filterDistrik) return false;
+      if (filterTim !== "ALL" && ticket.tim !== filterTim) return false;
       if (filterTeknisi !== "ALL") {
         if (!ticket.teknisi_list || !ticket.teknisi_list.includes(filterTeknisi)) return false;
       }
@@ -319,7 +329,25 @@ const Reports = () => {
 
       return true;
     });
-  }, [dateRange, tickets, filterStatus, filterKategori, filterProvider, filterTeknisi, filterDatek, filterId, filterSegmen, filterPenyebab, filterSTO]); 
+  }, [dateRange, tickets, filterStatus, filterKategori, filterProvider, filterTeknisi, filterDatek, filterId, filterSegmen, filterPenyebab, filterSTO, filterDistrik, filterTim]); 
+
+  const handleResetFilter = () => {
+    setFilterStatus("ALL");
+    setFilterKategori("ALL");
+    setFilterProvider("ALL");
+    setFilterTeknisi("ALL");
+    setFilterSegmen("ALL");
+    setFilterPenyebab("ALL");
+    setFilterSTO("ALL");
+    setFilterDistrik("ALL");
+    setFilterTim("ALL");
+    setFilterDatek("");
+    setFilterId("");
+    setDateRange({
+      from: subDays(new Date(), 6),
+      to: new Date(),
+    });
+  };
 
   const periodData = useMemo(() => {
     const days = [];
@@ -743,22 +771,6 @@ const Reports = () => {
     });
   };
 
-  const handleResetFilter = () => {
-    setDateRange({
-      from: subDays(new Date(), 6),
-      to: new Date(),
-    });
-    setFilterStatus("ALL");
-    setFilterKategori("ALL");
-    setFilterProvider("ALL");
-    setFilterTeknisi("ALL");
-    setFilterSegmen("ALL");
-    setFilterPenyebab("ALL");
-    setFilterSTO("ALL");
-    setFilterDatek("");
-    setFilterId("");
-  };
-
   if (isLoading) {
     return (
       <Layout>
@@ -952,7 +964,7 @@ const Reports = () => {
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 w-full">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 w-full">
                 <FilterCombobox
                   value={filterStatus}
                   onValueChange={setFilterStatus}
@@ -965,6 +977,20 @@ const Reports = () => {
                   onValueChange={setFilterSTO}
                   options={stoOptions}
                   placeholder="Semua STO"
+                  className="h-9 sm:h-8 text-xs w-full"
+                />
+                <FilterCombobox
+                  value={filterDistrik}
+                  onValueChange={setFilterDistrik}
+                  options={distrikOptions}
+                  placeholder="Semua Distrik"
+                  className="h-9 sm:h-8 text-xs w-full"
+                />
+                <FilterCombobox
+                  value={filterTim}
+                  onValueChange={setFilterTim}
+                  options={timOptions}
+                  placeholder="Semua Unit"
                   className="h-9 sm:h-8 text-xs w-full"
                 />
                 <FilterCombobox

@@ -506,7 +506,7 @@ const TicketDetail = () => {
             <Button 
               variant="ghost" 
               size="icon" 
-              onClick={() => navigate(-1)}
+              onClick={() => navigate('/tickets')}
               className="rounded-xl bg-muted/50 hover:bg-muted"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -751,22 +751,25 @@ const TicketDetail = () => {
                         )}
                       </div>
                       <div className="grid grid-cols-2 gap-3">
+                        <MTCDetailRow label="Distrik" value={ticket.distrik} icon={MapPin} />
                         <MTCDetailRow label="HSA" value={ticket.hsa} icon={MapPin} />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
                         <MTCDetailRow label="STO" value={ticket.sto} icon={Building2} />
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
                         <MTCDetailRow label="ODC" value={ticket.odc} icon={Database} />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
                         <MTCDetailRow label="Gangguan" value={ticket.kendala} icon={AlertTriangle} />
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
                         <MTCDetailRow label="Stake Holder" value={ticket.stakeHolder} icon={Flag} />
-                        <MTCDetailRow label="Pelanggan" value={ticket.provider} icon={Building2} />
                       </div>
                       <div className="grid grid-cols-2 gap-3">
+                        <MTCDetailRow label="Pelanggan" value={ticket.provider} icon={Building2} />
                         <MTCDetailRow label="KJD" value={ticket.kjd} icon={ShieldCheck} />
-                        <MTCDetailRow label="Gamas" value={ticket.incGamas} icon={Activity} />
                       </div>
-                      <MTCDetailRow label="Datek" value={ticket.datek} icon={Database} />
+                      <div className="grid grid-cols-2 gap-3">
+                        <MTCDetailRow label="Gamas" value={ticket.incGamas} icon={Activity} />
+                        <MTCDetailRow label="Datek" value={ticket.datek} icon={Database} />
+                      </div>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -782,6 +785,15 @@ const TicketDetail = () => {
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
+                      <div className="p-3 rounded-xl bg-muted/30 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-3.5 h-3.5 text-primary" />
+                          <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Distrik</span>
+                        </div>
+                        <Badge variant="secondary" className="bg-primary/10 text-primary border-transparent px-3 py-0.5 rounded-lg font-bold">
+                          {ticket.distrik || '-'}
+                        </Badge>
+                      </div>
                       <div className="grid grid-cols-2 gap-3">
                         <div className="p-3 rounded-xl bg-muted/30">
                           <div className="flex items-center gap-2 mb-1">
