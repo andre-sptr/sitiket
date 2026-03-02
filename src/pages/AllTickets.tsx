@@ -68,18 +68,18 @@ const getUniqueValues = (tickets: Ticket[], key: keyof Ticket): string[] => {
 const checkIsGaul = (ticket: Ticket, allTickets: Ticket[]) => {
   return allTickets.some(otherTicket => {
     if (ticket.id === otherTicket.id) return false;
-    
+
     const isSameSite = ticket.siteCode === otherTicket.siteCode;
     if (!isSameSite) return false;
-    
+
     const ticketDate = new Date(ticket.jamOpen).getTime();
     const otherDate = new Date(otherTicket.jamOpen).getTime();
 
     if (otherDate >= ticketDate) return false;
-    
+
     const diffTime = Math.abs(ticketDate - otherDate);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-    
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
     return diffDays <= 30;
   });
 };
@@ -99,11 +99,11 @@ const AllTickets = () => {
   const { data: dbTickets, isLoading, refetch } = useTickets();
   const { users } = useUsers();
 
-  const allTickets = useMemo(() => 
-    dbTickets?.map(mapDbTicketToTicket) || [], 
+  const allTickets = useMemo(() =>
+    dbTickets?.map(mapDbTicketToTicket) || [],
     [dbTickets]
   );
-  
+
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
@@ -137,7 +137,7 @@ const AllTickets = () => {
     setIsRefreshing(false);
     toast({ title: "Data diperbarui", description: "Daftar tiket telah di-refresh" });
   };
-  
+
   const filterOptions = useMemo(() => ({
     distriks: getUniqueValues(allTickets, 'distrik'),
     providers: getUniqueValues(allTickets, 'provider'),
@@ -160,7 +160,7 @@ const AllTickets = () => {
   const filteredTickets = useMemo(() => {
     return allTickets.filter(ticket => {
       const searchLower = searchQuery.toLowerCase().trim();
-      const matchesSearch = !searchLower || 
+      const matchesSearch = !searchLower ||
         ticket.incNumbers.some(inc => inc.toLowerCase().includes(searchLower)) ||
         ticket.siteCode.toLowerCase().includes(searchLower) ||
         ticket.siteName.toLowerCase().includes(searchLower) ||
@@ -201,14 +201,14 @@ const AllTickets = () => {
         matchesDateRange = new Date(ticket.jamOpen) <= endOfDay(dateRange.to);
       }
 
-      return matchesSearch && matchesStatus && matchesGaul && matchesCompliance && 
-             matchesDistrik && matchesProvider && matchesKategori && matchesJarak && 
-             matchesDatek && matchesSite && matchesSiteName && 
-             matchesTim && matchesCreator && matchesDateRange;
+      return matchesSearch && matchesStatus && matchesGaul && matchesCompliance &&
+        matchesDistrik && matchesProvider && matchesKategori && matchesJarak &&
+        matchesDatek && matchesSite && matchesSiteName &&
+        matchesTim && matchesCreator && matchesDateRange;
     });
-  }, [allTickets, searchQuery, statusFilter, gaulFilter, complianceFilter, distrikFilter, providerFilter, 
-      kategoriFilter, jarakFilter, datekFilter, siteFilter, siteNameFilter, 
-      timFilter, creatorFilter, dateRange, users]);
+  }, [allTickets, searchQuery, statusFilter, gaulFilter, complianceFilter, distrikFilter, providerFilter,
+    kategoriFilter, jarakFilter, datekFilter, siteFilter, siteNameFilter,
+    timFilter, creatorFilter, dateRange, users]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -253,14 +253,14 @@ const AllTickets = () => {
 
     const messages = sortedTickets.map((ticket, index) => {
       const header = generateWhatsAppMessage('share', ticket);
-      const sortedUpdates = [...(ticket.progressUpdates || [])].sort((a, b) => 
+      const sortedUpdates = [...(ticket.progressUpdates || [])].sort((a, b) =>
         new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
       );
 
       let timelineContent = "\n\n*Timeline Progress:*\n";
 
       if (sortedUpdates.length > 0) {
-        timelineContent += sortedUpdates.map((u, i) => 
+        timelineContent += sortedUpdates.map((u, i) =>
           `${i + 1}. [${formatDateWIB(u.timestamp)}] ${u.message}`
         ).join('\n');
       } else {
@@ -269,10 +269,10 @@ const AllTickets = () => {
       return `${index + 1}. ${header}${timelineContent}`;
     });
 
-    const fullMessage = messages.join('\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n\n');  
+    const fullMessage = messages.join('\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n\n');
 
     navigator.clipboard.writeText(fullMessage);
-    
+
     toast({
       title: "Berhasil Disalin",
       description: `${sortedTickets.length} tiket telah disalin ke clipboard.`,
@@ -294,7 +294,7 @@ const AllTickets = () => {
     setTimFilter('ALL');
     setCreatorFilter('ALL');
     setDateRange({ from: undefined, to: undefined });
-    setSortBy('newest'); 
+    setSortBy('newest');
   };
 
   const handlePresetRange = (days: number) => {
@@ -304,8 +304,8 @@ const AllTickets = () => {
     });
   };
 
-  const activeFiltersCount = 
-    (statusFilter !== 'ALL' ? 1 : 0) + 
+  const activeFiltersCount =
+    (statusFilter !== 'ALL' ? 1 : 0) +
     (gaulFilter !== 'ALL' ? 1 : 0) +
     (complianceFilter !== 'ALL' ? 1 : 0) +
     (distrikFilter !== 'ALL' ? 1 : 0) +
@@ -318,7 +318,7 @@ const AllTickets = () => {
     (timFilter !== 'ALL' ? 1 : 0) +
     (creatorFilter !== 'ALL' ? 1 : 0) +
     (dateRange.from || dateRange.to ? 1 : 0);
-  
+
   const getDisplayLabel = (val: string) => {
     if (val === 'newest') return 'Terbaru';
     if (val === 'oldest') return 'Terlama';
@@ -326,16 +326,16 @@ const AllTickets = () => {
     return val;
   };
 
-  const FilterSelect = ({ 
-    label, 
-    value, 
-    onValueChange, 
-    options, 
+  const FilterSelect = ({
+    label,
+    value,
+    onValueChange,
+    options,
     placeholder,
-  }: { 
+  }: {
     label: string;
-    value: string; 
-    onValueChange: (val: string) => void; 
+    value: string;
+    onValueChange: (val: string) => void;
     options: string[];
     placeholder: string;
     allLabel?: string;
@@ -361,7 +361,7 @@ const AllTickets = () => {
     <Layout>
       <SEO title="Semua Tiket" description="Daftar seluruh tiket gangguan Telkom Infra." />
       <div className="space-y-4 md:space-y-6 pb-8">
-        <motion.div 
+        <motion.div
           className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -381,7 +381,7 @@ const AllTickets = () => {
               </motion.span>
               {' '}dari {allTickets.length} tiket
               {activeFiltersCount > 0 && (
-                <motion.span 
+                <motion.span
                   className="text-primary"
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -392,34 +392,34 @@ const AllTickets = () => {
             </p>
           </div>
 
-          <motion.div 
+          <motion.div
             className="hidden md:flex items-center gap-2"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4, delay: 0.1 }}
           >
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="gap-2 h-9 mr-2" 
-              onClick={handleRefresh} 
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 h-9 mr-2"
+              onClick={handleRefresh}
               disabled={isRefreshing || isLoading}
             >
               <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
               <span>Refresh</span>
             </Button>
 
-            <Button 
+            <Button
               variant="whatsapp"
-              size="sm" 
-              className="gap-2 h-9 mr-2" 
+              size="sm"
+              className="gap-2 h-9 mr-2"
               onClick={handleCopyPageTickets}
               disabled={sortedTickets.length === 0}
             >
               <Copy className="w-4 h-4" />
               <span>Copy Pesan WA</span>
             </Button>
-            
+
             <span className="text-sm text-muted-foreground">Urutkan:</span>
             <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-[160px] transition-all duration-200 hover:border-primary/50">
@@ -434,7 +434,7 @@ const AllTickets = () => {
           </motion.div>
         </motion.div>
 
-        <motion.div 
+        <motion.div
           className="flex flex-col gap-3"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -507,7 +507,7 @@ const AllTickets = () => {
                     options={['newest', 'oldest', 'ttr']}
                     placeholder="Urutkan"
                   />
-                  
+
                   <Separator />
 
                   <div className="space-y-2">
@@ -658,9 +658,9 @@ const AllTickets = () => {
                     <div className="flex gap-2 flex-wrap">
                       {[7, 14, 30].map((days) => (
                         <motion.div key={days} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
+                          <Button
+                            variant="outline"
+                            size="sm"
                             onClick={() => handlePresetRange(days)}
                             className="text-xs transition-all duration-200 hover:border-primary/50 hover:bg-primary/5"
                           >
@@ -741,7 +741,7 @@ const AllTickets = () => {
             </Sheet>
           </div>
 
-          <motion.div 
+          <motion.div
             className="hidden md:flex items-center gap-2 flex-wrap"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -787,7 +787,7 @@ const AllTickets = () => {
               onValueChange={setDistrikFilter}
               options={filterOptions.distriks}
               placeholder="Distrik"
-              className="w-[120px]" 
+              className="w-[120px]"
             />
 
             <Select value={jarakFilter} onValueChange={setJarakFilter}>
@@ -809,7 +809,7 @@ const AllTickets = () => {
               onValueChange={setProviderFilter}
               options={filterOptions.providers}
               placeholder="Pelanggan"
-              className="w-[120px]" 
+              className="w-[120px]"
             />
 
             <FilterCombobox
@@ -925,9 +925,9 @@ const AllTickets = () => {
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
                       >
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           className="w-full hover:bg-destructive/10 hover:text-destructive transition-colors duration-200"
                           onClick={() => setDateRange({ from: undefined, to: undefined })}
                         >
@@ -962,7 +962,7 @@ const AllTickets = () => {
 
         <AnimatePresence>
           {activeFiltersCount > 0 && (
-            <motion.div 
+            <motion.div
               className="flex flex-wrap gap-2 md:hidden"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
@@ -977,8 +977,8 @@ const AllTickets = () => {
                 >
                   <Badge variant="secondary" className="gap-1 cursor-pointer hover:bg-destructive/20 transition-colors duration-200">
                     {getStatusLabel(statusFilter as TicketStatus)}
-                    <X 
-                      className="w-3 h-3" 
+                    <X
+                      className="w-3 h-3"
                       onClick={() => setStatusFilter('ALL')}
                     />
                   </Badge>
@@ -994,8 +994,8 @@ const AllTickets = () => {
                   <Badge variant="secondary" className="gap-1 cursor-pointer hover:bg-destructive/20 transition-colors duration-200">
                     <Flame className="w-3 h-3 text-orange-500" />
                     GAUL
-                    <X 
-                      className="w-3 h-3" 
+                    <X
+                      className="w-3 h-3"
                       onClick={() => setGaulFilter('ALL')}
                     />
                   </Badge>
@@ -1010,8 +1010,8 @@ const AllTickets = () => {
                 >
                   <Badge variant="secondary" className="gap-1 cursor-pointer hover:bg-destructive/20 transition-colors duration-200">
                     {complianceFilter}
-                    <X 
-                      className="w-3 h-3" 
+                    <X
+                      className="w-3 h-3"
                       onClick={() => setComplianceFilter('ALL')}
                     />
                   </Badge>
@@ -1026,8 +1026,8 @@ const AllTickets = () => {
                 >
                   <Badge variant="secondary" className="gap-1 cursor-pointer hover:bg-destructive/20 transition-colors duration-200">
                     {jarakFilter}
-                    <X 
-                      className="w-3 h-3" 
+                    <X
+                      className="w-3 h-3"
                       onClick={() => setJarakFilter('ALL')}
                     />
                   </Badge>
@@ -1042,8 +1042,8 @@ const AllTickets = () => {
                 >
                   <Badge variant="secondary" className="gap-1 cursor-pointer hover:bg-destructive/20 transition-colors duration-200">
                     {providerFilter}
-                    <X 
-                      className="w-3 h-3" 
+                    <X
+                      className="w-3 h-3"
                       onClick={() => setProviderFilter('ALL')}
                     />
                   </Badge>
@@ -1058,8 +1058,8 @@ const AllTickets = () => {
                 >
                   <Badge variant="secondary" className="gap-1 cursor-pointer hover:bg-destructive/20 transition-colors duration-200">
                     {kategoriFilter}
-                    <X 
-                      className="w-3 h-3" 
+                    <X
+                      className="w-3 h-3"
                       onClick={() => setKategoriFilter('ALL')}
                     />
                   </Badge>
@@ -1074,8 +1074,8 @@ const AllTickets = () => {
                 >
                   <Badge variant="secondary" className="gap-1 cursor-pointer hover:bg-destructive/20 transition-colors duration-200">
                     {timFilter}
-                    <X 
-                      className="w-3 h-3" 
+                    <X
+                      className="w-3 h-3"
                       onClick={() => setTimFilter('ALL')}
                     />
                   </Badge>
@@ -1090,8 +1090,8 @@ const AllTickets = () => {
                 >
                   <Badge variant="secondary" className="gap-1 cursor-pointer hover:bg-destructive/20 transition-colors duration-200">
                     {creatorFilter}
-                    <X 
-                      className="w-3 h-3" 
+                    <X
+                      className="w-3 h-3"
                       onClick={() => setCreatorFilter('ALL')}
                     />
                   </Badge>
@@ -1106,8 +1106,8 @@ const AllTickets = () => {
                 >
                   <Badge variant="secondary" className="gap-1 cursor-pointer hover:bg-destructive/20 transition-colors duration-200">
                     {siteFilter}
-                    <X 
-                      className="w-3 h-3" 
+                    <X
+                      className="w-3 h-3"
                       onClick={() => setSiteFilter('ALL')}
                     />
                   </Badge>
@@ -1122,8 +1122,8 @@ const AllTickets = () => {
                 >
                   <Badge variant="secondary" className="gap-1 cursor-pointer hover:bg-destructive/20 transition-colors duration-200">
                     <span className="truncate max-w-[150px]">{siteNameFilter}</span>
-                    <X 
-                      className="w-3 h-3 flex-shrink-0" 
+                    <X
+                      className="w-3 h-3 flex-shrink-0"
                       onClick={() => setSiteNameFilter('ALL')}
                     />
                   </Badge>
@@ -1138,8 +1138,8 @@ const AllTickets = () => {
                 >
                   <Badge variant="secondary" className="gap-1 cursor-pointer hover:bg-destructive/20 transition-colors duration-200">
                     {datekFilter}
-                    <X 
-                      className="w-3 h-3" 
+                    <X
+                      className="w-3 h-3"
                       onClick={() => setDatekFilter('ALL')}
                     />
                   </Badge>
@@ -1156,8 +1156,8 @@ const AllTickets = () => {
                     {dateRange.from && format(dateRange.from, "dd/MM", { locale: id })}
                     {dateRange.from && dateRange.to && " - "}
                     {dateRange.to && format(dateRange.to, "dd/MM", { locale: id })}
-                    <X 
-                      className="w-3 h-3" 
+                    <X
+                      className="w-3 h-3"
                       onClick={() => setDateRange({ from: undefined, to: undefined })}
                     />
                   </Badge>
@@ -1171,18 +1171,18 @@ const AllTickets = () => {
           {isLoading ? (
             <TicketCardSkeleton count={5} />
           ) : sortedTickets.length === 0 ? (
-            <motion.div 
+            <motion.div
               className="text-center py-16 text-muted-foreground bg-muted/30 rounded-xl border border-dashed border-border"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.4 }}
             >
               <motion.div
-                animate={{ 
+                animate={{
                   rotate: [0, 10, -10, 0],
                   scale: [1, 1.1, 1]
                 }}
-                transition={{ 
+                transition={{
                   duration: 2,
                   repeat: Infinity,
                   repeatDelay: 3
@@ -1201,7 +1201,7 @@ const AllTickets = () => {
             </motion.div>
           ) : (
             <>
-              
+
               <motion.div
                 variants={containerVariants}
                 initial="hidden"
@@ -1213,9 +1213,9 @@ const AllTickets = () => {
                     const isGaul = checkIsGaul(ticket, allTickets);
 
                     return (
-                      <TicketCard 
+                      <TicketCard
                         key={ticket.id}
-                        ticket={ticket} 
+                        ticket={ticket}
                         isGaul={isGaul}
                       />
                     );
@@ -1223,23 +1223,23 @@ const AllTickets = () => {
                 </AnimatePresence>
               </motion.div>
 
-              
+
               {totalPages > 1 && (
                 <div className="flex justify-center mt-6 pt-2 w-full overflow-x-auto pb-2 sm:pb-0">
                   <Pagination>
                     <PaginationContent>
                       <PaginationItem>
-                        <PaginationPrevious 
+                        <PaginationPrevious
                           onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                           className={cn(
-                            "cursor-pointer select-none", 
+                            "cursor-pointer select-none",
                             "pl-2.5 sm:pl-4",
                             "[&>span]:hidden [&>span]:sm:inline",
                             currentPage === 1 && "pointer-events-none opacity-50"
-                          )} 
+                          )}
                         />
                       </PaginationItem>
-                      
+
                       {Array.from({ length: totalPages }).map((_, i) => {
                         const pageNumber = i + 1;
                         if (
@@ -1272,10 +1272,10 @@ const AllTickets = () => {
                       })}
 
                       <PaginationItem>
-                        <PaginationNext 
+                        <PaginationNext
                           onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                           className={cn(
-                            "cursor-pointer select-none", 
+                            "cursor-pointer select-none",
                             "pr-2.5 sm:pr-4",
                             "[&>span]:hidden [&>span]:sm:inline",
                             currentPage === totalPages && "pointer-events-none opacity-50"

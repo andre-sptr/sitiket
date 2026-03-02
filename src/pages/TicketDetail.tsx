@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -28,12 +28,12 @@ import { useTicket, useDeleteTicket, useAddProgressUpdate, useTickets } from '@/
 import { mapDbTicketToTicket } from '@/lib/ticketMappers';
 import { formatDateWIB, generateWhatsAppMessage, generateGoogleMapsLink, formatTTR } from '@/lib/formatters';
 import { TicketStatus, TTRCompliance, Ticket } from '@/types/ticket';
-import { 
-  ArrowLeft, 
-  MapPin, 
-  Clock, 
-  User, 
-  Copy, 
+import {
+  ArrowLeft,
+  MapPin,
+  Clock,
+  User,
+  Copy,
   FileText,
   Send,
   Phone,
@@ -83,17 +83,17 @@ import { useTeknisi } from '@/hooks/useTeknisi';
 
 const getGaulCount = (currentTicket: Ticket, allTickets: Ticket[]) => {
   if (!currentTicket || !allTickets) return 0;
-  
+
   const gaulTickets = allTickets.filter(otherTicket => {
     const isSameSite = currentTicket.siteCode === otherTicket.siteCode;
     if (!isSameSite) return false;
-    
+
     const currentTicketDate = new Date(currentTicket.jamOpen).getTime();
     const otherTicketDate = new Date(otherTicket.jamOpen).getTime();
 
     const diffTime = Math.abs(currentTicketDate - otherTicketDate);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-    
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
     return otherTicketDate <= currentTicketDate && diffDays <= 30;
   });
 
@@ -148,7 +148,7 @@ const TTRCountdown = ({ targetDate, status }: { targetDate: Date | string, statu
       const now = new Date().getTime();
       const target = new Date(targetDate).getTime();
       const diff = target - now;
-      const isLate = diff < 0; 
+      const isLate = diff < 0;
 
       const duration = Math.abs(diff);
       const days = Math.floor(duration / (1000 * 60 * 60 * 24));
@@ -157,7 +157,7 @@ const TTRCountdown = ({ targetDate, status }: { targetDate: Date | string, statu
       const seconds = Math.floor((duration % (1000 * 60)) / 1000);
 
       let timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-      
+
       if (days > 0) {
         timeString = `${days}h ${timeString}`;
       }
@@ -165,22 +165,22 @@ const TTRCountdown = ({ targetDate, status }: { targetDate: Date | string, statu
       const totalHours = days * 24 + hours + minutes / 60;
       const percent = isLate ? 0 : Math.min(100, (totalHours / 4) * 100);
 
-      setTimeState({ 
-        display: timeString, 
-        isOverdue: isLate, 
+      setTimeState({
+        display: timeString,
+        isOverdue: isLate,
         isClosed: false,
         percent
       });
     };
 
     calculateTime();
-    const interval = setInterval(calculateTime, 1000); 
+    const interval = setInterval(calculateTime, 1000);
 
     return () => clearInterval(interval);
   }, [targetDate, status]);
 
   return (
-    <motion.div 
+    <motion.div
       className="relative"
       initial={{ scale: 0.9, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
@@ -188,28 +188,28 @@ const TTRCountdown = ({ targetDate, status }: { targetDate: Date | string, statu
     >
       <div className={`
         relative overflow-hidden rounded-xl p-4 
-        ${timeState.isClosed 
-          ? 'bg-muted/50 border border-border' 
-          : timeState.isOverdue 
-            ? 'bg-gradient-to-br from-destructive/10 to-destructive/5 border border-destructive/30' 
+        ${timeState.isClosed
+          ? 'bg-muted/50 border border-border'
+          : timeState.isOverdue
+            ? 'bg-gradient-to-br from-destructive/10 to-destructive/5 border border-destructive/30'
             : 'bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/30'
         }
       `}>
         {!timeState.isClosed && !timeState.isOverdue && (
-          <motion.div 
+          <motion.div
             className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
             animate={{ x: ['-100%', '100%'] }}
             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
           />
         )}
-        
+
         <div className="relative z-10 flex items-center gap-3">
           <div className={`
             p-2 rounded-lg 
-            ${timeState.isClosed 
-              ? 'bg-muted text-muted-foreground' 
-              : timeState.isOverdue 
-                ? 'bg-destructive/20 text-destructive' 
+            ${timeState.isClosed
+              ? 'bg-muted text-muted-foreground'
+              : timeState.isOverdue
+                ? 'bg-destructive/20 text-destructive'
                 : 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
             }
           `}>
@@ -221,17 +221,17 @@ const TTRCountdown = ({ targetDate, status }: { targetDate: Date | string, statu
               <Timer className="w-5 h-5" />
             )}
           </div>
-          
+
           <div className="flex-1">
             <p className="text-xs text-muted-foreground mb-0.5">
               {timeState.isClosed ? 'Status' : timeState.isOverdue ? 'Overdue' : 'Sisa Waktu'}
             </p>
             <p className={`
               font-mono text-lg font-bold tracking-tight
-              ${timeState.isClosed 
-                ? 'text-muted-foreground' 
-                : timeState.isOverdue 
-                  ? 'text-destructive' 
+              ${timeState.isClosed
+                ? 'text-muted-foreground'
+                : timeState.isOverdue
+                  ? 'text-destructive'
                   : 'text-emerald-600 dark:text-emerald-400'
               }
             `}>
@@ -321,16 +321,16 @@ const TicketDetail = () => {
 
   const displayStatus = useMemo(() => {
     if (!ticket) return 'OPEN';
-  
+
     if (ticket.status !== 'TEMPORARY') {
       return ticket.status;
     }
 
     if (ticket.progressUpdates && ticket.progressUpdates.length > 0) {
-      const sortedUpdates = [...ticket.progressUpdates].sort((a, b) => 
+      const sortedUpdates = [...ticket.progressUpdates].sort((a, b) =>
         new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
       );
-      const lastValidUpdate = sortedUpdates.find(u => 
+      const lastValidUpdate = sortedUpdates.find(u =>
         u.statusAfterUpdate && u.statusAfterUpdate !== 'TEMPORARY'
       );
 
@@ -373,7 +373,7 @@ const TicketDetail = () => {
   if (!ticket) {
     return (
       <Layout>
-        <motion.div 
+        <motion.div
           className="text-center py-16"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -415,7 +415,7 @@ const TicketDetail = () => {
     if (!ticket) return;
 
     const header = generateWhatsAppMessage('share', ticket);
-    const sortedUpdates = [...(ticket.progressUpdates || [])].sort((a, b) => 
+    const sortedUpdates = [...(ticket.progressUpdates || [])].sort((a, b) =>
       new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
     );
 
@@ -431,7 +431,7 @@ const TicketDetail = () => {
       }
     } else {
       if (sortedUpdates.length > 0) {
-        content += sortedUpdates.map((u, i) => 
+        content += sortedUpdates.map((u, i) =>
           `${i + 1}. [${formatDateWIB(u.timestamp)}] ${u.message}`
         ).join('\n');
       } else {
@@ -440,7 +440,7 @@ const TicketDetail = () => {
     }
 
     const fullMessage = `${header}${content}`;
-    
+
     navigator.clipboard.writeText(fullMessage);
     toast({
       title: type === 'latest' ? "Update Terbaru Disalin" : "Semua Progress Disalin",
@@ -464,7 +464,7 @@ const TicketDetail = () => {
       await addProgressUpdate.mutateAsync({
         ticket_id: ticket.id,
         message: updateMessage,
-        status_after_update: updateStatus || null, 
+        status_after_update: updateStatus || null,
         source: 'HD',
         created_by: user.id,
       });
@@ -473,10 +473,10 @@ const TicketDetail = () => {
         title: "Update Berhasil",
         description: "Progress update telah ditambahkan ke timeline",
       });
-      
+
       setUpdateMessage('');
       setUpdateStatus('');
-      
+
     } catch (error) {
       console.error('Gagal update:', error);
       toast({
@@ -490,12 +490,12 @@ const TicketDetail = () => {
   return (
     <Layout>
       {ticket && (
-        <SEO 
+        <SEO
           title={`${isMTC ? (ticket.incGamas || '-') : ticket.incNumbers.join(', ')}`}
-          description={`Detail tiket gangguan di ${ticket.siteName}. Status: ${ticket.status}`} 
+          description={`Detail tiket gangguan di ${ticket.siteName}. Status: ${ticket.status}`}
         />
       )}
-      <motion.div 
+      <motion.div
         className="space-y-6"
         variants={containerVariants}
         initial="hidden"
@@ -503,19 +503,19 @@ const TicketDetail = () => {
       >
         <motion.div variants={itemVariants} className="flex items-start gap-4">
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => navigate('/tickets')}
               className="rounded-xl bg-muted/50 hover:bg-muted"
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
           </motion.div>
-          
+
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap mb-2">
-              <motion.span 
+              <motion.span
                 className="font-mono text-sm px-2 py-1 rounded-md bg-muted/50 text-muted-foreground"
                 whileHover={{ scale: 1.02 }}
               >
@@ -529,11 +529,11 @@ const TicketDetail = () => {
                 </Badge>
               )}
             </div>
-            
+
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
               {ticket.lokasiText}
             </h1>
-            
+
             <div className="flex items-center gap-2 mt-3 flex-wrap">
               <Badge variant="outline" className="rounded-full px-3">
                 {ticket.kategori}
@@ -547,9 +547,9 @@ const TicketDetail = () => {
             {!isAdmin && (
               <>
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Button 
-                    size="sm" 
-                    className="gap-2 rounded-xl shadow-lg shadow-primary/20" 
+                  <Button
+                    size="sm"
+                    className="gap-2 rounded-xl shadow-lg shadow-primary/20"
                     onClick={() => navigate(`/ticket/${id}/update`)}
                   >
                     <FileText className="w-4 h-4" />
@@ -557,9 +557,9 @@ const TicketDetail = () => {
                   </Button>
                 </motion.div>
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Button 
-                    size="sm" 
-                    className="gap-2 rounded-xl shadow-lg shadow-primary/20" 
+                  <Button
+                    size="sm"
+                    className="gap-2 rounded-xl shadow-lg shadow-primary/20"
                     onClick={() => navigate(`/ticket/${id}/edit-data`)}
                   >
                     <Pencil className="w-4 h-4" />
@@ -588,7 +588,7 @@ const TicketDetail = () => {
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel className="rounded-xl">Batal</AlertDialogCancel>
-                    <AlertDialogAction 
+                    <AlertDialogAction
                       onClick={handleDelete}
                       className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl"
                     >
@@ -598,7 +598,7 @@ const TicketDetail = () => {
                 </AlertDialogContent>
               </AlertDialog>
             )}
-            
+
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="ml-auto">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -635,7 +635,7 @@ const TicketDetail = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <TTRCountdown targetDate={ticket.maxJamClose} status={ticket.status} />
-                  
+
                   <div className="grid grid-cols-2 gap-3">
                     <div className="p-3 rounded-xl bg-muted/30">
                       <p className="text-xs text-muted-foreground mb-1">Jam Open</p>
@@ -646,7 +646,7 @@ const TicketDetail = () => {
                       <p className="font-mono text-xs font-medium">{formatDateWIB(ticket.maxJamClose)}</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center justify-between p-3 rounded-xl bg-primary/5 border border-primary/10">
                     <span className="text-sm text-muted-foreground">Target TTR</span>
                     <span className="font-bold text-primary">{formatTTR(ticket.ttrTargetHours)}</span>
@@ -675,7 +675,7 @@ const TicketDetail = () => {
                       <span className="text-sm text-muted-foreground">Status Compliance</span>
                       <ComplianceBadge compliance={currentCompliance} />
                     </div>
-                    
+
                     {ticket.ttrCompliance === 'NOT COMPLY' && (
                       <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/20 mt-3">
                         <p className="text-xs text-destructive font-semibold mb-1 flex items-center gap-1">
@@ -691,7 +691,7 @@ const TicketDetail = () => {
                 </CardContent>
               </Card>
             </motion.div>
-            
+
             {isMTC ? (
               <motion.div variants={containerVariants} className="lg:col-span-1 space-y-4">
                 <motion.div variants={cardVariants}>
@@ -708,7 +708,7 @@ const TicketDetail = () => {
                           <User className="w-3 h-3 text-muted-foreground" />
                           <p className="text-xs text-muted-foreground tracking-wider">Mitra</p>
                         </div>
-                        
+
                         {ticket.teknisiList && ticket.teknisiList.length > 0 ? (
                           <div className="space-y-2">
                             {ticket.teknisiList.map((name, i) => {
@@ -720,20 +720,20 @@ const TicketDetail = () => {
                                   <span className="text-sm font-medium break-words">{name}</span>
                                   {phoneNumber && (
                                     <div className="flex items-center gap-1 shrink-0">
-                                      <Button 
-                                        variant="ghost" 
-                                        size="icon" 
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
                                         className="h-6 w-6 rounded-full text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
                                         onClick={() => handleWhatsApp(phoneNumber)}
                                         title="Chat WhatsApp"
                                       >
                                         <svg viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
-                                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.008-.57-.008-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.008-.57-.008-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
                                         </svg>
                                       </Button>
-                                      <Button 
-                                        variant="ghost" 
-                                        size="icon" 
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
                                         className="h-6 w-6 rounded-full text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30"
                                         onClick={() => handleCall(phoneNumber)}
                                         title="Panggilan Telepon"
@@ -834,28 +834,28 @@ const TicketDetail = () => {
 
                       <div className="p-3 rounded-xl bg-muted/30">
                         <div className="flex items-center gap-2 mb-1">
-                            <CheckSquare className="w-3 h-3 text-muted-foreground" />
-                            <p className="text-xs text-muted-foreground">TACC</p>
+                          <CheckSquare className="w-3 h-3 text-muted-foreground" />
+                          <p className="text-xs text-muted-foreground">TACC</p>
                         </div>
                         <p className="text-sm font-medium">{ticket.tacc || '-'}</p>
                       </div>
 
                       <div className="p-3 rounded-xl bg-muted/30 flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <Wrench className="w-3 h-3 text-muted-foreground" />
-                            <span className="text-xs text-muted-foreground">Sifat Perbaikan</span>
+                          <Wrench className="w-3 h-3 text-muted-foreground" />
+                          <span className="text-xs text-muted-foreground">Sifat Perbaikan</span>
                         </div>
                         {ticket.isPermanent === null ? (
-                            <Badge variant="outline" className="bg-background/50">
-                              -
-                            </Badge>
+                          <Badge variant="outline" className="bg-background/50">
+                            -
+                          </Badge>
                         ) : (
-                            <Badge 
-                              variant={ticket.isPermanent ? "default" : "secondary"}
-                              className={`${ticket.isPermanent ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-orange-500 hover:bg-orange-600 text-white'}`}
-                            >
-                              {ticket.isPermanent ? 'PERMANEN' : 'TEMPORARY'}
-                            </Badge>
+                          <Badge
+                            variant={ticket.isPermanent ? "default" : "secondary"}
+                            className={`${ticket.isPermanent ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-orange-500 hover:bg-orange-600 text-white'}`}
+                          >
+                            {ticket.isPermanent ? 'PERMANEN' : 'TEMPORARY'}
+                          </Badge>
                         )}
                       </div>
 
@@ -914,7 +914,7 @@ const TicketDetail = () => {
                           </div>
                           <p className="text-sm font-medium">{ticket.losNonLos || '-'}</p>
                         </div>
-                        
+
                         <div className="p-3 rounded-xl bg-muted/30">
                           <div className="flex items-center gap-2 mb-1">
                             <Globe className="w-3 h-3 text-muted-foreground" />
@@ -947,22 +947,22 @@ const TicketDetail = () => {
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <p className="text-sm">{ticket.hsa} - {ticket.lokasiText}</p>
-                      
+
                       {ticket.latitude && ticket.longitude && (
                         <>
                           <p className="text-xs font-mono text-muted-foreground bg-muted/30 px-3 py-2 rounded-lg">
                             {ticket.latitude}, {ticket.longitude}
                           </p>
                           <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
+                            <Button
+                              variant="outline"
+                              size="sm"
                               className="w-full gap-2 rounded-xl group"
                               asChild
                             >
-                              <a 
-                                href={generateGoogleMapsLink(ticket.latitude, ticket.longitude)} 
-                                target="_blank" 
+                              <a
+                                href={generateGoogleMapsLink(ticket.latitude, ticket.longitude)}
+                                target="_blank"
                                 rel="noopener noreferrer"
                               >
                                 <Navigation className="w-4 h-4 group-hover:text-primary transition-colors" />
@@ -973,7 +973,7 @@ const TicketDetail = () => {
                           </motion.div>
                         </>
                       )}
-                      
+
                       {ticket.jarakKmRange && (
                         <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30">
                           <span className="text-sm text-muted-foreground">Jarak</span>
@@ -1000,7 +1000,7 @@ const TicketDetail = () => {
                         </div>
                         <p className="text-sm font-medium">{ticket.tim || '-'}</p>
                       </div>
-                      
+
                       {ticket.teknisiList && ticket.teknisiList.length > 0 ? (
                         <div className="space-y-2">
                           {ticket.teknisiList.map((name, i) => {
@@ -1010,8 +1010,8 @@ const TicketDetail = () => {
                             const jobdesk = teknisiData?.jobdesk;
 
                             return (
-                              <motion.div 
-                                key={i} 
+                              <motion.div
+                                key={i}
                                 className="flex items-center justify-between p-3 rounded-xl bg-muted/30 group"
                                 whileHover={{ scale: 1.01, backgroundColor: 'hsl(var(--muted) / 0.5)' }}
                               >
@@ -1043,28 +1043,28 @@ const TicketDetail = () => {
                                     )}
                                   </div>
                                 </div>
-                                
+
                                 <div className="flex items-center gap-1 flex-shrink-0">
                                   {phoneNumber && (
                                     <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                                      <Button 
-                                        variant="ghost" 
-                                        size="icon" 
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
                                         className="h-8 w-8 rounded-full text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
                                         onClick={() => handleWhatsApp(phoneNumber)}
                                         title="Chat WhatsApp"
                                       >
                                         <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-                                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.008-.57-.008-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.008-.57-.008-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
                                         </svg>
                                       </Button>
                                     </motion.div>
                                   )}
 
                                   <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                                    <Button 
-                                      variant="ghost" 
-                                      size="icon" 
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
                                       className={`h-8 w-8 rounded-full ${phoneNumber ? 'text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30' : 'opacity-30 cursor-not-allowed'}`}
                                       onClick={() => phoneNumber && handleCall(phoneNumber)}
                                       disabled={!phoneNumber}
@@ -1106,7 +1106,7 @@ const TicketDetail = () => {
                   <CardContent className="space-y-4">
                     <Select value={updateStatus} onValueChange={(v) => setUpdateStatus(v as TicketStatus)}>
                       <SelectTrigger className="rounded-xl">
-                        <SelectValue placeholder="Status baru"/>
+                        <SelectValue placeholder="Status baru" />
                       </SelectTrigger>
                       <SelectContent className="rounded-xl">
                         <SelectItem value="ONPROGRESS">On Progress</SelectItem>
@@ -1117,22 +1117,22 @@ const TicketDetail = () => {
                         <SelectItem value="CLOSED">Closed</SelectItem>
                       </SelectContent>
                     </Select>
-                    
+
                     <Textarea
                       placeholder="Tulis update progress..."
                       value={updateMessage}
                       onChange={(e) => setUpdateMessage(e.target.value)}
                       className="min-h-[120px] resize-none rounded-xl"
                     />
-                    
+
                     <div className="flex justify-end gap-2">
-                      <motion.div 
-                        whileHover={{ scale: addProgressUpdate.isPending ? 1 : 1.02 }} 
+                      <motion.div
+                        whileHover={{ scale: addProgressUpdate.isPending ? 1 : 1.02 }}
                         whileTap={{ scale: addProgressUpdate.isPending ? 1 : 0.98 }}
                       >
-                        <Button 
-                          size="sm" 
-                          onClick={handleSubmitUpdate} 
+                        <Button
+                          size="sm"
+                          onClick={handleSubmitUpdate}
                           disabled={addProgressUpdate.isPending}
                           className="rounded-xl shadow-lg shadow-primary/20"
                         >
@@ -1236,31 +1236,31 @@ const TicketDetail = () => {
                         <p className="text-sm font-medium">{ticket.perbaikan}</p>
                       </div>
                     )}
-                    {(ticket.latitude && ticket.longitude)  && (
+                    {(ticket.latitude && ticket.longitude) && (
                       <div className="p-3 rounded-xl bg-muted/30">
                         <p className="text-xs text-muted-foreground mb-1">Koordinat Tipus</p>
                         <p className="text-sm font-medium">{ticket.latitude}, {ticket.longitude}</p>
                       </div>
                     )}
-                    {ticket.kendala  && (
+                    {ticket.kendala && (
                       <div className="p-3 rounded-xl bg-muted/30">
                         <p className="text-xs text-muted-foreground mb-1">Kendala</p>
                         <p className="text-sm font-medium">{ticket.kendala}</p>
                       </div>
                     )}
-                    {ticket.statusAlatBerat  && (
+                    {ticket.statusAlatBerat && (
                       <div className="p-3 rounded-xl bg-muted/30">
                         <p className="text-xs text-muted-foreground mb-1">Status Alat Berat</p>
                         <p className="text-sm font-medium">{ticket.statusAlatBerat}</p>
                       </div>
                     )}
-                    {ticket.atbt  && (
+                    {ticket.atbt && (
                       <div className="p-3 rounded-xl bg-muted/30">
                         <p className="text-xs text-muted-foreground mb-1">ATBT</p>
                         <p className="text-sm font-medium">{ticket.atbt}</p>
                       </div>
                     )}
-                    {ticket.tiketEksternal  && (
+                    {ticket.tiketEksternal && (
                       <div className="p-3 rounded-xl bg-muted/30">
                         <p className="text-xs text-muted-foreground mb-1">Tiket Eksternal</p>
                         <p className="text-sm font-medium">{ticket.tiketEksternal}</p>

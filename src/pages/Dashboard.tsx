@@ -10,10 +10,10 @@ import { useTodayTickets, useDashboardStats, useActiveTickets, useTickets } from
 import { mapDbTicketToTicket } from '@/lib/ticketMappers';
 import { getSettings, isDueSoon as checkIsDueSoon } from '@/hooks/useSettings';
 import { generateWhatsAppMessage, formatDateWIB } from '@/lib/formatters';
-import { 
-  Ticket as TicketIcon, 
-  Clock, 
-  AlertTriangle, 
+import {
+  Ticket as TicketIcon,
+  Clock,
+  AlertTriangle,
   CheckCircle2,
   Percent,
   Plus,
@@ -87,7 +87,7 @@ const Dashboard = () => {
   const paginatedTickets = sortedTickets.slice(startIndex, startIndex + itemsPerPage);
 
   const overdueTickets = todayTickets.filter(t => t.sisaTtrHours < 0 && t.status !== 'CLOSED');
-  const dueSoonTickets = todayTickets.filter(t => 
+  const dueSoonTickets = todayTickets.filter(t =>
     checkIsDueSoon(t.sisaTtrHours, settings.ttrThresholds) && t.status !== 'CLOSED'
   );
   const unassignedTickets = todayTickets.filter(t => t.status === 'OPEN');
@@ -102,7 +102,7 @@ const Dashboard = () => {
       return techs;
     });
 
-  const uniqueBusyTechs = [...new Set(allBusyTechs)]; 
+  const uniqueBusyTechs = [...new Set(allBusyTechs)];
 
   const idleTechnicians = activeTeknisi
     .filter((tek) => !uniqueBusyTechs.includes(tek.name))
@@ -150,14 +150,14 @@ const Dashboard = () => {
 
     const messages = sortedTickets.map((ticket, index) => {
       const header = generateWhatsAppMessage('share', ticket);
-      const sortedUpdates = [...(ticket.progressUpdates || [])].sort((a, b) => 
+      const sortedUpdates = [...(ticket.progressUpdates || [])].sort((a, b) =>
         new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
       );
 
       let timelineContent = "\n\n*Timeline Progress:*\n";
 
       if (sortedUpdates.length > 0) {
-        timelineContent += sortedUpdates.map((u, i) => 
+        timelineContent += sortedUpdates.map((u, i) =>
           `${i + 1}. [${formatDateWIB(u.timestamp)}] ${u.message}`
         ).join('\n');
       } else {
@@ -166,10 +166,10 @@ const Dashboard = () => {
       return `${index + 1}. ${header}${timelineContent}`;
     });
 
-    const fullMessage = messages.join('\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n\n');  
+    const fullMessage = messages.join('\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n\n');
 
     navigator.clipboard.writeText(fullMessage);
-    
+
     toast({
       title: "Berhasil Disalin",
       description: `${sortedTickets.length} tiket hari ini telah disalin ke clipboard.`,
@@ -188,11 +188,11 @@ const Dashboard = () => {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="gap-2 h-9" 
-              onClick={handleRefresh} 
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 h-9"
+              onClick={handleRefresh}
               disabled={isRefreshing || isLoading}
             >
               <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
@@ -291,20 +291,20 @@ const Dashboard = () => {
                   </span>
                   Teknisi Standby
                 </div>
-                <div className="h-4 w-px bg-border mx-1" /> 
+                <div className="h-4 w-px bg-border mx-1" />
                 <span className="text-xs text-muted-foreground font-normal">
                   <strong className="text-foreground font-semibold">{idleInternalCount}</strong>
                   <span className="mx-1">dari</span>
                   {totalInternalCount} teknisi
                 </span>
-                <div className="h-4 w-px bg-border mx-1" /> 
+                <div className="h-4 w-px bg-border mx-1" />
                 <span className="text-xs text-muted-foreground font-normal">
                   <strong className="text-foreground font-semibold">{idleMitraCount}</strong>
                   <span className="mx-1">dari</span>
                   {totalMitraCount} mitra
                 </span>
               </CardTitle>
-              
+
               <div className="relative w-full sm:w-64">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -321,8 +321,8 @@ const Dashboard = () => {
               <ScrollArea className="h-[200px] w-full pr-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                   {idleTechnicians.map((tech) => (
-                    <div 
-                      key={tech.id} 
+                    <div
+                      key={tech.id}
                       className="flex items-center gap-3 p-2 rounded-lg border bg-card/50 hover:bg-accent/50 transition-colors"
                     >
                       <Avatar className="h-8 w-8 border">
@@ -359,7 +359,7 @@ const Dashboard = () => {
         </Card>
 
         {(overdueTickets.length > 0 || dueSoonTickets.length > 0 || unassignedTickets.length > 0) && (
-          <motion.div 
+          <motion.div
             className="flex flex-wrap gap-2"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -398,10 +398,10 @@ const Dashboard = () => {
               Tiket Hari Ini {sortedTickets.length > 0 && <span className="text-muted-foreground font-normal text-sm ml-1">({sortedTickets.length} total)</span>}
             </h2>
             <div className="flex items-center gap-2">
-              <Button 
+              <Button
                 variant="whatsapp"
-                size="sm" 
-                className="gap-2 h-9 mr-2" 
+                size="sm"
+                className="gap-2 h-9 mr-2"
                 onClick={handleCopyTickets}
                 disabled={sortedTickets.length === 0}
               >
@@ -416,7 +416,7 @@ const Dashboard = () => {
               </Link>
             </div>
           </div>
-          
+
           <div className="space-y-3">
             {isLoading ? (
               <TicketCardSkeleton count={3} />
@@ -428,54 +428,54 @@ const Dashboard = () => {
               </div>
             ) : (
               <>
-                
+
                 {paginatedTickets.map((ticket) => {
                   const isGaul = allTickets.some(otherTicket => {
                     if (ticket.id === otherTicket.id) return false;
-                    
+
                     const isSameSite = ticket.siteCode === otherTicket.siteCode;
                     if (!isSameSite) return false;
-                    
+
                     const ticketDate = new Date(ticket.jamOpen).getTime();
                     const otherDate = new Date(otherTicket.jamOpen).getTime();
 
                     if (otherDate >= ticketDate) return false;
-                    
+
                     const diffTime = Math.abs(ticketDate - otherDate);
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-                    
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
                     return diffDays <= 30;
                   });
 
                   return (
-                    <TicketCard 
+                    <TicketCard
                       key={ticket.id}
-                      ticket={ticket} 
+                      ticket={ticket}
                       isGaul={isGaul}
                     />
                   );
                 })}
 
-                
+
                 {totalPages > 1 && (
                   <div className="flex justify-center mt-6 pt-2 w-full overflow-x-auto pb-2 sm:pb-0">
                     <Pagination>
                       <PaginationContent>
                         <PaginationItem>
-                          <PaginationPrevious 
+                          <PaginationPrevious
                             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                             className={cn(
-                              "cursor-pointer select-none", 
+                              "cursor-pointer select-none",
                               "pl-2.5 sm:pl-4",
                               "[&>span]:hidden [&>span]:sm:inline",
                               currentPage === 1 && "pointer-events-none opacity-50"
-                            )} 
+                            )}
                           />
                         </PaginationItem>
-                        
+
                         {Array.from({ length: totalPages }).map((_, i) => {
                           const pageNumber = i + 1;
-                          
+
                           if (
                             totalPages > 7 &&
                             pageNumber !== 1 &&
@@ -506,10 +506,10 @@ const Dashboard = () => {
                         })}
 
                         <PaginationItem>
-                          <PaginationNext 
+                          <PaginationNext
                             onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                             className={cn(
-                              "cursor-pointer select-none", 
+                              "cursor-pointer select-none",
                               "pr-2.5 sm:pr-4",
                               "[&>span]:hidden [&>span]:sm:inline",
                               currentPage === totalPages && "pointer-events-none opacity-50"
