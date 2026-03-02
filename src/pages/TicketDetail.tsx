@@ -415,7 +415,7 @@ const TicketDetail = () => {
     if (!ticket) return;
 
     const header = generateWhatsAppMessage('share', ticket);
-    const sortedUpdates = [...(ticket.progressUpdates || [])].sort((a, b) =>
+    const newestFirst = [...(ticket.progressUpdates || [])].sort((a, b) =>
       new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
     );
 
@@ -423,15 +423,18 @@ const TicketDetail = () => {
     content += "\n\n*Timeline Progress:*\n";
 
     if (type === 'latest') {
-      const latest = sortedUpdates[0];
+      const latest = newestFirst[0];
       if (latest) {
         content += `[${formatDateWIB(latest.timestamp)}] ${latest.message}`;
       } else {
         content += "Belum ada update.";
       }
     } else {
-      if (sortedUpdates.length > 0) {
-        content += sortedUpdates.map((u, i) =>
+      const oldestFirst = [...(ticket.progressUpdates || [])].sort((a, b) =>
+        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+      );
+      if (oldestFirst.length > 0) {
+        content += oldestFirst.map((u, i) =>
           `${i + 1}. [${formatDateWIB(u.timestamp)}] ${u.message}`
         ).join('\n');
       } else {

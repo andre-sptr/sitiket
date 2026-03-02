@@ -151,9 +151,8 @@ const Dashboard = () => {
     const messages = sortedTickets.map((ticket, index) => {
       const header = generateWhatsAppMessage('share', ticket);
       const sortedUpdates = [...(ticket.progressUpdates || [])].sort((a, b) =>
-        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
       );
-
       let timelineContent = "\n\n*Timeline Progress:*\n";
 
       if (sortedUpdates.length > 0) {
